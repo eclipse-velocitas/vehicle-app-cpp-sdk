@@ -1,0 +1,34 @@
+fail_fast: false
+repos:
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: clang-format
+        args: ["--style=file", "--version=14"]
+      - id: clang-tidy
+        args:
+          [
+            "--version=14",
+            "--checks=-*",
+            "--config-file=.clang-tidy",
+            "--format-style=file",
+          ]
+      - id: cpplint
+        args: ["--recursive"]
+      - id: cppcheck
+        args: [
+            "--project=build/compile_commands.json",
+            "--language=c++",
+            "--std=c++17",
+            "--error-exitcode=1",
+            "--enable=all",
+            "--suppress=noExplicitConstructor",
+            "--suppress=missingInclude",
+            "--suppress=unusedFunction",
+            "--suppress=uninitMemberVar",
+            "--suppress=unmatchedSuppression",
+            # suppress all warnings for generated code
+            "--suppress=*:build/*",
+            "--suppress=*:app/vehicle_model/*",
+            "--suppress=*:examples/vehicle_model/*",
+          ]

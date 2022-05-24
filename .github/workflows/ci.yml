@@ -1,0 +1,84 @@
+# Copyright (c) 2022 Robert Bosch GmbH
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: SDK - CI workflow
+
+concurrency:
+  group: sdk-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    # Run only on branches/commits and not tags
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-22.04
+    name: "Build, Test and Lint"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Clone vehicle_model repository
+        uses: actions/checkout@v2
+        with:
+          repository: eclipse-velocitas/vehicle-model-cpp
+          path: "./app/vehicle_model"
+
+      - name: install prerequisites
+        run: |
+          sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
+          pip3 install conan gcovr cpplint
+
+      - name: Set up GCC
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 11
+
+      - name: Install dependencies
+        run: ./install_dependencies.sh -r
+
+      - name: build
+        run: ./build.sh -r --no-app
+
+      - name: unittests
+        run: build/bin/sdk_utests
+
+      - name: Generate coverage report
+        run: cd build && gcovr -r ..
+
+      - name: Code Coverage Summary Report
+        uses: irongut/CodeCoverageSummary@v1.2.0
+        with:
+          filename: build/coverage.cobertura.xml
+          badge: true
+          format: markdown
+          hide_complexity: true
+          indicators: true
+          output: both
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
+
+      - name: Run Linters
+        uses: pre-commit/action@v3.0.0

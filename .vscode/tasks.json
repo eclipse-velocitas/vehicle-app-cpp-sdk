@@ -1,0 +1,352 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dapr-VehicleApp-run",
+			"appId": "vehicleapp",
+			"componentsPath": "./.dapr/components",
+			"config": "./.dapr/config.yaml",
+			"grpcPort": 50001,
+			"httpPort": 3500,
+			"type": "dapr",
+			"presentation": {
+				"close": true,
+				"reveal": "never"
+			},
+		},
+		{
+			"label": "dapr-VehicleApp-stop",
+			"type": "shell",
+			"command": [
+				"dapr stop --app-id vehicleapp"
+			],
+			"presentation": {
+				"close": true,
+				"reveal": "never"
+			},
+		},
+		{
+			"label": "Local - Mosquitto",
+			"detail": "Runs Mosquitto MQTT Broker in a container (with docker run) with exposed port 1883.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/local/run-mosquitto.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 4
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^\\d{10}: mosquitto version \\d{1}\\.\\d{1}\\.\\d{1} starting$",
+					"endsPattern": "^\\d{10}: Opening ipv6 listen socket on port \\d{3,5}\\.$"
+				}
+			}
+		},
+		{
+			"label": "Local - VehicleDataBroker",
+			"detail": "Runs the VehicleDataBroker as background task.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/local/run-vehicledatabroker.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^You're up and running! Dapr logs will appear here.",
+					"endsPattern": "."
+				}
+			}
+		},
+		{
+			"label": "Local - VehicleDataBroker CLI",
+			"detail": "Starts the VehicleDataBroker CLI",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/local/run-vehicledatabroker-cli.sh",
+			"group": "none",
+			"isBackground": false,
+		},
+		{
+			"label": "Local - VehicleServices",
+			"detail": "Runs all configured VehicleServices as background task.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/local/run-vehicleservices.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^You're up and running! Dapr logs will appear here.",
+					"endsPattern": "."
+				}
+			}
+		},
+		{
+			"label": "Local - FeederCan",
+			"detail": "Runs FeederCan as background task.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/local/run-feedercan.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^You're up and running! Dapr logs will appear here.",
+					"endsPattern": "."
+				}
+			}
+		},
+		{
+			"label": "Local - Start VehicleApp runtime",
+			"detail": "Runs all components of the VehicleApp runtime.",
+			"dependsOn": [
+				"Local - Mosquitto",
+				"Local - VehicleDataBroker",
+				"Local - VehicleServices",
+				"Local - FeederCan"
+			],
+			"dependsOrder": "sequence"
+		},
+		{
+			"label": "Local - VehicleApp (Dapr run)",
+			"detail": "Start VehicleApp with dapr run (p.e. for running integration tests locally).",
+			"type": "shell",
+			"command": [
+				"dapr run",
+				"--app-id vehicleapp",
+				"--app-protocol grpc",
+				"--dapr-grpc-port 50001",
+				"--dapr-http-port 3500",
+				"--config ./.dapr/config.yaml",
+				"build/bin/App"
+			],
+			"group": "none",
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^You're up and running! Both Dapr and your app logs will appear here.",
+					"endsPattern": "."
+				}
+			}
+		},
+		{
+			"label": "K3D - Install prerequisites",
+			"detail": "Install prerequisite components K3D, Helm, KubeCTL and Dapr without configuring them.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/install_prerequisites.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				//"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+		},
+		{
+			"label": "K3D - Configure control plane",
+			"detail": "Creates a local container registry used by K3D as well as an K3D cluster with Dapr enabled.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/configure_controlplane.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				//"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Install prerequisites"
+			]
+		},
+		{
+			"label": "K3D - Deploy runtime",
+			"detail": "Deploys the runtime components (like Vehicle Data Broker, Seat Service, ...) within the K3D cluster.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/deploy_runtime.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				//"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Configure control plane"
+			]
+		},
+		{
+			"label": "K3D - Build VehicleApp",
+			"detail": "Builds the VehicleApp and pushes it to the local K3D registry.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/build_vehicleapp.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Deploy runtime"
+			]
+		},
+		{
+			"label": "K3D - Deploy VehicleApp",
+			"detail": "Builds and deploys the VehicleApp via Helm to the K3D cluster.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/deploy_vehicleapp.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Build VehicleApp"
+			]
+		},
+		{
+			"label": "K3D - Deploy VehicleApp (without rebuild)",
+			"detail": "Deploys the VehicleApp via Helm to the K3D cluster (without rebuilding it)",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/deploy_vehicleapp.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Deploy runtime"
+			]
+		},
+		{
+			"label": "K3D - Install tooling",
+			"detail": "Installs tooling for local debugging (K9s, Kubernetes Dashboard)",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/install_tooling.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Configure control plane"
+			]
+		},
+		{
+			"label": "K3D - Uninstall runtime",
+			"detail": "Uninstalls the runtime components from the K3D cluster (without deleting the cluster).",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/uninstall_runtime.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Configure control plane"
+			]
+		},
+		{
+			"label": "K3D - Reset control plane",
+			"detail": "Deletes the K3D cluster with all deployed pods/services.",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/k3d/reset_controlplane.sh",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D - Install prerequisites"
+			]
+		},
+		// CPP specific tasks
+		{
+			"label": "CPP - Calculate code coverage",
+			"detail": "Calculates code coverage of the c++ SDK",
+			"type": "shell",
+			"command": "cd build && gcovr -r ..",
+			"group": "none",
+			"dependsOn": [
+				"CMake: Run Tests"
+			],
+			"presentation": {
+				"close": false,
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "CPP - Build and Run daprized App",
+			"detail": "Builds and runs the VehicleApp with dapr",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"CMake: build",
+				"dapr-VehicleApp-run"
+			]
+		}
+	]
+}
