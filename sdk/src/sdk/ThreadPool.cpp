@@ -18,42 +18,42 @@
 
 namespace velocitas {
 
-ThreadPool::ThreadPool() {
-    constexpr size_t numThreads{2};
-
-    for (size_t i = 0; i < numThreads; ++i) {
-        auto workerThread = std::make_unique<std::thread>([this]() { threadLoop(); });
-        m_workerThreads.push_back(std::move(workerThread));
+ThreadPool::ThreadPool(size_t numWorkerThreads)
+    : m_workerThreads{numWorkerThreads} {
+    for (size_t i = 0; i < numWorkerThreads; ++i) {
+        m_workerThreads[i] = std::thread([this]() { threadLoop(); });
     }
 }
 
+ThreadPool::ThreadPool()
+    : ThreadPool(2) {}
+
 ThreadPool::~ThreadPool() {
-    m_isRunning = false;
+    {
+        std::lock_guard lock{m_queueMutex};
+        m_isRunning = false;
+    }
     m_cv.notify_all();
 
     for (auto& thread : m_workerThreads) {
-        thread->join();
+        thread.join();
     }
 }
 
 std::shared_ptr<ThreadPool> ThreadPool::getInstance() {
-    static std::shared_ptr<ThreadPool> instance{nullptr};
-
-    if (!instance) {
-        instance = std::make_shared<ThreadPool>();
-    }
-
+    static std::shared_ptr<ThreadPool> instance{std::make_shared<ThreadPool>()};
     return instance;
 }
+
+size_t ThreadPool::getNumWorkerThreads() const { return m_workerThreads.size(); }
 
 void ThreadPool::execute(JobPtr_t job) {
     std::lock_guard<std::mutex> lock(m_queueMutex);
     m_jobs.emplace(std::move(job));
-    m_cv.notify_all();
+    m_cv.notify_one();
 }
 
 void ThreadPool::threadLoop() {
-    std::mutex waitMutex;
     while (m_isRunning) {
         JobPtr_t job;
         {
@@ -67,8 +67,8 @@ void ThreadPool::threadLoop() {
         if (job) {
             job->execute(job, *this);
         } else {
-            std::unique_lock<std::mutex> lock(waitMutex);
-            m_cv.wait(lock);
+            std::unique_lock<std::mutex> lock(m_queueMutex);
+            m_cv.wait(lock, [this] { return !m_jobs.empty() || !m_isRunning; });
         }
     }
 }
