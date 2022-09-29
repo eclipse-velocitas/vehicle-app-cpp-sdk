@@ -32,6 +32,8 @@ ThreadPool::~ThreadPool() {
     {
         std::lock_guard lock{m_queueMutex};
         m_isRunning = false;
+        // empty the job queue (std::queue does not offer a clear function)
+        std::queue<JobPtr_t>().swap(m_jobs);
     }
     m_cv.notify_all();
 
@@ -65,7 +67,10 @@ void ThreadPool::threadLoop() {
         }
 
         if (job) {
-            job->execute(job, *this);
+            job->execute();
+            if (job->shallRecur()) {
+                execute(job);
+            }
         } else {
             std::unique_lock<std::mutex> lock(m_queueMutex);
             m_cv.wait(lock, [this] { return !m_jobs.empty() || !m_isRunning; });

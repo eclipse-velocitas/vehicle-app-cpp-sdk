@@ -22,14 +22,17 @@
 using namespace velocitas;
 using namespace std::chrono_literals;
 
+static const unsigned int DEFAULT_TIMEOUT = 60 * 000; // 1 min.
+
 class MockJob : public velocitas::IJob {
 public:
     enum State { Initialized, Executing, Finished };
 
-    void execute(JobPtr_t& thisJobPtr, ThreadPool& pool) override {
+    void execute() override {
         {
             std::lock_guard lock(m_executionMutex);
             m_executionState = Executing;
+            m_executionCount++;
             m_executionStateCV.notify_all();
         }
         {
@@ -39,6 +42,7 @@ public:
         {
             std::lock_guard lock(m_executionMutex);
             m_executionState = Finished;
+            m_stopJob        = false;
             m_executionStateCV.notify_all();
         }
     }
@@ -49,16 +53,23 @@ public:
     }
     bool waitForExecution(unsigned int timeoutInMs) {
         std::unique_lock lock{m_executionMutex};
+        if (timeoutInMs == 0) {
+            timeoutInMs = DEFAULT_TIMEOUT;
+        }
         return m_executionStateCV.wait_for(lock, timeoutInMs * 1ms,
                                            [this] { return m_executionState == Executing; });
     }
     bool waitForFinished(unsigned int timeoutInMs) {
         std::unique_lock lock{m_executionMutex};
+        if (timeoutInMs == 0) {
+            timeoutInMs = DEFAULT_TIMEOUT;
+        }
         return m_executionStateCV.wait_for(lock, timeoutInMs * 1ms,
                                            [this] { return m_executionState == Finished; });
     }
     [[nodiscard]] State getExecutionState() const { return m_executionState; }
 
+    std::atomic_uint        m_executionCount{0};
     std::atomic<State>      m_executionState{Initialized};
     std::mutex              m_executionMutex;
     std::condition_variable m_executionStateCV;
@@ -68,6 +79,14 @@ public:
 };
 
 using MockJobPtr_t = std::shared_ptr<MockJob>;
+
+class MockRecurringJob : public MockJob {
+public:
+    [[nodiscard]] bool shallRecur() const override { return m_doRecur; }
+    void               cancel() { m_doRecur = false; }
+
+    std::atomic_bool m_doRecur{true};
+};
 
 class Test_ThreadPool : public ::testing::Test {
 protected:
@@ -187,4 +206,38 @@ TEST_F(Test_ThreadPool, destroyThreadPool_oneQueuedJob_cleanlyTerminates) {
     });
     stopCreatedJobs();
     EXPECT_NO_THROW(poolKiller.join());
+}
+
+TEST_F(Test_ThreadPool, finishJob_jobExecuting_jobNotExecutedAgain) {
+    auto job = std::make_shared<MockJob>();
+    m_pool->execute(job);
+    ASSERT_TRUE(job->waitForExecution(2));
+
+    EXPECT_TRUE(finishJob(job, 2));
+    EXPECT_FALSE(job->waitForExecution(10));
+    EXPECT_EQ(1, job->m_executionCount);
+}
+
+TEST_F(Test_ThreadPool, finishRecurringJob_jobExecutingAndCancelled_jobNotExecutedAgain) {
+    auto job = std::make_shared<MockRecurringJob>();
+    m_pool->execute(job);
+    ASSERT_TRUE(job->waitForExecution(2));
+    job->cancel();
+
+    EXPECT_TRUE(finishJob(job, 2));
+    EXPECT_FALSE(job->waitForExecution(10));
+    EXPECT_EQ(1, job->m_executionCount);
+}
+
+TEST_F(Test_ThreadPool, finishRecurringJob_jobExecuting_jobIsExecutedAgain) {
+    auto job = std::make_shared<MockRecurringJob>();
+    m_pool->execute(job);
+    ASSERT_TRUE(job->waitForExecution(2));
+
+    finishJob(job, 2);
+    EXPECT_TRUE(job->waitForExecution(10));
+    EXPECT_EQ(2, job->m_executionCount);
+
+    job->cancel();
+    job->finish();
 }

@@ -17,19 +17,15 @@
 #ifndef VEHICLE_APP_SDK_JOB_H
 #define VEHICLE_APP_SDK_JOB_H
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <mutex>
 
 namespace velocitas {
 
-class ThreadPool;
-class IJob;
-using JobPtr_t = std::shared_ptr<IJob>;
-
 /**
  * @brief Interface for jobs which can be executed by a worker in the thread pool.
- *
  */
 class IJob {
 public:
@@ -38,13 +34,16 @@ public:
 
     /**
      * @brief Execute the job.
-     *
-     * @param thisJobPtr    A smart pointer to this job. Allows sub classes to i.e. re-trigger the
-     *                      very same job instance.
-     * @param pool          The pool that is executing the job. Allows sub classes to i.e.
-     *                      re-trigger the same job.
      */
-    virtual void execute(JobPtr_t& thisJobPtr, ThreadPool& pool) = 0; // NOLINT
+    virtual void execute() = 0;
+
+    /**
+     * @brief Indicates if this job shall be recurred after its termination
+     *
+     * @return true - recur this job
+     * @return false - don't recure
+     */
+    [[nodiscard]] virtual bool shallRecur() const { return false; }
 
     IJob(const IJob&)            = delete;
     IJob(IJob&&)                 = delete;
@@ -52,9 +51,10 @@ public:
     IJob& operator=(IJob&&)      = delete;
 };
 
+using JobPtr_t = std::shared_ptr<IJob>;
+
 /**
  * @brief A nonrecurring job.
- *
  */
 class Job : public IJob {
 public:
@@ -62,20 +62,19 @@ public:
 
     explicit Job(std::function<void()> fun);
 
-    void execute(JobPtr_t& /*thisJobPtr*/, ThreadPool& /*pool*/) override;
+    void execute() override;
 
-    std::function<void()> getFunction() { return m_fun; }
+    [[nodiscard]] std::function<void()> getFunction() const { return m_fun; }
 
-    void waitForTermination();
+    void waitForTermination() const;
 
 private:
     std::function<void()> m_fun;
-    std::mutex            m_terminationMutex;
+    mutable std::mutex    m_terminationMutex;
 };
 
 /**
  * @brief A recurring job which can be cancelled manually.
- *
  */
 class RecurringJob : public Job {
 public:
@@ -83,14 +82,19 @@ public:
         return std::make_shared<RecurringJob>(fun);
     }
 
-    void execute(JobPtr_t& thisJobPtr, ThreadPool& pool) override;
-
-    void cancel() { m_isCancelled = true; }
-
     using Job::Job;
 
+    void execute() override;
+
+    /**
+     * @brief Prevents execution of the function once called.
+     */
+    void cancel() { m_isCancelled = true; }
+
+    [[nodiscard]] bool shallRecur() const override { return !m_isCancelled; }
+
 private:
-    bool m_isCancelled{false};
+    std::atomic_bool m_isCancelled{false};
 };
 
 } // namespace velocitas

@@ -15,27 +15,22 @@
  */
 
 #include "sdk/Job.h"
-#include "sdk/ThreadPool.h"
 
 namespace velocitas {
 
 Job::Job(std::function<void()> fun)
     : m_fun(std::move(fun)) {}
 
-void Job::waitForTermination() { std::scoped_lock lock(m_terminationMutex); }
+void Job::waitForTermination() const { std::lock_guard lock(m_terminationMutex); }
 
-void Job::execute(JobPtr_t& /*thisJobPtr*/, ThreadPool& /*pool*/) {
-    std::scoped_lock lock(m_terminationMutex);
+void Job::execute() {
+    std::lock_guard lock(m_terminationMutex);
     m_fun();
 }
 
-void RecurringJob::execute(JobPtr_t& thisJobPtr, ThreadPool& pool) {
+void RecurringJob::execute() {
     if (!m_isCancelled) {
-        Job::execute(thisJobPtr, pool);
-    }
-
-    if (!m_isCancelled) {
-        pool.execute(thisJobPtr);
+        Job::execute();
     }
 }
 
