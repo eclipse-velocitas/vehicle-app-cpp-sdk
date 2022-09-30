@@ -97,7 +97,7 @@ protected:
     bool createAndExecuteJob(unsigned int timeoutInMs = 0) {
         auto job = std::make_shared<MockJob>();
         m_mockJobs.push(job);
-        m_pool->execute(job);
+        m_pool->enqueue(job);
         return job->waitForExecution(timeoutInMs);
     }
 
@@ -139,22 +139,22 @@ TEST_F(Test_ThreadPool, getInstance_secondTime_returnsSameInstance) {
 
 TEST_F(Test_ThreadPool, callThreadPoolCtr_none_noFailure) { EXPECT_TRUE(m_pool); }
 
-TEST_F(Test_ThreadPool, execute_firstJob_executeJob) {
+TEST_F(Test_ThreadPool, enqueue_firstJob_jobExecuting) {
     auto job = std::make_shared<MockJob>();
     ASSERT_EQ(MockJob::Initialized, job->getExecutionState());
 
-    m_pool->execute(job);
+    m_pool->enqueue(job);
     EXPECT_TRUE(job->waitForExecution(2));
     EXPECT_EQ(MockJob::Executing, job->getExecutionState());
 
     job->finish();
 }
 
-TEST_F(Test_ThreadPool, executeOccupyingAllWorkers_noActiveWorkers_allJobExecuting) {
+TEST_F(Test_ThreadPool, enqueueOccupyingAllWorkers_noActiveWorkers_allJobExecuting) {
     EXPECT_TRUE(occupyAllWorkers());
 }
 
-TEST_F(Test_ThreadPool, execute_allWorkersOccupied_jobNotExectuted) {
+TEST_F(Test_ThreadPool, enqueue_allWorkersOccupied_jobNotExectuted) {
     ASSERT_TRUE(occupyAllWorkers());
 
     EXPECT_FALSE(createAndExecuteJob(10));
@@ -171,7 +171,7 @@ TEST_F(Test_ThreadPool, stopExecutingOneJob_queuedJob_jobExectuted) {
 
 TEST_F(Test_ThreadPool, stopExecutingJob_queuedEmptyJobAndJob_emptyJobIgnoredAndJobExectuted) {
     ASSERT_TRUE(occupyAllWorkers());
-    m_pool->execute(nullptr);
+    m_pool->enqueue(nullptr);
     ASSERT_FALSE(createAndExecuteJob(0));
 
     auto job = m_mockJobs.front();
@@ -197,7 +197,7 @@ TEST_F(Test_ThreadPool, destroyThreadPool_occupiedWorkers_waitForWorkersFinished
 TEST_F(Test_ThreadPool, destroyThreadPool_oneQueuedJob_cleanlyTerminates) {
     ASSERT_TRUE(occupyAllWorkers());
     auto queuedJob = std::make_shared<MockJob>();
-    m_pool->execute(queuedJob);
+    m_pool->enqueue(queuedJob);
     m_mockJobs.push(queuedJob);
 
     std::thread poolKiller([this] {
@@ -210,7 +210,7 @@ TEST_F(Test_ThreadPool, destroyThreadPool_oneQueuedJob_cleanlyTerminates) {
 
 TEST_F(Test_ThreadPool, finishJob_jobExecuting_jobNotExecutedAgain) {
     auto job = std::make_shared<MockJob>();
-    m_pool->execute(job);
+    m_pool->enqueue(job);
     ASSERT_TRUE(job->waitForExecution(2));
 
     EXPECT_TRUE(finishJob(job, 2));
@@ -220,7 +220,7 @@ TEST_F(Test_ThreadPool, finishJob_jobExecuting_jobNotExecutedAgain) {
 
 TEST_F(Test_ThreadPool, finishRecurringJob_jobExecutingAndCancelled_jobNotExecutedAgain) {
     auto job = std::make_shared<MockRecurringJob>();
-    m_pool->execute(job);
+    m_pool->enqueue(job);
     ASSERT_TRUE(job->waitForExecution(2));
     job->cancel();
 
@@ -231,7 +231,7 @@ TEST_F(Test_ThreadPool, finishRecurringJob_jobExecutingAndCancelled_jobNotExecut
 
 TEST_F(Test_ThreadPool, finishRecurringJob_jobExecuting_jobIsExecutedAgain) {
     auto job = std::make_shared<MockRecurringJob>();
-    m_pool->execute(job);
+    m_pool->enqueue(job);
     ASSERT_TRUE(job->waitForExecution(2));
 
     finishJob(job, 2);

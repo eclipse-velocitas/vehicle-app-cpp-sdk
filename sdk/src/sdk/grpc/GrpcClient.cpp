@@ -22,7 +22,7 @@ namespace velocitas {
 
 GrpcClient::GrpcClient() {
     m_recurringJob = std::make_shared<RecurringJob>([this]() { pruneCompletedRequests(); });
-    ThreadPool::getInstance()->execute(m_recurringJob);
+    ThreadPool::getInstance()->enqueue(m_recurringJob);
 }
 
 GrpcClient::~GrpcClient() {

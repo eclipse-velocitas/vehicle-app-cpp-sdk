@@ -49,7 +49,7 @@ std::shared_ptr<ThreadPool> ThreadPool::getInstance() {
 
 size_t ThreadPool::getNumWorkerThreads() const { return m_workerThreads.size(); }
 
-void ThreadPool::execute(JobPtr_t job) {
+void ThreadPool::enqueue(JobPtr_t job) {
     std::lock_guard<std::mutex> lock(m_queueMutex);
     m_jobs.emplace(std::move(job));
     m_cv.notify_one();
@@ -69,7 +69,7 @@ void ThreadPool::threadLoop() {
         if (job) {
             job->execute();
             if (job->shallRecur()) {
-                execute(job);
+                enqueue(job);
             }
         } else {
             std::unique_lock<std::mutex> lock(m_queueMutex);

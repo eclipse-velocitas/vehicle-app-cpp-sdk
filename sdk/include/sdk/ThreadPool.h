@@ -50,11 +50,11 @@ public:
     [[nodiscard]] size_t getNumWorkerThreads() const;
 
     /**
-     * @brief Execute the given job asynchronously in one of the worker threads.
+     * @brief Enqueue the given job to be executed asynchronously by one of the worker threads.
      *
      * @param job  The job to execute.
      */
-    void execute(JobPtr_t job);
+    void enqueue(JobPtr_t job);
 
     ThreadPool(const ThreadPool&)            = delete;
     ThreadPool(ThreadPool&&)                 = delete;
