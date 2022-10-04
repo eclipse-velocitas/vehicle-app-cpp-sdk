@@ -163,6 +163,17 @@ public:
      */
     [[nodiscard]] bool isInAwaitingState() const { return m_awaiting; }
 
+    template <typename TType>
+    std::shared_ptr<AsyncResult<TType>> map(std::function<TType(const TResultType&)> mapper) {
+        auto mappedResult = std::make_shared<AsyncResult<TType>>();
+
+        onResult([mappedResult, mapper](auto item) { mappedResult->insertResult(mapper(item)); });
+
+        onError([mappedResult](auto status) { mappedResult->insertError(std::move(status)); });
+
+        return mappedResult;
+    }
+
 private:
     TResultType      m_result;
     ResultCallback_t m_callback;

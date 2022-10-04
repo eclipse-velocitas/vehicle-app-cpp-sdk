@@ -17,6 +17,10 @@
 #ifndef VEHICLE_APP_SDK_DATAPOINTSRESULT_H
 #define VEHICLE_APP_SDK_DATAPOINTSRESULT_H
 
+#include "sdk/Exceptions.h"
+
+#include <fmt/core.h>
+
 #include <map>
 #include <string>
 
@@ -49,17 +53,22 @@ public:
     [[nodiscard]] std::shared_ptr<TDataPointType> get(const TDataPointType& dataPoint) const {
         static_assert(std::is_base_of_v<DataPoint, TDataPointType>);
 
+        if (m_dataPointsMap.find(dataPoint.getPath()) == m_dataPointsMap.end()) {
+            throw InvalidValueException(
+                fmt::format("{} is not contained in result!", dataPoint.getPath()));
+        }
+
         auto result = m_dataPointsMap.at(dataPoint.getPath());
         return std::dynamic_pointer_cast<TDataPointType>(result);
     }
 
-  /**
-   * @brief Check if the result is empty.
-   *
-   * @return true   Result is empty.
-   * @return false  Result is not empty.
-   */
-  bool empty() { return m_dataPointsMap.empty(); }
+    /**
+     * @brief Check if the result is empty.
+     *
+     * @return true   Result is empty.
+     * @return false  Result is not empty.
+     */
+    bool empty() { return m_dataPointsMap.empty(); }
 
 private:
     DataPointMap_t m_dataPointsMap;
