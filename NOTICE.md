@@ -65,3 +65,9 @@ they are given here (manually added) for time being:
 |protobuf|3.21.4|Google License|
 |re2|20220601|BSD-3-Clause|
 |zlib|1.2.12|zlib/libpng license|
+
+### Additional 3rd-party dependencies
+
+| Dependency | Source | License |
+|:-----------|:-------:|--------:|
+|.devcontainer/scripts/reinstall-cmake.sh|https://github.com/microsoft/vscode-dev-containers/tree/main/containers/cpp/.devcontainer|MIT|
