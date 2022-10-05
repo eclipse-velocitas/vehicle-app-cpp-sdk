@@ -55,8 +55,6 @@ class VehicleAppCppSdkConan(ConanFile):
         self.options["grpc"].python_plugin = False
         self.options["grpc"].ruby_plugin = False
 
-        
-
     def layout(self):
         cmake_layout(self, src_folder="sdk")
 
@@ -69,7 +67,7 @@ class VehicleAppCppSdkConan(ConanFile):
     def build(self):
         build_type = self.settings.get_safe("build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
-        subprocess.call(f"cd ../.. && ./build.sh {option} --no-examples --no-app", shell=True)
+        subprocess.call(f"cd ../.. && ./build.sh {option} --no-examples", shell=True)
 
     def package(self):
         subprocess.call("pwd", shell=True)
