@@ -22,7 +22,7 @@ SPDX-License-Identifier: Apache-2.0
 
 | Software                   | License                                                                                                                                                                      |
 |:---------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Microsoft CPP DevContainer | <https://github.com/microsoft/containerregistry/blob/main/legal/Container-Images-Legal-Notice.md>, <https://github.com/microsoft/vscode-dev-containers/blob/main/NOTICE.txt> |
+| Microsoft CPP DevContainer (including .devcontainer/scripts/reinstall-cmake.sh)| <https://github.com/microsoft/containerregistry/blob/main/legal/Container-Images-Legal-Notice.md>, <https://github.com/microsoft/vscode-dev-containers/blob/main/NOTICE.txt>, <https://github.com/microsoft/vscode-dev-containers/blob/main/LICENSE> |
 
 ### Development
 
@@ -65,9 +65,3 @@ they are given here (manually added) for time being:
 |protobuf|3.21.4|Google License|
 |re2|20220601|BSD-3-Clause|
 |zlib|1.2.12|zlib/libpng license|
-
-### Additional 3rd-party dependencies
-
-| Dependency | Source | License |
-|:-----------|:-------:|--------:|
-|.devcontainer/scripts/reinstall-cmake.sh|https://github.com/microsoft/vscode-dev-containers/tree/main/containers/cpp/.devcontainer|MIT|
