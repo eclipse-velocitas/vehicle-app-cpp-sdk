@@ -18,7 +18,6 @@ set(SDK_STANDALONE ON CACHE BOOL "Build the SDK in standalone mode.")
 set(SDK_BUILD_TESTS ON CACHE BOOL "Build the SDK tests.")
 set(SDK_BUILD_EXAMPLES ON CACHE BOOL "Build the SDK examples.")
 set(STATIC_BUILD OFF CACHE BOOL "Build all targets with external dependencies linked in statically.")
-set(APP_ENABLE_BUILD ON CACHE BOOL "Build the Vehicle App") # will be moved to template in the future
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -55,10 +54,6 @@ endif(SDK_STANDALONE)
 
 if(SDK_BUILD_TESTS)
     enable_testing()
-endif()
-
-if(APP_ENABLE_BUILD)
-    add_subdirectory(app)
 endif()
 
 add_subdirectory(sdk)

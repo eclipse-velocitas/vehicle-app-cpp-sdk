@@ -30,9 +30,9 @@ class VehicleAppCppSdkConan(ConanFile):
 
     scm = {
         "type": "git",  # Use "type": "svn", if local repo is managed using SVN
-        "subfolder": "VehicleAppCppSdk",
-        "url": "auto",
-        "revision": "auto"
+        "subfolder": "vehicle-app-sdk",
+        "url": "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk",
+        "revision": "main"
      }
 
     # Binary configuration
@@ -73,12 +73,15 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package(self):
         subprocess.call("pwd", shell=True)
-        self.copy("sdk/include/*.h", src="..", keep_path=True)
-        self.copy("*.h", src="../build/gens", dst="sdk/include", keep_path=True)
-        self.copy("libvehicle-app-sdk.a", src="../build/lib", dst="lib", keep_path=False)
+        self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
+        self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
+        self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ["VehicleAppCppSdk"]
+        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.libdirs = ["lib"]
+        self.cpp_info.bindirs = ["bin"]
+        self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
 
     def imports(self):
         self.copy("license*", src=".", dst="./licenses", folder=True, ignore_case=True)
