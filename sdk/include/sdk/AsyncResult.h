@@ -163,9 +163,17 @@ public:
      */
     [[nodiscard]] bool isInAwaitingState() const { return m_awaiting; }
 
-    template <typename TType>
-    std::shared_ptr<AsyncResult<TType>> map(std::function<TType(const TResultType&)> mapper) {
-        auto mappedResult = std::make_shared<AsyncResult<TType>>();
+    /**
+     * @brief Map the result to a different type using the provided mapper function.
+     *
+     * @tparam TNewType    The new type created by the mapper function.
+     * @param mapper       The mapper function to convert TResultType to TNewType.
+     * @return std::shared_ptr<AsyncResult<TNewType>>
+     *                     A new AsyncResult object which emits results of TNewType.
+     */
+    template <typename TNewType>
+    std::shared_ptr<AsyncResult<TNewType>> map(std::function<TNewType(const TResultType&)> mapper) {
+        auto mappedResult = std::make_shared<AsyncResult<TNewType>>();
 
         onResult([mappedResult, mapper](auto item) { mappedResult->insertResult(mapper(item)); });
 
