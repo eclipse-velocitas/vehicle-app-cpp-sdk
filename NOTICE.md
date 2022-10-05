@@ -22,7 +22,7 @@ SPDX-License-Identifier: Apache-2.0
 
 | Software                   | License                                                                                                                                                                      |
 |:---------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Microsoft CPP DevContainer | <https://github.com/microsoft/containerregistry/blob/main/legal/Container-Images-Legal-Notice.md>, <https://github.com/microsoft/vscode-dev-containers/blob/main/NOTICE.txt> |
+| Microsoft CPP DevContainer (including .devcontainer/scripts/reinstall-cmake.sh)| <https://github.com/microsoft/containerregistry/blob/main/legal/Container-Images-Legal-Notice.md>, <https://github.com/microsoft/vscode-dev-containers/blob/main/NOTICE.txt>, <https://github.com/microsoft/vscode-dev-containers/blob/main/LICENSE> |
 
 ### Development
 
