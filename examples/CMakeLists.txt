@@ -14,4 +14,4 @@
 
 add_subdirectory(vehicle_model)
 
-add_subdirectory(SeatAdjuster)
+add_subdirectory(seat-adjuster)

@@ -19,6 +19,7 @@
 #include "sdk/IPubSubClient.h"
 #include "sdk/IVehicleDataBrokerClient.h"
 #include "sdk/Logger.h"
+#include "sdk/dapr/DaprSupport.h"
 
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
@@ -39,6 +40,8 @@ void VehicleApp::run() {
     m_pubSubClient->connect();
 
     logger().info("Running App...");
+
+    dapr::waitForSidecar();
 
     onStart();
 

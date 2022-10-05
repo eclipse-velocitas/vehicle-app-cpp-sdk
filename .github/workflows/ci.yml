@@ -55,7 +55,7 @@ jobs:
         run: ./install_dependencies.sh -r
 
       - name: build
-        run: ./build.sh -r --no-app
+        run: ./build.sh -r
 
       - name: unittests
         run: build/bin/sdk_utests
