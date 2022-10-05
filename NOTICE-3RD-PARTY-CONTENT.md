@@ -8,10 +8,10 @@
 |cfgv|3.3.1|MIT|
 |charset-normalizer|2.1.1|MIT|
 |colorama|0.4.5|BSD|
-|conan|1.52.0|MIT|
+|conan|1.53.0|MIT|
 |cpplint|1.6.1|New BSD|
 |distlib|0.3.6|Python Software Foundation License|
-|distro|1.6.0|Apache 2.0|
+|distro|1.7.0|Apache 2.0|
 |fasteners|0.18|Apache 2.0|
 |filelock|3.8.0|Public Domain|
 |gcovr|5.2|BSD|
