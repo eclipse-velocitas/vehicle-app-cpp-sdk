@@ -55,6 +55,5 @@
 |EnricoMi/publish-unit-test-result-action|v1|Apache License 2.0|
 |fusion-engineering/setup-git-credentials|v2|BSD 2-Clause "Simplified" License|
 |irongut/CodeCoverageSummary|v1.2.0|MIT License|
-|marocchino/sticky-pull-request-comment|v2|MIT License|
 |pre-commit/action|v3.0.0|MIT License|
 |softprops/action-gh-release|v1|MIT License|
