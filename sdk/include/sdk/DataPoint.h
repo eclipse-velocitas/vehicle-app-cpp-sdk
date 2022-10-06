@@ -134,6 +134,8 @@ class DataPointBoolean : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = bool;
+
     ~DataPointBoolean() override = default;
 
     DataPointBoolean(const DataPointBoolean&)            = delete;
@@ -153,6 +155,8 @@ public:
 class DataPointBooleanArray : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<bool>;
 
     ~DataPointBooleanArray() override = default;
 
@@ -174,6 +178,8 @@ class DataPointInt32 : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = int32_t;
+
     ~DataPointInt32() override = default;
 
     DataPointInt32(const DataPointInt32&)            = delete;
@@ -193,6 +199,8 @@ public:
 class DataPointInt32Array : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<int32_t>;
 
     ~DataPointInt32Array() override = default;
 
@@ -216,6 +224,8 @@ class DataPointInt64 : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = int64_t;
+
     ~DataPointInt64() override = default;
 
     DataPointInt64(const DataPointInt64&)            = delete;
@@ -235,6 +245,8 @@ public:
 class DataPointInt64Array : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<int64_t>;
 
     ~DataPointInt64Array() override = default;
 
@@ -258,6 +270,8 @@ class DataPointUint32 : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = uint32_t;
+
     ~DataPointUint32() override = default;
 
     DataPointUint32(const DataPointUint32&)            = delete;
@@ -277,6 +291,8 @@ public:
 class DataPointUint32Array : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<uint32_t>;
 
     ~DataPointUint32Array() override = default;
 
@@ -300,6 +316,8 @@ class DataPointUint64 : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = uint64_t;
+
     ~DataPointUint64() override = default;
 
     DataPointUint64(const DataPointUint64&)            = delete;
@@ -319,6 +337,8 @@ public:
 class DataPointUint64Array : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<uint64_t>;
 
     ~DataPointUint64Array() override = default;
 
@@ -342,6 +362,8 @@ class DataPointFloat : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = float;
+
     ~DataPointFloat() override = default;
 
     DataPointFloat(const DataPointFloat&)            = delete;
@@ -361,6 +383,8 @@ public:
 class DataPointFloatArray : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<float>;
 
     ~DataPointFloatArray() override = default;
 
@@ -384,6 +408,8 @@ class DataPointDouble : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = double;
+
     ~DataPointDouble() override = default;
 
     DataPointDouble(const DataPointDouble&)            = delete;
@@ -403,6 +429,8 @@ public:
 class DataPointDoubleArray : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<double>;
 
     ~DataPointDoubleArray() override = default;
 
@@ -426,6 +454,8 @@ class DataPointString : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
+    using value_type = std::string;
+
     ~DataPointString() override = default;
 
     DataPointString(const DataPointString&)            = delete;
@@ -445,6 +475,8 @@ public:
 class DataPointStringArray : public DataPoint {
 public:
     using DataPoint::DataPoint;
+
+    using value_type = std::vector<std::string>;
 
     ~DataPointStringArray() override = default;
 
