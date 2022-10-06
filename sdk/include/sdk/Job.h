@@ -38,7 +38,7 @@ public:
     virtual void execute() = 0;
 
     /**
-     * @brief Indicates if this job shall be recurred after its termination
+     * @brief Indicates if this job shall recur after its execution.
      *
      * @return true - recur this job
      * @return false - don't recure
