@@ -32,7 +32,7 @@ TEST(Test_ScopedBoolInverter, create_boolIsTrue_boolIsFalse) {
     EXPECT_FALSE(testBool);
 }
 
-TEST(Test_ScopedBoolInverter, destroy_boolIsFalse_boolIsTrue) {
+TEST(Test_ScopedBoolInverter, destroy_boolSetToFalseAfterConstruction_boolIsTrue) {
     bool testBool = false;
     {
         ScopedBoolInverter cut{testBool};
@@ -41,7 +41,7 @@ TEST(Test_ScopedBoolInverter, destroy_boolIsFalse_boolIsTrue) {
     EXPECT_TRUE(testBool);
 }
 
-TEST(Test_ScopedBoolInverter, destroy_boolIsTrue_boolIsFalse) {
+TEST(Test_ScopedBoolInverter, destroy_boolSetToTrueAfterConstruction_boolIsFalse) {
     bool testBool = false;
     {
         ScopedBoolInverter cut{testBool};

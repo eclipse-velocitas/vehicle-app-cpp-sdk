@@ -64,8 +64,6 @@ public:
 
     void execute() override;
 
-    [[nodiscard]] std::function<void()> getFunction() const { return m_fun; }
-
     void waitForTermination() const;
 
 private:
