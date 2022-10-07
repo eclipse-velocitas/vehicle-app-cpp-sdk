@@ -22,6 +22,7 @@ repos:
             "--std=c++17",
             "--error-exitcode=1",
             "--enable=all",
+            "--inline-suppr",
             "--suppress=noExplicitConstructor",
             "--suppress=missingInclude",
             "--suppress=unusedFunction",

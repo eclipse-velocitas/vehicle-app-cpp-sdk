@@ -19,8 +19,8 @@
 
 #include "sdk/Job.h"
 
+#include <atomic>
 #include <condition_variable>
-#include <functional>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -35,9 +35,8 @@ namespace velocitas {
  */
 class ThreadPool final {
 public:
-    using Job_t = std::function<void()>;
-
     ThreadPool();
+    explicit ThreadPool(size_t numWorkerThreads);
 
     ~ThreadPool();
 
@@ -48,12 +47,14 @@ public:
      */
     static std::shared_ptr<ThreadPool> getInstance();
 
+    [[nodiscard]] size_t getNumWorkerThreads() const;
+
     /**
-     * @brief Execute the given job asynchronously in one of the worker threads.
+     * @brief Enqueue the given job to be executed asynchronously by one of the worker threads.
      *
      * @param job  The job to execute.
      */
-    void execute(JobPtr_t job);
+    void enqueue(JobPtr_t job);
 
     ThreadPool(const ThreadPool&)            = delete;
     ThreadPool(ThreadPool&&)                 = delete;
@@ -63,11 +64,11 @@ public:
 private:
     void threadLoop();
 
-    std::mutex                                m_queueMutex;
-    std::condition_variable                   m_cv;
-    std::queue<JobPtr_t>                      m_jobs;
-    std::vector<std::unique_ptr<std::thread>> m_workerThreads;
-    bool                                      m_isRunning{true};
+    std::mutex               m_queueMutex;
+    std::condition_variable  m_cv;
+    std::queue<JobPtr_t>     m_jobs;
+    std::vector<std::thread> m_workerThreads;
+    std::atomic_bool         m_isRunning{true};
 };
 
 } // namespace velocitas

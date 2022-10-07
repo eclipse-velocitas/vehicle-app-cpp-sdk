@@ -3,7 +3,10 @@ set(TARGET_NAME "sdk_utests")
 add_executable(${TARGET_NAME}
     AsyncResult_tests.cpp
     AsyncSubscription_tests.cpp
+    Job_tests.cpp
     Node_tests.cpp
+    ScopedBoolInverter_tests.cpp
+    ThreadPool_tests.cpp
     Utils_tests.cpp
     VehicleDataBrokerClient_tests.cpp
     #PubSub_tests.cpp

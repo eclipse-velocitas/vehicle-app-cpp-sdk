@@ -17,7 +17,6 @@
 #include "SeatService.h"
 #include "sdk/Exceptions.h"
 #include "sdk/Logger.h"
-#include "sdk/ThreadPool.h"
 
 #include "sdk/dapr/DaprSupport.h"
 #include "vehicle_model/Cabin/SeatService/SeatServiceAsyncGrpcFacade.h"

@@ -24,7 +24,6 @@
 #include "sdk/Exceptions.h"
 #include "sdk/Job.h"
 #include "sdk/Logger.h"
-#include "sdk/ThreadPool.h"
 
 #include <fmt/core.h>
 #include <grpcpp/channel.h>
