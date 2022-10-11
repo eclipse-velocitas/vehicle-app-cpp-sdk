@@ -17,6 +17,7 @@
 #include "sdk/ThreadPool.h"
 
 #include <atomic>
+#include <exception>
 #include <gtest/gtest.h>
 
 using namespace velocitas;
@@ -45,11 +46,18 @@ public:
             m_stopJob        = false;
             m_executionStateCV.notify_all();
         }
+        if (m_throwException) {
+            throw std::exception();
+        }
     }
     void finish() {
         std::lock_guard lock(m_stopMutex);
         m_stopJob = true;
         m_stopNotifier.notify_one();
+    }
+    void throwException() {
+        m_throwException = true;
+        finish();
     }
     bool waitForExecution(const std::chrono::milliseconds& timeout = DEFAULT_TIMEOUT) {
         std::unique_lock lock{m_executionMutex};
@@ -68,6 +76,7 @@ public:
     std::mutex              m_executionMutex;
     std::condition_variable m_executionStateCV;
     bool                    m_stopJob{false};
+    bool                    m_throwException{false};
     std::mutex              m_stopMutex;
     std::condition_variable m_stopNotifier;
 };
@@ -233,4 +242,13 @@ TEST_F(Test_ThreadPool, finishRecurringJob_jobExecuting_jobIsExecutedAgain) {
 
     job->cancel();
     job->finish();
+}
+
+TEST_F(Test_ThreadPool, jobThrows_executing_workerNotTerminated) {
+    ASSERT_TRUE(createAndExecuteJob());
+    ASSERT_FALSE(m_fakeJobs.empty());
+    m_fakeJobs.front()->throwException();
+
+    // It should be still possible to get jobs executed on all (initial) workers
+    EXPECT_TRUE(occupyAllWorkers());
 }

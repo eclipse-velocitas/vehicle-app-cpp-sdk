@@ -15,6 +15,7 @@
  */
 
 #include "sdk/ThreadPool.h"
+#include "sdk/Logger.h"
 
 namespace velocitas {
 
@@ -67,9 +68,17 @@ void ThreadPool::threadLoop() {
         }
 
         if (job) {
-            job->execute();
-            if (job->shallRecur()) {
-                enqueue(job);
+            try {
+                job->execute();
+                if (job->shallRecur()) {
+                    enqueue(job);
+                }
+            } catch (const std::exception& e) {
+                logger().error("[ThreadPool] Uncaught exception in job execution: " +
+                               std::string(e.what()));
+            } catch (...) {
+                logger().error(
+                    std::string("[ThreadPool] Uncaught unknown exception in job execution"));
             }
         } else {
             std::unique_lock<std::mutex> lock(m_queueMutex);
