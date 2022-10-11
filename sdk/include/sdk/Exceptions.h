@@ -18,7 +18,6 @@
 #define VEHICLE_APP_SDK_EXCEPTIONS_H
 
 #include <stdexcept>
-#include <string>
 
 namespace velocitas {
 
@@ -28,24 +27,13 @@ namespace velocitas {
  */
 class RpcException : public std::runtime_error {
 public:
-    explicit RpcException(const std::string& message)
-        : std::runtime_error(message) {}
+    using std::runtime_error::runtime_error;
     ~RpcException() override = default;
 
-    RpcException(const RpcException& other)
-        : std::runtime_error(other) {}
-    RpcException(RpcException&& other)
-        : std::runtime_error(other) {}
-
-    RpcException& operator=(const RpcException& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
-
-    RpcException& operator=(RpcException&& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
+    RpcException(const RpcException& other)            = default;
+    RpcException(RpcException&& other)                 = default;
+    RpcException& operator=(const RpcException& other) = default;
+    RpcException& operator=(RpcException&& other)      = default;
 };
 
 /**
@@ -54,24 +42,13 @@ public:
  */
 class InvalidTypeException : public std::runtime_error {
 public:
-    explicit InvalidTypeException(const std::string& message)
-        : std::runtime_error(message) {}
+    using std::runtime_error::runtime_error;
     ~InvalidTypeException() override = default;
 
-    InvalidTypeException(const InvalidTypeException& other)
-        : std::runtime_error(other) {}
-    InvalidTypeException(InvalidTypeException&& other)
-        : std::runtime_error(other) {}
-
-    InvalidTypeException& operator=(const InvalidTypeException& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
-
-    InvalidTypeException& operator=(InvalidTypeException&& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
+    InvalidTypeException(const InvalidTypeException& other)            = default;
+    InvalidTypeException(InvalidTypeException&& other)                 = default;
+    InvalidTypeException& operator=(const InvalidTypeException& other) = default;
+    InvalidTypeException& operator=(InvalidTypeException&& other)      = default;
 };
 
 /**
@@ -80,24 +57,13 @@ public:
  */
 class InvalidValueException : public std::runtime_error {
 public:
-    explicit InvalidValueException(const std::string& msg)
-        : std::runtime_error(msg) {}
+    using std::runtime_error::runtime_error;
     ~InvalidValueException() override = default;
 
-    InvalidValueException(const InvalidValueException& other)
-        : std::runtime_error(other) {}
-    InvalidValueException(InvalidValueException&& other)
-        : std::runtime_error(other) {}
-
-    InvalidValueException& operator=(const InvalidValueException& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
-
-    InvalidValueException& operator=(InvalidValueException&& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
+    InvalidValueException(const InvalidValueException& other)            = default;
+    InvalidValueException(InvalidValueException&& other)                 = default;
+    InvalidValueException& operator=(const InvalidValueException& other) = default;
+    InvalidValueException& operator=(InvalidValueException&& other)      = default;
 };
 
 /**
@@ -106,24 +72,13 @@ public:
  */
 class AsyncException : public std::runtime_error {
 public:
-    explicit AsyncException(const std::string& message)
-        : std::runtime_error(message) {}
+    using std::runtime_error::runtime_error;
     ~AsyncException() override = default;
 
-    AsyncException(const AsyncException& other)
-        : std::runtime_error(other) {}
-    AsyncException(AsyncException&& other)
-        : std::runtime_error(other) {}
-
-    AsyncException& operator=(const AsyncException& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
-
-    AsyncException& operator=(AsyncException&& other) {
-        std::runtime_error::operator=(other);
-        return *this;
-    }
+    AsyncException(const AsyncException& other)            = default;
+    AsyncException(AsyncException&& other)                 = default;
+    AsyncException& operator=(const AsyncException& other) = default;
+    AsyncException& operator=(AsyncException&& other)      = default;
 };
 
 } // namespace velocitas
