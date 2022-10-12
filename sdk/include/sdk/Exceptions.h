@@ -28,12 +28,6 @@ namespace velocitas {
 class RpcException : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
-    ~RpcException() override = default;
-
-    RpcException(const RpcException& other)            = default;
-    RpcException(RpcException&& other)                 = default;
-    RpcException& operator=(const RpcException& other) = default;
-    RpcException& operator=(RpcException&& other)      = default;
 };
 
 /**
@@ -43,12 +37,6 @@ public:
 class InvalidTypeException : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
-    ~InvalidTypeException() override = default;
-
-    InvalidTypeException(const InvalidTypeException& other)            = default;
-    InvalidTypeException(InvalidTypeException&& other)                 = default;
-    InvalidTypeException& operator=(const InvalidTypeException& other) = default;
-    InvalidTypeException& operator=(InvalidTypeException&& other)      = default;
 };
 
 /**
@@ -58,12 +46,6 @@ public:
 class InvalidValueException : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
-    ~InvalidValueException() override = default;
-
-    InvalidValueException(const InvalidValueException& other)            = default;
-    InvalidValueException(InvalidValueException&& other)                 = default;
-    InvalidValueException& operator=(const InvalidValueException& other) = default;
-    InvalidValueException& operator=(InvalidValueException&& other)      = default;
 };
 
 /**
@@ -73,12 +55,6 @@ public:
 class AsyncException : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
-    ~AsyncException() override = default;
-
-    AsyncException(const AsyncException& other)            = default;
-    AsyncException(AsyncException&& other)                 = default;
-    AsyncException& operator=(const AsyncException& other) = default;
-    AsyncException& operator=(AsyncException&& other)      = default;
 };
 
 } // namespace velocitas
