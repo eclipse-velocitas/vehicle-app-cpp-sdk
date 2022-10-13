@@ -113,4 +113,10 @@ if [ "${USE_PROXIES}" = "true" ]; then
     echo "Acquire::https::proxy \"${HTTPS_PROXY}\";" >> /etc/apt/apt.conf
 fi
 
+if [ -n "${http_proxy}" ] || [ -n "${HTTP_PROXY}" ] || [ -n "${https_proxy}" ] || [ -n "${HTTPS_PROXY}" ]; then
+    echo Install ca-certificates from host environment
+    cp -rfu ./.devcontainer/ca-certificates/* -t /usr/local/share/ca-certificates
+    update-ca-certificates
+fi
+
 exit 0
