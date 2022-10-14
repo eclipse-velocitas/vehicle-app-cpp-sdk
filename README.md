@@ -31,6 +31,14 @@ Before a build can be started, all dependencies required by the SDK need to be i
 ./install_dependencies.sh
 ```
 
+### Proxy Issues
+If you are working behind a corporate proxy, the `install_dependcies.sh` (which is also called during devcontainer build!) might probably fail 
+downloading 3rd party packages via https with a TLS/SSL certificate validation error (we actually saw this issue in the build of gRPC trying to
+download the opencensus-proto package from storage.googleapis.com). 
+
+Please have a look at our ["working behind proxy" tutorial](https://websites.eclipseprojects.io/velocitas/docs/tutorials/quickstart/behind_proxy/) 
+to get hints how to possibly overcome this.
+
 ### Building the SDK
 To build the SDK, run the build script:
 ```bash
