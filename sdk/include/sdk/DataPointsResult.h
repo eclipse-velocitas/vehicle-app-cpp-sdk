@@ -59,6 +59,11 @@ public:
         }
 
         auto result = m_dataPointsMap.at(dataPoint.getPath());
+        if (!result->isValid()) {
+            throw InvalidValueException(fmt::format("{} is invalid: {}!", result->getPath(),
+                                                    result->asFailure().getReason()));
+        }
+
         return std::dynamic_pointer_cast<TDataPointType>(result);
     }
 

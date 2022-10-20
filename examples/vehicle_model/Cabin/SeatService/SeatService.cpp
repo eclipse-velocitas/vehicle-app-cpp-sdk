@@ -18,7 +18,6 @@
 #include "sdk/Exceptions.h"
 #include "sdk/Logger.h"
 
-#include "sdk/dapr/DaprSupport.h"
 #include "vehicle_model/Cabin/SeatService/SeatServiceAsyncGrpcFacade.h"
 
 #include <fmt/core.h>
@@ -83,8 +82,6 @@ Status toInternalStatus(grpc::Status status) {
 
 SeatService::SeatService(Model* parent)
     : Service(m_appID, parent) {
-    dapr::waitForSidecar();
-
     m_asyncGrpcFacade = std::make_shared<SeatServiceAsyncGrpcFacade>(
         grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
     m_asyncGrpcFacade->setContextModifier(

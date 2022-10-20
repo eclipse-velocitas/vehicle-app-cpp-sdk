@@ -12,10 +12,6 @@ add_executable(${TARGET_NAME}
     #PubSub_tests.cpp
 )
 
-include_directories(
-    ${PROJECT_SOURCE_DIR}/sdk/include
-)
-
 add_dependencies(${TARGET_NAME} 
     vehicle-app-sdk
 )

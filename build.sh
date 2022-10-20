@@ -20,7 +20,6 @@ BUILD_ARCH=$(arch)
 BUILD_TARGET=all
 STATIC_BUILD=OFF
 SDK_BUILD_EXAMPLES=ON
-APP_ENABLE_BUILD=ON
 
 POSITIONAL_ARGS=()
 
@@ -47,10 +46,6 @@ while [[ $# -gt 0 ]]; do
       SDK_BUILD_EXAMPLES=OFF
       shift
       ;;
-    --no-app)
-      APP_ENABLE_BUILD=OFF
-      shift
-      ;;
     -*|--*)
       echo "Unknown option $1"
       exit 1
@@ -75,6 +70,6 @@ if [ "${BUILD_VARIANT}" == "release" ]; then
 fi
 
 mkdir -p build && cd build
-cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=${BUILD_VARIANT} -DSTATIC_BUILD:BOOL=${STATIC_BUILD} -DSDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES} -DAPP_ENABLE_BUILD=${APP_ENABLE_BUILD} -S.. -B../build -G Ninja -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
+cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=${BUILD_VARIANT} -DSTATIC_BUILD:BOOL=${STATIC_BUILD} -DSDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES} -S.. -B../build -G Ninja -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
 cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} -- 
 cd ..

@@ -45,6 +45,9 @@
 *.out
 *.app
 
+# Python pre-compiled files
+*.pyc
+
 # CMake
 build
 

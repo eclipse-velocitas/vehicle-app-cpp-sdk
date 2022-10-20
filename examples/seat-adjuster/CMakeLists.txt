@@ -12,13 +12,25 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+set(TARGET_NAME "example-seatadjusterapp")
+
+add_executable(${TARGET_NAME}
+    src/SeatAdjusterApp.cpp
 )
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+include_directories(
+    ${CMAKE_BINARY_DIR}/gens
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
+    .
+)
 
-add_subdirectory(utests)
+add_dependencies(${TARGET_NAME}
+    vehicle-app-sdk
+    vehicle-model-example
+)
+
+target_link_libraries(${TARGET_NAME}
+    vehicle-app-sdk
+    vehicle-model-example
+)

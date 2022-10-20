@@ -16,7 +16,6 @@
 
 #include "sdk/grpc/VehicleDataBrokerClient.h"
 
-#include "sdk/dapr/DaprSupport.h"
 #include "sdk/grpc/AsyncGrpcFacade.h"
 #include "sdk/grpc/BrokerAsyncGrpcFacade.h"
 #include "sdk/grpc/GrpcDataPointValueProvider.h"
@@ -38,8 +37,6 @@ namespace velocitas {
 VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAddress,
                                                  std::string        vdbAppId)
     : m_vdbAppId(std::move(vdbAppId)) {
-    dapr::waitForSidecar();
-
     m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
         grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
     m_asyncBrokerFacade->setContextModifier(

@@ -18,7 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+  release:
+    types: [published, edited]
 
 jobs:
   build-container:
