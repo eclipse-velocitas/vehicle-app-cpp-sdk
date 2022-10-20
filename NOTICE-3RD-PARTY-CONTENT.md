@@ -27,7 +27,7 @@
 |pluginbase|1.0.1|BSD|
 |pre-commit|2.20.0|MIT|
 |Pygments|2.13.0|BSD|
-|PyJWT|2.5.0|MIT|
+|PyJWT|2.6.0|MIT|
 |python-dateutil|2.8.2|Apache 2.0<br/>BSD|
 |PyYAML|6.0|MIT|
 |requests|2.28.1|Apache 2.0|
