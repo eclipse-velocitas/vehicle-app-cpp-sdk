@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022 Robert Bosch GmbH
+# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -13,8 +13,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$BASH_SOURCE")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
-DAPR_RUNTIME=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].dependencies.dapr.runtime.version | tr -d '"')
+ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
+DAPR_RUNTIME=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].dependencies.dapr.runtime.version | tr -d '"')
 
 if ! k3d registry get k3d-registry.localhost &> /dev/null
 then

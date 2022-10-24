@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022 Robert Bosch GmbH
+# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -17,7 +17,7 @@ echo "#######################################################"
 echo "### Running VehicleServices                         ###"
 echo "#######################################################"
 
-ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$BASH_SOURCE")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
+ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
 
 # Get Data from AppManifest.json and save to ENV
 UTILS_DIRECTORY="$ROOT_DIRECTORY/.vscode/scripts/runtime/utils"
@@ -68,21 +68,25 @@ run_service() {
         --config $ROOT_DIRECTORY/.dapr/config.yaml &
 }
 
-DEPENDENCIES=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].dependencies)
+DEPENDENCIES=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].dependencies)
 SERVICES=$(echo $DEPENDENCIES | jq '.services')
 
-readarray -t SERVICES_ARRAY < <(echo $SERVICES | jq -c '.[]')
+if [ "$SERVICES" = "null" ];then
+    echo "No Services defined in AppManifest. Skip running vehicle services.";
+else
+    readarray -t SERVICES_ARRAY < <(echo $SERVICES | jq -c '.[]')
 
-for service in ${SERVICES_ARRAY[@]}; do
-    SERVICE_NAME=$(echo $service | jq '.name' | tr -d '"' )
-    SERVICE_IMAGE=$(echo $service | jq '.image' | tr -d '"')
-    SERVICE_TAG=$(echo $service | jq '.version' | tr -d '"')
-    if [ $SERVICE_IMAGE = "null" ] || [ $SERVICE_TAG = "null" ];then
-        echo "Missing configuration in AppManifest.json for Service: $SERVICE_NAME"
-    else
-        echo "Starting Service: $SERVICE_NAME"
-        run_service $SERVICE_NAME
-    fi
-done
+    for service in ${SERVICES_ARRAY[@]}; do
+        SERVICE_NAME=$(echo $service | jq '.name' | tr -d '"' )
+        SERVICE_IMAGE=$(echo $service | jq '.image' | tr -d '"')
+        SERVICE_TAG=$(echo $service | jq '.version' | tr -d '"')
+        if [ $SERVICE_IMAGE = "null" ] || [ $SERVICE_TAG = "null" ];then
+            echo "Missing configuration in AppManifest.json for Service: $SERVICE_NAME"
+        else
+            echo "Starting Service: $SERVICE_NAME"
+            run_service $SERVICE_NAME
+        fi
+    done
+fi
 
 wait

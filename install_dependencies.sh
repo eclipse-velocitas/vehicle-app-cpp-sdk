@@ -13,7 +13,28 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+#
+# Installs the Conan dependencies of the Vehicle App SDK
+# into the local Conan cache. Has to be re-executed whenever any conanfile.txt
+# or conanfile.py is updated.
+#
+
 set -e
+
+function print_help() {
+  echo "Install dependencies
+============================================================================
+Installs the Conan dependencies of the Vehicle App AND the Vehicle App SDK
+into the local Conan cache. Has to be re-executed whenever any conanfile.txt
+or conanfile.py is updated.
+
+Arguments:
+-d, --debug        Installs all dependencies in debug mode.
+-r, --release      Installs all dependencies in release mode.
+--build-all-deps   Forces all dependencies to be rebuild from source.
+-h, --help         Shows this help.
+"
+}
 
 BUILD_VARIANT="debug"
 BUILD_ARCH=$(arch)
@@ -31,6 +52,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --build-all-deps)
       WHICH_DEPS_TO_BUILD="*"
+      shift
+      ;;
+    -h|--help)
+      print_help
+      exit 0
       shift
       ;;
     -*|--*)

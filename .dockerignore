@@ -1,6 +1,9 @@
-build
-docs
-licenses
+.conan_home
 .devcontainer
+.git
 .github
 .vscode
+**/build
+**/deploy
+**/docs
+**/licenses

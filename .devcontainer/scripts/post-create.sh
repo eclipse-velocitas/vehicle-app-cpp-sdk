@@ -32,7 +32,7 @@ echo "#######################################################"
 
 # Install python, conan and ccache
 sudo apt-get update
-sudo apt-get -y install --no-install-recommends python3 python3-pip ccache
+sudo apt-get -y install --no-install-recommends ccache
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 100
 
 pip3 install -r ./requirements.txt
@@ -44,17 +44,26 @@ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang
 
 ./.devcontainer/scripts/ensure-dapr.sh 2>&1 | tee -a $HOME/ensure-dapr.log
 
+if [ "${CODESPACES}" = "true" ]; then
+    echo "#######################################################"
+    echo "### Setup Access to Codespaces                      ###"
+    echo "#######################################################"
+
+    # Remove the default credential helper
+    sudo sed -i -E 's/helper =.*//' /etc/gitconfig
+
+    # Add one that just uses secrets available in the Codespace
+    git config --global credential.helper '!f() { sleep 1; echo "username=${GITHUB_USER}"; echo "password=${MY_GH_TOKEN}"; }; f'
+fi
+
+echo "#######################################################"
+echo "### Init submodules                                 ###"
+echo "#######################################################"
+git submodule update --init
+
 echo "#######################################################"
 echo "### Install Dependencies                            ###"
 echo "#######################################################"
 ./install_dependencies.sh 2>&1 | tee -a $HOME/install_dependencies.log
 
 
-echo "#######################################################"
-echo "### Checkout vehicle model                           ###"
-echo "#######################################################"
-if [ ! -f ./app/vehicle_model/CMakeLists.txt ]; then
-    git clone https://github.com/eclipse-velocitas/vehicle-model-cpp.git app/vehicle_model
-else
-    echo "vehicle model already checked out"
-fi

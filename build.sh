@@ -13,7 +13,26 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+#
+# Builds the targets of the project in different flavors.
+#
+
 set -e
+
+function print_help() {
+  echo "Build targets of the project
+============================================================================
+Builds the targets of the project in different flavors.
+
+Arguments:
+-d, --debug                      Builds the target(s) in debug mode.
+-r, --release                    Builds the target(s) in release mode.
+-t <name>, --target <name>       Builds only the target <name> instead of all targets. 
+-no-examples                     Disables the build of the SDK examples. 
+-s, --static                     Links all dependencies statically. 
+-h, --help                       Shows this help.
+"
+}
 
 BUILD_VARIANT=debug
 BUILD_ARCH=$(arch)

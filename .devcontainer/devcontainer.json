@@ -10,7 +10,7 @@
 			"VARIANT": "ubuntu-22.04",
 			"PROXY": "${localEnv:DEVCONTAINER_PROXY}",
 			"PROXY_PORT": "${localEnv:DEVCONTAINER_PROXY_PORT}",
-			"PROXY_HOST": "${localEnv:DEVCONTAINER_PROXY_HOST}",
+			"PROXY_HOST": "${localEnv:DEVCONTAINER_PROXY_HOST}"
 		}
 	},
 	"runArgs": [
@@ -19,13 +19,46 @@
 		"seccomp=unconfined"
 	],
 	"features": {
-		"docker-in-docker": {
-			"version": "latest",
-			"moby": true
+		"ghcr.io/devcontainers/features/docker-in-docker:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"version": "os-provided"
 		}
 	},
 	// Set *default* container specific settings.json values on container create.
-	"settings": {},
+	"settings": {
+		"[cpp]": {
+			"editor.defaultFormatter": "xaver.clang-format"
+		},
+		"editor.formatOnSave": true,
+		"clang-tidy.fixOnSave": true,
+		"clang-tidy.lintOnSave": true,
+		"clang-tidy.blacklist": [
+			"app/tests/*",
+			"app/vehicle_model/*",
+			"build/*"
+		],
+		"clang-tidy.buildPath": "./build",
+		"clang-tidy.compilerArgs": [
+			"-std=c++17"
+		],
+		"vsmqtt.brokerProfiles": [
+			{
+				"name": "k3d",
+				"host": "localhost",
+				"port": 31883,
+				"clientId": "vsmqtt_client"
+			},
+			{
+				"name": "local",
+				"host": "localhost",
+				"port": 1883,
+				"clientId": "vsmqtt_client"
+			}
+		],
+		"json.format.keepLines": true
+	},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-vscode.cpptools",
@@ -38,7 +71,8 @@
 		"xaver.clang-format",
 		"notskm.clang-tidy",
 		"matepek.vscode-catch2-test-adapter",
-		"sanaajani.taskrunnercode"
+		"sanaajani.taskrunnercode",
+		"augustocdias.tasks-shell-input"
 	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

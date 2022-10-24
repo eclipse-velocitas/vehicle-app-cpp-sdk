@@ -12,6 +12,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# _Summary_
+#
+# Scans the repository for all 3rd party dependencies
+# and generates a notice file containing all used software within
+# the project.
+
 name: Overall - Check licenses
 
 on:
