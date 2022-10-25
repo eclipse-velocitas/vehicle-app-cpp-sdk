@@ -22,7 +22,11 @@ For more information, please see the Eclipse Committer Handbook:
 https://www.eclipse.org/projects/handbook/#resources-commit
 
 ## Code Style Guide
-* clang-format will format your code according to the established coding style
+* [clang-format](https://clang.llvm.org/docs/ClangFormat.html) will format your code according to the established coding style
+* [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) will tidy up and auto-improve your code.
+* [cpplint](https://github.com/cpplint/cpplint) will report issues with your code.
+* [cppcheck](https://cppcheck.sourceforge.io/) will report issues with your code.
+* [pre-commit](https://pre-commit.com/) will execute various checks as a git pre commit hook.
 * more guidelines soon to come
 
 ## Making Your Changes

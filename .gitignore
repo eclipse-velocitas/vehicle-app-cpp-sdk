@@ -65,6 +65,3 @@ conan_imports_manifest.txt
 
 # conan home
 .conan_home
-
-# vscode user settings
-.vscode/settings.json
