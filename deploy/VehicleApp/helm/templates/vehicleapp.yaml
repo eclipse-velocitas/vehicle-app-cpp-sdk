@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Robert Bosch GmbH
+# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -30,6 +30,7 @@ spec:
         dapr.io/app-port: "{{.Values.imageVehicleApp.daprPort}}"
         dapr.io/log-level: "debug"
         dapr.io/config: "config"
+        dapr.io/app-protocol: "grpc"
       labels:
         app: {{.Values.imageVehicleApp.name}}
         {{- include "helm.selectorLabels" . | nindent 8 }}

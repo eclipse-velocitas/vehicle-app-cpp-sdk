@@ -1,5 +1,4 @@
-#!/bin/bash
-# Copyright (c) 2022 Robert Bosch GmbH
+# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -13,9 +12,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$BASH_SOURCE")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
+ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
+APP_NAME=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].Name | tr -d '"')
+APP_PORT=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].Port | tr -d '"')
+APP_REGISTRY="k3d-registry.localhost:12345"
 
 helm uninstall vapp-chart --wait
 
 # Deploy in K3D
-helm install vapp-chart $ROOT_DIRECTORY/deploy/VehicleApp/helm --values $ROOT_DIRECTORY/deploy/VehicleApp/helm/values.yaml --wait --timeout 60s --debug
+REGISTRY="k3d-registry.localhost:12345/$APP_NAME"
+helm install vapp-chart $ROOT_DIRECTORY/deploy/VehicleApp/helm \
+    --values $ROOT_DIRECTORY/deploy/VehicleApp/helm/values.yaml \
+    --set imageVehicleApp.repository="$APP_REGISTRY/$APP_NAME" \
+    --set imageVehicleApp.name=$APP_NAME \
+    --set imageVehicleApp.daprAppid=$APP_NAME \
+    --set imageVehicleApp.daprPort=$APP_PORT \
+    --wait --timeout 60s --debug

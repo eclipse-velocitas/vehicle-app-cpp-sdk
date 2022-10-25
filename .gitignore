@@ -58,7 +58,6 @@ build
 Assets
 .vscode/scripts/assets/
 get_helm.sh
-app/vehicle_model
 
 # conan licenses
 licenses

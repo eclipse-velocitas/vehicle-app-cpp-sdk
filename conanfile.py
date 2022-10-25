@@ -16,24 +16,24 @@ from conans import ConanFile, tools
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 import subprocess
 
+
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
     version = "0.1"
     license = "Apache-2.0"
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
-    requires = "openssl/1.1.1q", "libcurl/7.84.0", "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0", "grpc/1.48.0", "protobuf/3.21.4", "cpr/1.9.0", "fmt/9.1.0"
+    requires = "openssl/1.1.1q", "libcurl/7.84.0", "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0", "grpc/1.48.0", "protobuf/3.21.4", "cpr/1.9.0", "fmt/9.1.0", "zlib/1.2.13"
     build_requires = "protobuf/3.21.4"
     generators = "cmake"
     author = "Robert Bosch GmbH"
-
 
     scm = {
         "type": "git",  # Use "type": "svn", if local repo is managed using SVN
         "subfolder": "vehicle-app-sdk",
         "url": "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk",
         "revision": "main"
-     }
+    }
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
@@ -60,14 +60,16 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def generate(self):
         #tc = CMakeToolchain(self)
-        #tc.generate()
+        # tc.generate()
         # commented out since we rely on our build script to set up cmake
         pass
 
     def build(self):
-        build_type = self.settings.get_safe("build_type", default="Release").lower()
+        build_type = self.settings.get_safe(
+            "build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
-        subprocess.call(f"cd ../.. && ./build.sh {option} --no-examples", shell=True)
+        subprocess.call(
+            f"cd ../.. && ./build.sh {option} --no-examples", shell=True)
 
     def package(self):
         subprocess.call("pwd", shell=True)
@@ -79,7 +81,9 @@ class VehicleAppCppSdkConan(ConanFile):
         self.cpp_info.includedirs = ["include"]
         self.cpp_info.libdirs = ["lib"]
         self.cpp_info.bindirs = ["bin"]
-        self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
+        self.cpp_info.libs = ["vehicle-app-sdk",
+                              "vehicle-app-sdk-generated-grpc"]
 
     def imports(self):
-        self.copy("license*", src=".", dst="./licenses", folder=True, ignore_case=True)
+        self.copy("license*", src=".", dst="./licenses",
+                  folder=True, ignore_case=True)

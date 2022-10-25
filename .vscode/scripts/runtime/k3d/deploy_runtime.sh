@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022 Robert Bosch GmbH
+# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -15,8 +15,8 @@
 
 if ! helm status vehicleappruntime &> /dev/null
 then
-    ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$BASH_SOURCE")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
-    DEPENDENCIES=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].dependencies)
+    ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../../../.." )
+    DEPENDENCIES=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].dependencies)
     SERVICES=$(echo $DEPENDENCIES | jq '.services')
 
     # Get Data from AppManifest.json and save to ENV

@@ -163,7 +163,7 @@
 				"--dapr-grpc-port 50001",
 				"--dapr-http-port 3500",
 				"--config ./.dapr/config.yaml",
-				"build/bin/App"
+				"build/bin/app"
 			],
 			"group": "none",
 			"isBackground": true,
@@ -324,6 +324,12 @@
 				"K3D - Install prerequisites"
 			]
 		},
+		{
+			"label": "Import example app from SDK",
+			"detail": "Import example app from SDK",
+			"type": "shell",
+			"command": "./.vscode/scripts/runtime/utils/import-example-app.sh ${input:exampleApp}",
+		},
 		// CPP specific tasks
 		{
 			"label": "CPP - Calculate code coverage",
@@ -347,6 +353,16 @@
 				"CMake: build",
 				"dapr-VehicleApp-run"
 			]
+		}
+	],
+	"inputs": [
+		{
+			"description": "Options for example apps from SDK package.",
+			"id": "exampleApp",
+			"type": "pickString",
+			"options": [
+				"seat-adjuster"
+			],
 		}
 	]
 }

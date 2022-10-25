@@ -17,11 +17,6 @@ echo "#######################################################"
 echo "### Ensure dapr                                     ###"
 echo "#######################################################"
 
-ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$BASH_SOURCE")" >/dev/null 2>&1 ; pwd -P )/../.." )
-# Get Data from AppManifest.json and save to ENV
-UTILS_DIRECTORY="$ROOT_DIRECTORY/.vscode/scripts/runtime/utils"
-source $UTILS_DIRECTORY/get-appmanifest-data.sh
-
 # Function to initialize Dapr
 init_dapr()
 {
@@ -33,11 +28,13 @@ init_dapr()
       echo "=========================="
 }
 
-DEFAULT_DAPR_CLI_VERSION=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].dependencies.dapr.cli.version | tr -d '"')
-DEFAULT_DAPR_RUNTIME_VERSION=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].dependencies.dapr.runtime.version | tr -d '"')
+ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../.." )
+echo $ROOT_DIRECTORY
+DEFAULT_DAPR_CLI_VERSION=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].dependencies.dapr.cli.version | tr -d '"')
+DEFAULT_DAPR_RUNTIME_VERSION=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].dependencies.dapr.runtime.version | tr -d '"')
 
-INSTALLED_DAPR_CLI_VERSION=$(dapr --version | grep "CLI version: " | sed 's/^.*: //' | sed 's/\s*//g')
-INSTALLED_DAPR_RUNTIME_VERSION=$(dapr --version | grep "Runtime version: " | sed 's/^.*: //' | sed 's/\s*//g')
+INSTALLED_DAPR_CLI_VERSION=$(dapr --version 2>/dev/null | grep "CLI version: " | sed 's/^.*: //' | sed 's/\s*//g')
+INSTALLED_DAPR_RUNTIME_VERSION=$(dapr --version 2>/dev/null | grep "Runtime version: " | sed 's/^.*: //' | sed 's/\s*//g')
 
 # Check dapr CLI
 if [ "${INSTALLED_DAPR_CLI_VERSION}" != "${DEFAULT_DAPR_CLI_VERSION}" ]; then
