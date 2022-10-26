@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-# Copyright (c) 2022 Robert Bosch GmbH
+#!/bin/bash
+# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -13,14 +13,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-if [ "${PROXY}" = ".Proxy" ]; then
-    USE_PROXIES="true"
-    HTTP_PROXY="${PROXY_HOST}:${PROXY_PORT}"
-    HTTPS_PROXY=$HTTP_PROXY
-    FTP_PROXY=$HTTP_PROXY
-    ALL_PROXY=$HTTP_PROXY
-    NO_PROXY="localhost,127.0.0.1,0.0.0.0,10.0.0.0/8,192.168.122.0/24,cattle-system.svc,.svc,.cluster.local"
-fi
+echo "#######################################################"
+echo "### Configure-proxies                               ###"
+echo "#######################################################"
 
 echo "Use proxies: $USE_PROXIES"
 echo "Username: $USERNAME"

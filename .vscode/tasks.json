@@ -29,7 +29,7 @@
 			"label": "Local - Mosquitto",
 			"detail": "Runs Mosquitto MQTT Broker in a container (with docker run) with exposed port 1883.",
 			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-mosquitto.sh",
+			"command": "./.vscode/scripts/run-mosquitto.sh",
 			"group": "none",
 			"presentation": {
 				"reveal": "always",
@@ -56,7 +56,7 @@
 			"label": "Local - VehicleDataBroker",
 			"detail": "Runs the VehicleDataBroker as background task.",
 			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-vehicledatabroker.sh",
+			"command": "./.vscode/scripts/run-vehicledatabroker.sh",
 			"group": "none",
 			"presentation": {
 				"reveal": "always",
@@ -83,7 +83,7 @@
 			"label": "Local - VehicleDataBroker CLI",
 			"detail": "Starts the VehicleDataBroker CLI",
 			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-vehicledatabroker-cli.sh",
+			"command": "./.vscode/scripts/run-vehicledatabroker-cli.sh",
 			"group": "none",
 			"isBackground": false,
 		},
@@ -91,7 +91,7 @@
 			"label": "Local - VehicleServices",
 			"detail": "Runs all configured VehicleServices as background task.",
 			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-vehicleservices.sh",
+			"command": "./.vscode/scripts/run-vehicleservices.sh",
 			"group": "none",
 			"presentation": {
 				"reveal": "always",
@@ -118,7 +118,7 @@
 			"label": "Local - FeederCan",
 			"detail": "Runs FeederCan as background task.",
 			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-feedercan.sh",
+			"command": "./.vscode/scripts/run-feedercan.sh",
 			"group": "none",
 			"presentation": {
 				"reveal": "always",

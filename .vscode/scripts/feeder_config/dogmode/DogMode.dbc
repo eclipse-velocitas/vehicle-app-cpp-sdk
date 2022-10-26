@@ -1,0 +1,98 @@
+VERSION ""
+
+
+NS_ :
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Receiver ChassisBus VehicleBus PartyBus
+
+BO_ 827 BMS_DogMode: 2 VehicleBus
+ SG_ DogModeTempSet : 8|8@1- (1,0) [-128|127] "" Vector__XXX
+ SG_ DogModeOn : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 579 ID243VCRIGHT_hvacStatus: 8 VehicleBus
+ SG_ VCRIGHT_hvacStatusIndex M : 0|2@1+ (1,0) [0|3] ""  Receiver
+ SG_ VCRIGHT_hvacACRunning m0 : 50|1@1+ (1,0) [0|1] ""  Receiver
+ SG_ VCRIGHT_hvacAirDistributionMode m0 : 41|3@1+ (1,0) [0|7] ""  Receiver
+ SG_ VCRIGHT_hvacBlowerSegment m0 : 44|4@1+ (1,0) [0|11] ""  Receiver
+ SG_ VCRIGHT_hvacCabinTempEst m0 : 30|11@1+ (0.1,-40) [-40|164] "C"  Receiver
+ SG_ VCRIGHT_hvacDuctTargetLeft m1 : 48|8@1+ (0.5,-40) [-40|80] "C"  Receiver
+ SG_ VCRIGHT_hvacDuctTargetRight m1 : 56|8@1+ (0.5,-40) [-40|80] "C"  Receiver
+ SG_ VCRIGHT_hvacEvapInletTempEstimat m2 : 19|10@1+ (0.13,-40) [-40|90] "C"  Receiver
+ SG_ VCRIGHT_hvacMassflowRefrigSystem m1 : 2|8@1+ (1,0) [0|250] "g/s"  Receiver
+ SG_ VCRIGHT_hvacModelInitStatus m0 : 60|3@1+ (1,0) [0|5] ""  Receiver
+ SG_ VCRIGHT_hvacOverheatProtActive m0 : 63|1@1+ (1,0) [0|1] ""  Receiver
+ SG_ VCRIGHT_hvacPowerState m0 : 51|3@1+ (1,0) [0|4] ""  Receiver
+ SG_ VCRIGHT_hvacQdotLeft m0 : 2|14@1+ (1,-8191) [-8191|8191] "W"  Receiver
+ SG_ VCRIGHT_hvacQdotRight m0 : 16|14@1+ (1,-8191) [-8191|8191] "W"  Receiver
+ SG_ VCRIGHT_hvacRecirc m0 : 48|2@1+ (1,0) [0|2] ""  Receiver
+ SG_ VCRIGHT_hvacRecircDoorPercent m1 : 10|6@1+ (1.6,0) [0|100] "%"  Receiver
+ SG_ VCRIGHT_hvacSecondRowState m0 : 56|3@1+ (1,0) [0|4] ""  Receiver
+ SG_ VCRIGHT_hvacSystemNominal m0 : 59|1@1+ (1,0) [0|1] ""  Receiver
+ SG_ VCRIGHT_hvacVentStatus m0 : 54|2@1+ (1,0) [0|2] ""  Receiver
+ SG_ VCRIGHT_tempDuctLeft m1 : 16|8@1+ (0.5,-22) [-22|105] "C"  Receiver
+ SG_ VCRIGHT_tempDuctLeftLower m1 : 24|8@1+ (0.5,-22) [-22|105] "C"  Receiver
+ SG_ VCRIGHT_tempDuctLeftUpper m2 : 2|8@1+ (0.5,-22) [-22|105] "C"  Receiver
+ SG_ VCRIGHT_tempDuctRight m1 : 32|8@1+ (0.5,-22) [-22|105] "C"  Receiver
+ SG_ VCRIGHT_tempDuctRightLower m1 : 40|8@1+ (0.5,-22) [-22|105] "C"  Receiver
+ SG_ VCRIGHT_tempDuctRightUpper m2 : 10|8@1+ (0.5,-22) [-22|105] "C"  Receiver
+
+BO_ 826 ID33AUI_rangeSOC: 8 VehicleBus
+ SG_ UI_idealRange : 16|10@1+ (1,0) [0|1023] "mi"  Receiver
+ SG_ UI_Range : 0|10@1+ (1,0) [0|1023] "mi"  Receiver
+ SG_ UI_SOC : 48|7@1+ (1,0) [0|127] "%"  Receiver
+ SG_ UI_uSOE : 56|7@1+ (1,0) [0|127] "%"  Receiver
+ SG_ UI_ratedWHpM : 32|10@1+ (1,0) [0|1023] "WHpM"  Receiver
+
+
+CM_ SG_ 826 UI_Range "Range";
+CM_ SG_ 826 UI_SOC "State of Charge UI";
+CM_ SG_ 826 UI_uSOE "UI fine SOC";
+CM_ SG_ 826 UI_ratedWHpM "WHM Rating";
+VAL_ 579 VCRIGHT_hvacStatusIndex 3 "END" 0 "STATUS_UI" 1 "STATUS_VCFRONT" 2 "STATUS_VCFRONT2" ;
+VAL_ 579 VCRIGHT_hvacACRunning 0 "OFF" 1 "ON" ;
+VAL_ 579 VCRIGHT_hvacAirDistributionMode 4 "DEFROST" 5 "DEFROST_FLOOR" 6 "DEFROST_PANEL" 7 "DEFROST_PANEL_FLOOR" 1 "FLOOR" 0 "NONE" 2 "PANEL" 3 "PANEL_FLOOR" ;
+VAL_ 579 VCRIGHT_hvacBlowerSegment 1 "1" 10 "10" 11 "11" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6" 7 "7" 8 "8" 9 "9" 0 "OFF" ;
+VAL_ 579 VCRIGHT_hvacDuctTargetLeft 255 "SNA" ;
+VAL_ 579 VCRIGHT_hvacDuctTargetRight 255 "SNA" ;
+VAL_ 579 VCRIGHT_hvacEvapInletTempEstimat 1023 "SNA" ;
+VAL_ 579 VCRIGHT_hvacModelInitStatus 4 "INIT_FORWARD_CALC" 2 "INIT_FROM_SENSORS" 3 "INIT_FROM_SENSORS_PREDICTION_ERROR" 5 "INIT_WAITING_FOR_SENSORS" 1 "NOT_INIT_WAIT_FOR_GTW" 0 "NOT_INIT_WAIT_FOR_SENSORS" ;
+VAL_ 579 VCRIGHT_hvacPowerState 0 "OFF" 1 "ON" 4 "OVERHEAT_PROTECT" 3 "OVERHEAT_PROTECT_FANONLY" 2 "PRECONDITION" ;
+VAL_ 579 VCRIGHT_hvacRecirc 0 "AUTO" 2 "FRESH" 1 "RECIRC" ;
+VAL_ 579 VCRIGHT_hvacSecondRowState 0 "AUTO" 4 "HIGH" 2 "LOW" 3 "MED" 1 "OFF" ;
+VAL_ 579 VCRIGHT_hvacVentStatus 0 "BOTH" 1 "LEFT" 2 "RIGHT" ;
+VAL_ 579 VCRIGHT_tempDuctLeft 255 "SNA" ;
+VAL_ 579 VCRIGHT_tempDuctLeftLower 255 "SNA" ;
+VAL_ 579 VCRIGHT_tempDuctLeftUpper 255 "SNA" ;
+VAL_ 579 VCRIGHT_tempDuctRight 255 "SNA" ;
+VAL_ 579 VCRIGHT_tempDuctRightLower 255 "SNA" ;
+VAL_ 579 VCRIGHT_tempDuctRightUpper 255 "SNA" ;

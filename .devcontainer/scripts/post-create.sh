@@ -14,8 +14,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 sudo chmod +x .devcontainer/scripts/*.sh
-sudo chmod +x .vscode/scripts/runtime/k3d/*.sh
-sudo chmod +x .vscode/scripts/runtime/local/*.sh
+sudo chmod +x .vscode/scripts/*.sh
 sudo chown -R $(whoami) $HOME
 
 echo "#######################################################"
