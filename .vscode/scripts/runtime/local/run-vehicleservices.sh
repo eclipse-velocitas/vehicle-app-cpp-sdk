@@ -68,7 +68,7 @@ run_service() {
         --config $ROOT_DIRECTORY/.dapr/config.yaml &
 }
 
-DEPENDENCIES=$(cat $ROOT_DIRECTORY/app/AppManifest.json | jq .[].dependencies)
+DEPENDENCIES=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].dependencies)
 SERVICES=$(echo $DEPENDENCIES | jq '.services')
 
 if [ "$SERVICES" = "null" ];then
