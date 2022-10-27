@@ -28,7 +28,7 @@ include_directories(
 
 if(SDK_STANDALONE)
     # set the project name
-    project(VehicleAppCppSdk C CXX)
+    project(VehicleAppCppSdk CXX)
 
     if(STATIC_BUILD)
         set(BUILD_SHARED_LIBS OFF)

@@ -57,11 +57,6 @@ if [ "${CODESPACES}" = "true" ]; then
 fi
 
 echo "#######################################################"
-echo "### Init submodules                                 ###"
-echo "#######################################################"
-git submodule update --init
-
-echo "#######################################################"
 echo "### Install Dependencies                            ###"
 echo "#######################################################"
 ./install_dependencies.sh 2>&1 | tee -a $HOME/install_dependencies.log
