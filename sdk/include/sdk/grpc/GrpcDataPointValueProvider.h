@@ -39,6 +39,7 @@ public:
     std::vector<uint64_t>    getUint64ArrayValue() const override;
     std::string              getStringValue() const override;
     std::vector<std::string> getStringArrayValue() const override;
+    Timestamp                getTimestamp() const override;
 
 protected:
     const sdv::databroker::v1::Datapoint& getDataPoint() const;

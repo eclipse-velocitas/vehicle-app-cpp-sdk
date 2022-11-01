@@ -121,4 +121,8 @@ std::vector<std::string> GrpcDataPointValueProvider::getStringArrayValue() const
     return result;
 }
 
+Timestamp GrpcDataPointValueProvider::getTimestamp() const {
+    return {m_datapoint.timestamp().seconds(), m_datapoint.timestamp().nanos()};
+}
+
 } // namespace velocitas
