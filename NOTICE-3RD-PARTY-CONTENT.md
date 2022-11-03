@@ -15,7 +15,7 @@
 |fasteners|0.18|Apache 2.0|
 |filelock|3.8.0|Public Domain|
 |gcovr|5.2|BSD|
-|identify|2.5.7|MIT|
+|identify|2.5.8|MIT|
 |idna|3.4|BSD|
 |Jinja2|3.1.2|New BSD|
 |lxml|4.9.1|BSD|
