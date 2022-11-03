@@ -25,6 +25,15 @@
 
 namespace velocitas {
 
+/**
+ * @brief See
+ * https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/timestamp.proto
+ */
+struct Timestamp {
+    int64_t seconds;
+    int32_t nanos;
+};
+
 class DataPoint;
 class DataPointBoolean;
 class DataPointBooleanArray;
@@ -92,6 +101,8 @@ public:
     [[nodiscard]] virtual std::string getStringValue() const = 0;
 
     [[nodiscard]] virtual std::vector<std::string> getStringArrayValue() const = 0;
+
+    [[nodiscard]] virtual Timestamp getTimestamp() const = 0;
 };
 
 /**
@@ -118,6 +129,13 @@ public:
     virtual DataPointFailure&         asFailure();
     [[nodiscard]] virtual bool        isValid() const { return true; }
     [[nodiscard]] virtual std::string toString() const = 0;
+
+    /**
+     * @brief Return the timestamp of the data point.
+     *
+     * @return Timestamp The timestamp at which the value was captured.
+     */
+    [[nodiscard]] Timestamp getTimestamp() const;
 
 protected:
     [[nodiscard]] const IDataPointValueProvider& getValueProvider() const;

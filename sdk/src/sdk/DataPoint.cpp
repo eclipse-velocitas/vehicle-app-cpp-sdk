@@ -36,6 +36,8 @@ DataPointFailure& DataPoint::asFailure() {
     throw InvalidTypeException("DataPoint is not a failure!");
 }
 
+Timestamp DataPoint::getTimestamp() const { return m_valueProvider->getTimestamp(); }
+
 DataPointFailure::DataPointFailure(std::string name, std::string failureReason)
     : DataPoint(std::move(name), nullptr)
     , m_failureReason{std::move(failureReason)} {}
