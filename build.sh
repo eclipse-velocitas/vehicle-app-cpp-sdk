@@ -76,6 +76,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+echo "CMake version      "`cmake --version`
+echo "Conan version      "`conan --version`
 echo "Build variant      ${BUILD_VARIANT}"
 echo "Build arch         ${BUILD_ARCH}"
 echo "Build target       ${BUILD_TARGET}"
