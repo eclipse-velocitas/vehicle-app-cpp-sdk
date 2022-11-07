@@ -65,6 +65,38 @@ public:
  */
 template <typename TImpl> class Logger {
 public:
+    /**
+     * @brief Proxy function which applies string formatting prior to passing it
+     *        to the actual implementation.
+     */
+    template <typename... T> void info(const std::string& msg, T... args) {
+        info(fmt::format(msg, args...));
+    }
+
+    /**
+     * @brief Proxy function which applies string formatting prior to passing it
+     *        to the actual implementation.
+     */
+    template <typename... T> void warn(const std::string& msg, T... args) {
+        warn(fmt::format(msg, args...));
+    }
+
+    /**
+     * @brief Proxy function which applies string formatting prior to passing it
+     *        to the actual implementation.
+     */
+    template <typename... T> void error(const std::string& msg, T... args) {
+        error(fmt::format(msg, args...));
+    }
+
+    /**
+     * @brief Proxy function which applies string formatting prior to passing it
+     *        to the actual implementation.
+     */
+    template <typename... T> void debug(const std::string& msg, T... args) {
+        debug(fmt::format(msg, args...));
+    }
+
     void info(const std::string& msg) const { m_impl.info(msg); }
     void warn(const std::string& msg) const { m_impl.warn(msg); }
     void error(const std::string& msg) const { m_impl.error(msg); }
