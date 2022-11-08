@@ -1,65 +1,13 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.245.0/containers/cpp
 {
-	"name": "C++",
-	"build": {
-		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick an Debian / Ubuntu OS version: debian-11, debian-10, ubuntu-22.04, ubuntu-20.04, ubuntu-18.04
-		// Use Debian 11, Ubuntu 18.04 or Ubuntu 22.04 on local arm64/Apple Silicon
-		"args": {
-			"VARIANT": "ubuntu-22.04",
-			"PROXY": "${localEnv:DEVCONTAINER_PROXY}",
-			"PROXY_PORT": "${localEnv:DEVCONTAINER_PROXY_PORT}",
-			"PROXY_HOST": "${localEnv:DEVCONTAINER_PROXY_HOST}",
-			"WORKSPACE_ROOT": "${containerWorkspaceFolder}"
-		}
-	},
+	"name": "Velocitas C++ Development",
+	"image": "ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:sha-fd4d10a",
 	"runArgs": [
 		"--cap-add=SYS_PTRACE",
 		"--security-opt",
 		"seccomp=unconfined"
 	],
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:1": {
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "os-provided"
-		}
-	},
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"[cpp]": {
-			"editor.defaultFormatter": "xaver.clang-format"
-		},
-		"editor.formatOnSave": true,
-		"clang-tidy.fixOnSave": true,
-		"clang-tidy.lintOnSave": true,
-		"clang-tidy.blacklist": [
-			"app/tests/*",
-			"app/vehicle_model/*",
-			"build/*"
-		],
-		"clang-tidy.buildPath": "./build",
-		"clang-tidy.compilerArgs": [
-			"-std=c++17"
-		],
-		"vsmqtt.brokerProfiles": [
-			{
-				"name": "k3d",
-				"host": "localhost",
-				"port": 31883,
-				"clientId": "vsmqtt_client"
-			},
-			{
-				"name": "local",
-				"host": "localhost",
-				"port": 1883,
-				"clientId": "vsmqtt_client"
-			}
-		],
-		"json.format.keepLines": true
-	},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-vscode.cpptools",
@@ -78,7 +26,6 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'onCreateCommand' to run commands when the container is created.
-	"onCreateCommand": "bash .devcontainer/scripts/post-create.sh",
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
 }

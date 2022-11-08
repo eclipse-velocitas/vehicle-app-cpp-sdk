@@ -1,0 +1,32 @@
+{
+    "[cpp]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "editor.formatOnSave": true,
+    "clang-tidy.fixOnSave": true,
+    "clang-tidy.lintOnSave": true,
+    "clang-tidy.blacklist": [
+        "app/tests/*",
+        "app/vehicle_model/*",
+        "build/*"
+    ],
+    "clang-tidy.buildPath": "./build",
+    "clang-tidy.compilerArgs": [
+        "-std=c++17"
+    ],
+    "vsmqtt.brokerProfiles": [
+        {
+            "name": "k3d",
+            "host": "localhost",
+            "port": 31883,
+            "clientId": "vsmqtt_client"
+        },
+        {
+            "name": "local",
+            "host": "localhost",
+            "port": 1883,
+            "clientId": "vsmqtt_client"
+        }
+    ],
+    "json.format.keepLines": true
+}

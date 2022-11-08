@@ -30,26 +30,11 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-22.04
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:sha-fd4d10a
     name: "Build, Test and Lint"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Clone vehicle_model repository
-        uses: actions/checkout@v2
-        with:
-          repository: eclipse-velocitas/vehicle-model-cpp
-          path: "./app/vehicle_model"
-
-      - name: install prerequisites
-        run: |
-          sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
-          pip3 install conan gcovr cpplint
-
-      - name: Set up GCC
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: 11
 
       - name: Install dependencies
         run: ./install_dependencies.sh -r
@@ -62,6 +47,9 @@ jobs:
 
       - name: Generate coverage report
         run: cd build && gcovr -r ..
+
+      - name: Fix dubious git repo
+        run: git config --global --add safe.directory /__w/vehicle-app-cpp-sdk/vehicle-app-cpp-sdk
 
       - name: Code Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.2.0
