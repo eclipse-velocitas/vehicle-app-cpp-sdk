@@ -17,103 +17,129 @@
 #ifndef VEHICLE_APP_SDK_LOGGER_H
 #define VEHICLE_APP_SDK_LOGGER_H
 
-#include <chrono>
-#include <cstdio>
-#include <fmt/chrono.h>
-#include <fmt/color.h>
 #include <fmt/core.h>
+#include <memory>
 #include <string>
 
 namespace velocitas {
 
 /**
- * @brief Logger implementation for logging to the console.
+ * @brief Logger interface for implementing your own loggers.
  *
  */
-class ConsoleLogger {
+class ILogger {
 public:
-    void info(const std::string& msg) const {
-        fmt::print(fmt::fg(fmt::color::white), "{}, INFO  : {}\n", std::chrono::system_clock::now(),
-                   msg);
-        std::fflush(stdout);
-    }
+    ILogger()          = default;
+    virtual ~ILogger() = default;
 
-    void warn(const std::string& msg) const {
-        fmt::print(fmt::fg(fmt::color::yellow), "{}, WARN  : {}\n",
-                   std::chrono::system_clock::now(), msg);
-        std::fflush(stdout);
-    }
+    ILogger(const ILogger&)            = delete;
+    ILogger(ILogger&&)                 = delete;
+    ILogger& operator=(const ILogger&) = delete;
+    ILogger& operator=(ILogger&&)      = delete;
 
-    void error(const std::string& msg) const {
-        fmt::print(fmt::fg(fmt::color::red), "{}, ERROR : {}\n", std::chrono::system_clock::now(),
-                   msg);
-        std::fflush(stdout);
-    }
+    /**
+     * @brief Log a message with info level.
+     *
+     * @param msg The message to log.
+     */
+    virtual void info(const std::string& msg) = 0;
 
-    void debug(const std::string& msg) const {
-        fmt::print(fmt::fg(fmt::color::brown), "{}, DEBUG : {}\n", std::chrono::system_clock::now(),
-                   msg);
-        std::fflush(stdout);
-    }
+    /**
+     * @brief Log a message with warn level.
+     *
+     * @param msg The message to log.
+     */
+    virtual void warn(const std::string& msg) = 0;
+
+    /**
+     * @brief Log a message with error level.
+     *
+     * @param msg The message to log.
+     */
+    virtual void error(const std::string& msg) = 0;
+
+    /**
+     * @brief Log a message with debug level.
+     *
+     * @param msg The message to log.
+     */
+    virtual void debug(const std::string& msg) = 0;
 };
 
 /**
- * @brief Logger template implementation which will delegate the calls to the
- * implementing class.
+ * @brief Allows logging of messages with different log levels.
  *
- * @tparam TImpl  The class implementing the logger functionality.
+ * @details Handles string formatting of the log message and its arguments
+ *          then forwards the formatted message to the real logger
+ *          implementation. (Bridge pattern)
  */
-template <typename TImpl> class Logger {
+class Logger {
 public:
+    Logger();
+
     /**
-     * @brief Proxy function which applies string formatting prior to passing it
-     *        to the actual implementation.
+     * @brief Log a message with info level.
+     *
+     * @tparam T    Type of the format arguments.
+     * @param msg   The format message.
+     * @param args  The format arguments.
      */
-    template <typename... T> void info(const std::string& msg, T... args) {
-        info(fmt::format(msg, args...));
+    template <typename... T> void info(const std::string& msg, const T&... args) {
+        m_impl->info(fmt::format(msg, args...));
     }
 
     /**
-     * @brief Proxy function which applies string formatting prior to passing it
-     *        to the actual implementation.
+     * @brief Log a message with warn level.
+     *
+     * @tparam T    Type of the format arguments.
+     * @param msg   The format message.
+     * @param args  The format arguments.
      */
-    template <typename... T> void warn(const std::string& msg, T... args) {
-        warn(fmt::format(msg, args...));
+    template <typename... T> void warn(const std::string& msg, const T&... args) {
+        m_impl->warn(fmt::format(msg, args...));
     }
 
     /**
-     * @brief Proxy function which applies string formatting prior to passing it
-     *        to the actual implementation.
+     * @brief Log a message with error level.
+     *
+     * @tparam T    Type of the format arguments.
+     * @param msg   The format message.
+     * @param args  The format arguments.
      */
-    template <typename... T> void error(const std::string& msg, T... args) {
-        error(fmt::format(msg, args...));
+    template <typename... T> void error(const std::string& msg, const T&... args) {
+        m_impl->error(fmt::format(msg, args...));
     }
 
     /**
-     * @brief Proxy function which applies string formatting prior to passing it
-     *        to the actual implementation.
+     * @brief Log a message with debug level.
+     *
+     * @tparam T    Type of the format arguments.
+     * @param msg   The format message.
+     * @param args  The format arguments.
      */
-    template <typename... T> void debug(const std::string& msg, T... args) {
-        debug(fmt::format(msg, args...));
+    template <typename... T> void debug(const std::string& msg, const T&... args) {
+        m_impl->debug(fmt::format(msg, args...));
     }
 
-    void info(const std::string& msg) const { m_impl.info(msg); }
-    void warn(const std::string& msg) const { m_impl.warn(msg); }
-    void error(const std::string& msg) const { m_impl.error(msg); }
-    void debug(const std::string& msg) const { m_impl.debug(msg); }
+    /**
+     * @brief Set the Logger Implementation object
+     *
+     * @param impl The new implementation to use.
+     */
+    void setLoggerImplementation(std::unique_ptr<ILogger>&& impl) { m_impl = std::move(impl); }
 
 private:
-    TImpl m_impl;
+    std::unique_ptr<ILogger> m_impl;
 };
 
 /**
  * @brief Return the global logger instance.
  *
- * @return Logger<ConsoleLogger>&
+ * @return Logger&
  */
-inline Logger<ConsoleLogger>& logger() {
-    static Logger<ConsoleLogger> logger2;
-    return logger2;
+inline Logger& logger() {
+    static Logger loggerInstance{};
+    return loggerInstance;
 }
 
 } // namespace velocitas

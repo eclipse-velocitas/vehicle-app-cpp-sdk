@@ -20,7 +20,7 @@
 
 using namespace velocitas;
 
-TEST(AsyncSubcriptionTest, next_withBufferedItems_returnsItemsInOrder) {
+TEST(Test_AsyncSubcription, next_withBufferedItems_returnsItemsInOrder) {
     AsyncSubscription<int> asyncSubscription;
     asyncSubscription.insertNewItem(1);
     asyncSubscription.insertNewItem(2);
@@ -31,7 +31,7 @@ TEST(AsyncSubcriptionTest, next_withBufferedItems_returnsItemsInOrder) {
     EXPECT_EQ(asyncSubscription.next(), 3);
 }
 
-TEST(AsyncSubcriptionTest, next_noBufferedItems_blocksUntilItemsInserted) {
+TEST(Test_AsyncSubcription, next_noBufferedItems_blocksUntilItemsInserted) {
     constexpr auto         INT_RESULT{999};
     AsyncSubscription<int> asyncSubscription;
     std::thread            thread([&asyncSubscription, INT_RESULT]() {
