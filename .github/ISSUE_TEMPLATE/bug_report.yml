@@ -61,7 +61,7 @@ body:
     id: terms
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our rules for [contribution](https://raw.githubusercontent.com/eclipse-velocitas/vehicle-app-python-sdk/main/CONTRIBUTING.md?token=GHSAT0AAAAAABUFQPIKACAY7TIQMQXGFLJWYUN5AHQ)
+      description: By submitting this issue, you agree to follow our rules for [contribution](https://raw.githubusercontent.com/eclipse-velocitas/vehicle-app-cpp-sdk/main/CONTRIBUTING.md?token=GHSAT0AAAAAABUFQPIKACAY7TIQMQXGFLJWYUN5AHQ)
       options:
         - label: I agree to follow this project's rules for contributions
           required: true

@@ -15,7 +15,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a bug with the SDK.
-    url: https://github.com/eclipse-velocitas/vehicle-app-python-sdk/issues
+    url: https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk/issues
     about: This is the issue tracker for the SDK.
   - name: Report incorrect or missing information in our documentation.
     url: https://github.com/eclipse-velocitas/velocitas-docs/issues
