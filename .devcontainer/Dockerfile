@@ -24,4 +24,5 @@ ARG PROXY_PORT
 ENV PROXY_PORT="${PROXY_PORT:-3128}"
 
 # Redirect conan home to avoid cache eviction on container rebuild
-ENV CONAN_USER_HOME=/workspaces/vehicle-app-cpp-sdk/.conan_home
+ARG WORKSPACE_ROOT
+ENV CONAN_USER_HOME="${WORKSPACE_ROOT}/.conan_home"

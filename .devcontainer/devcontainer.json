@@ -10,7 +10,8 @@
 			"VARIANT": "ubuntu-22.04",
 			"PROXY": "${localEnv:DEVCONTAINER_PROXY}",
 			"PROXY_PORT": "${localEnv:DEVCONTAINER_PROXY_PORT}",
-			"PROXY_HOST": "${localEnv:DEVCONTAINER_PROXY_HOST}"
+			"PROXY_HOST": "${localEnv:DEVCONTAINER_PROXY_HOST}",
+			"WORKSPACE_ROOT": "${containerWorkspaceFolder}"
 		}
 	},
 	"runArgs": [
