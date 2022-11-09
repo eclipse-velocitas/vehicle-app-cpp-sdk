@@ -8,7 +8,7 @@
 |cfgv|3.3.1|MIT|
 |charset-normalizer|2.1.1|MIT|
 |colorama|0.4.6|BSD|
-|conan|1.53.0|MIT|
+|conan|1.54.0|MIT|
 |cpplint|1.6.1|New BSD|
 |distlib|0.3.6|Python Software Foundation License|
 |distro|1.7.0|Apache 2.0|
@@ -23,7 +23,7 @@
 |node-semver|0.6.1|MIT|
 |nodeenv|1.7.0|BSD|
 |patch-ng|1.17.4|MIT|
-|platformdirs|2.5.2|MIT|
+|platformdirs|2.5.3|MIT|
 |pluginbase|1.0.1|BSD|
 |pre-commit|2.20.0|MIT|
 |Pygments|2.13.0|BSD|
