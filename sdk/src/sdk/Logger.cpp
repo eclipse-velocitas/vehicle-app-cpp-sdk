@@ -30,26 +30,24 @@ namespace velocitas {
 class ConsoleLogger : public ILogger {
 public:
     void info(const std::string& msg) override {
-        fmt::print(fmt::fg(fmt::color::white), "{}, INFO  : {}\n", std::chrono::system_clock::now(),
-                   msg);
-        std::fflush(stdout);
+        log("INFO ", fmt::color::white, msg);
     }
 
     void warn(const std::string& msg) override {
-        fmt::print(fmt::fg(fmt::color::yellow), "{}, WARN  : {}\n",
-                   std::chrono::system_clock::now(), msg);
-        std::fflush(stdout);
+        log("WARN ", fmt::color::yellow, msg);
     }
 
     void error(const std::string& msg) override {
-        fmt::print(fmt::fg(fmt::color::red), "{}, ERROR : {}\n", std::chrono::system_clock::now(),
-                   msg);
-        std::fflush(stdout);
+        log("ERROR", fmt::color::red, msg);
     }
 
     void debug(const std::string& msg) override {
-        fmt::print(fmt::fg(fmt::color::brown), "{}, DEBUG : {}\n", std::chrono::system_clock::now(),
-                   msg);
+        log("DEBUG", fmt::color::brown, msg);
+    }
+    
+private:
+    void log(const std::string& level, fmt::color color, const std::string& msg) {
+        fmt::print(fmt::fg(color), "{}, {} : {}\n", std::chrono::system_clock::now(), level, msg);
         std::fflush(stdout);
     }
 };
