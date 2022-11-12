@@ -23,4 +23,7 @@ target_link_libraries(${TARGET_NAME}
 )
 
 include(GoogleTest)
-gtest_discover_tests(${TARGET_NAME})
+
+if(NOT CMAKE_TOOLCHAIN_FILE)
+    gtest_discover_tests(${TARGET_NAME})
+endif()
