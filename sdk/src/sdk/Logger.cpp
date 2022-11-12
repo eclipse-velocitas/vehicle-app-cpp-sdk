@@ -29,22 +29,14 @@ namespace velocitas {
  */
 class ConsoleLogger : public ILogger {
 public:
-    void info(const std::string& msg) override {
-        log("INFO ", fmt::color::white, msg);
-    }
+    void info(const std::string& msg) override { log("INFO ", fmt::color::white, msg); }
 
-    void warn(const std::string& msg) override {
-        log("WARN ", fmt::color::yellow, msg);
-    }
+    void warn(const std::string& msg) override { log("WARN ", fmt::color::yellow, msg); }
 
-    void error(const std::string& msg) override {
-        log("ERROR", fmt::color::red, msg);
-    }
+    void error(const std::string& msg) override { log("ERROR", fmt::color::red, msg); }
 
-    void debug(const std::string& msg) override {
-        log("DEBUG", fmt::color::brown, msg);
-    }
-    
+    void debug(const std::string& msg) override { log("DEBUG", fmt::color::brown, msg); }
+
 private:
     void log(const std::string& level, fmt::color color, const std::string& msg) {
         fmt::print(fmt::fg(color), "{}, {} : {}\n", std::chrono::system_clock::now(), level, msg);
