@@ -23,6 +23,7 @@ add_library(${TARGET_NAME}
     sdk/ThreadPool.cpp
     sdk/Job.cpp
     sdk/Utils.cpp
+    sdk/Logger.cpp
 
     sdk/dapr/DaprSupport.cpp
     sdk/grpc/GrpcClient.cpp

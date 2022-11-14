@@ -4,6 +4,7 @@ add_executable(${TARGET_NAME}
     AsyncResult_tests.cpp
     AsyncSubscription_tests.cpp
     Job_tests.cpp
+    Logger_tests.cpp
     Node_tests.cpp
     ScopedBoolInverter_tests.cpp
     ThreadPool_tests.cpp

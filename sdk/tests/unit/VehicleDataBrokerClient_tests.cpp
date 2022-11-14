@@ -20,7 +20,7 @@
 
 using namespace velocitas;
 
-TEST(VehicleDataBrokerClientTest, getDatapoints_noConnection_throwsAsyncException) {
+TEST(Test_VehicleDataBrokerClient, getDatapoints_noConnection_throwsAsyncException) {
     auto client = VehicleDataBrokerClient("my-app-id");
     EXPECT_THROW(client.getDatapoints({})->await(), AsyncException);
 }

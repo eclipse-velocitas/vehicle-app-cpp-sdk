@@ -71,8 +71,8 @@ void SeatAdjusterApp::onStart() {
 }
 
 void SeatAdjusterApp::onSpeedChanged(const velocitas::DataPointsResult& dataPoints) {
-    velocitas::logger().info(
-        fmt::format("Speed has changed: {}", dataPoints.get(m_vehicleModel->getSpeed())->value()));
+    velocitas::logger().info("Speed has changed: {}",
+                             dataPoints.get(m_vehicleModel->getSpeed())->value());
 }
 
 void SeatAdjusterApp::onSeatMovementRequested(const velocitas::VoidResult& status, int requestId,
@@ -88,7 +88,7 @@ void SeatAdjusterApp::onSeatMovementRequested(const velocitas::VoidResult& statu
 }
 
 void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
-    velocitas::logger().debug(fmt::format("positionrequest: \"{}\"", data));
+    velocitas::logger().debug("positionrequest: \"{}\"", data);
     const auto jsonData = nlohmann::json::parse(data);
     if (!jsonData.contains(JSON_FIELD_POSITION)) {
         const auto errorMsg = fmt::format("No position specified");
@@ -146,8 +146,8 @@ void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointsResult& d
 
         publishToTopic(TOPIC_CURRENT_POSITION, jsonResponse.dump());
     } catch (std::exception& exception) {
-        velocitas::logger().error(
-            fmt::format("Unable to get Current Seat Position, Exception: {}", exception.what()));
+        velocitas::logger().error("Unable to get Current Seat Position, Exception: {}",
+                                  exception.what());
         nlohmann::json jsonResponse(
             {{JSON_FIELD_STATUS, STATUS_FAIL}, {JSON_FIELD_MESSAGE, exception.what()}});
 
@@ -156,17 +156,16 @@ void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointsResult& d
 }
 
 void SeatAdjusterApp::onError(const velocitas::Status& status) {
-    velocitas::logger().error(
-        fmt::format("Error occurred during async invocation: {}", status.errorMessage()));
+    velocitas::logger().error("Error occurred during async invocation: {}", status.errorMessage());
 }
 
 void SeatAdjusterApp::onErrorDatapoint(const velocitas::Status& status) {
-    velocitas::logger().error(fmt::format("Datapoint: Error occurred during async invocation: {}",
-                                          status.errorMessage()));
+    velocitas::logger().error("Datapoint: Error occurred during async invocation: {}",
+                              status.errorMessage());
 }
 void SeatAdjusterApp::onErrorTopic(const velocitas::Status& status) {
-    velocitas::logger().error(
-        fmt::format("Topic: Error occurred during async invocation: {}", status.errorMessage()));
+    velocitas::logger().error("Topic: Error occurred during async invocation: {}",
+                              status.errorMessage());
 }
 } // namespace example
 

@@ -20,13 +20,13 @@
 
 using namespace velocitas;
 
-TEST(AsyncResultTest, await_withBufferedValue_returnsValueImmediately) {
+TEST(Test_AsyncResult, await_withBufferedValue_returnsValueImmediately) {
     AsyncResult<int> asyncResult;
     asyncResult.insertResult(5);
     EXPECT_EQ(5, asyncResult.await());
 }
 
-TEST(AsyncResultTest, await_withoutHandler_blocksCallerUntilResultIsAvailable) {
+TEST(Test_AsyncResult, await_withoutHandler_blocksCallerUntilResultIsAvailable) {
     constexpr auto INT_RESULT{999};
 
     AsyncResult<int> asyncResult;
@@ -41,13 +41,13 @@ TEST(AsyncResultTest, await_withoutHandler_blocksCallerUntilResultIsAvailable) {
     thread.join();
 }
 
-TEST(AsyncResultTest, await_withHandler_throws) {
+TEST(Test_AsyncResult, await_withHandler_throws) {
     AsyncResult<int> asyncResult;
     asyncResult.onResult([](int result) {});
     EXPECT_THROW(asyncResult.await(), std::runtime_error);
 }
 
-TEST(AsyncResultTest, onResult_withRegisteredHandler_handlerCalledWithValue) {
+TEST(Test_AsyncResult, onResult_withRegisteredHandler_handlerCalledWithValue) {
     int              receivedResult{-1};
     AsyncResult<int> asyncResult;
     asyncResult.onResult([&receivedResult](int result) { receivedResult = result; });
@@ -56,7 +56,7 @@ TEST(AsyncResultTest, onResult_withRegisteredHandler_handlerCalledWithValue) {
     EXPECT_EQ(receivedResult, 10);
 }
 
-TEST(AsyncResultTest, onResult_whileAwaiting_throws) {
+TEST(Test_AsyncResult, onResult_whileAwaiting_throws) {
     AsyncResult<int> asyncResult;
     std::thread      thread([&asyncResult]() { asyncResult.await(); });
     while (!asyncResult.isInAwaitingState()) {

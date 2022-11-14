@@ -19,7 +19,7 @@
 
 using namespace velocitas;
 
-TEST(Node, constructor_withoutParent_isRootNoParent) {
+TEST(Test_Node, constructor_withoutParent_isRootNoParent) {
     Node node{"foo"};
 
     EXPECT_EQ(node.getName(), "foo");
@@ -27,7 +27,7 @@ TEST(Node, constructor_withoutParent_isRootNoParent) {
     EXPECT_EQ(node.getPath(), "foo");
 }
 
-TEST(Node, constructor_withParent_isLeaf) {
+TEST(Test_Node, constructor_withParent_isLeaf) {
     Node nodeRoot{"root"};
     Node node{"foo", &nodeRoot};
 
