@@ -12,17 +12,24 @@ ENV DAPR_HOST_IP="127.0.0.1"
 # Add daprd to the path for the VS Code Dapr extension.
 ENV PATH=$PATH:/home/vscode/.dapr/bin
 
-
-# Port of the local Proxy
-ARG PROXY
-ENV PROXY="${PROXY}"
-
-ARG PROXY_HOST
-ENV PROXY_HOST="${PROXY_HOST:-http://host.docker.internal}"
-
-ARG PROXY_PORT
-ENV PROXY_PORT="${PROXY_PORT:-3128}"
-
 # Redirect conan home to avoid cache eviction on container rebuild
 ARG WORKSPACE_ROOT
 ENV CONAN_USER_HOME="${WORKSPACE_ROOT}/.conan_home"
+
+COPY scripts/*.sh /tmp/scripts/
+RUN find /tmp/scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
+RUN /bin/bash /tmp/scripts/configure-proxies.sh
+
+# Fix for bug in devcontainer features
+ADD https://raw.githubusercontent.com/devcontainers/features/main/src/common-utils/install.sh /tmp/scripts/install-common.sh
+RUN UID="4000" bash /tmp/scripts/install-common.sh
+ADD https://raw.githubusercontent.com/devcontainers/features/main/src/docker-in-docker/install.sh /tmp/scripts/install-dind.sh
+RUN VERSION="20.10" bash /tmp/scripts/install-dind.sh
+
+VOLUME [ "/var/lib/docker" ]
+
+# Setting the ENTRYPOINT to docker-init.sh will start up the Docker Engine
+# inside the container "overrideCommand": false is set in devcontainer.json.
+# The script will also execute CMD if you need to alter startup behaviors.
+ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
+CMD [ "sleep", "infinity" ]
