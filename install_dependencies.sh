@@ -19,25 +19,28 @@
 # or conanfile.py is updated.
 #
 
-set -e
+source ./.scripts/common.sh
 
 function print_help() {
   echo "Install dependencies
 ============================================================================
 Installs the Conan dependencies of the Vehicle App AND the Vehicle App SDK
 into the local Conan cache. Has to be re-executed whenever any conanfile.txt
-or conanfile.py is updated.
+or conanfile.py is updated. By default, dependencies are installed in release
+mode. 
 
 Arguments:
--d, --debug        Installs all dependencies in debug mode.
--r, --release      Installs all dependencies in release mode.
---build-all-deps   Forces all dependencies to be rebuild from source.
--h, --help         Shows this help.
+-d, --debug         Installs all dependencies in debug mode.
+-r, --release       Installs all dependencies in release mode. (default)
+-x, --cross <arch>  Cross compiles for the specified architecture.
+--build-all-deps    Forces all dependencies to be rebuild from source.
+-h, --help          Shows this help.
 "
 }
 
-BUILD_VARIANT="debug"
+BUILD_VARIANT="release"
 BUILD_ARCH=$(arch)
+HOST_ARCH=${BUILD_ARCH}
 WHICH_DEPS_TO_BUILD="missing"
 
 while [[ $# -gt 0 ]]; do
@@ -52,6 +55,17 @@ while [[ $# -gt 0 ]]; do
       ;;
     --build-all-deps)
       WHICH_DEPS_TO_BUILD="*"
+      shift
+      ;;
+    -x|--cross)
+      HOST_ARCH=$( get_valid_cross_compile_architecute "$2" )
+
+      if [ "$?" -eq 1 ]; then
+        echo "Invalid cross-compile architecture '$2'!"
+        exit 1
+      fi
+
+      shift
       shift
       ;;
     -h|--help)
@@ -70,9 +84,33 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "Build variant ${BUILD_VARIANT}"
-echo "Build arch    ${BUILD_ARCH}"
-echo "Building deps ${WHICH_DEPS_TO_BUILD}"
+echo "Conan version      "`conan --version`
+echo "Build variant      ${BUILD_VARIANT}"
+echo "Build arch         ${BUILD_ARCH}"
+echo "Host arch          ${HOST_ARCH}"
+echo "Building deps      ${WHICH_DEPS_TO_BUILD}"
 
 mkdir -p build && cd build
-conan install -pr:h ../.conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT} --build "${WHICH_DEPS_TO_BUILD}" ..
+
+XCOMPILE_PROFILE=""
+
+if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
+  echo "Setting up cross compilation toolchain..."
+
+  toolchain=/usr/bin/${HOST_ARCH}-linux-gnu
+  target_host=${HOST_ARCH}-linux-gnu
+  cc_compiler=gcc
+  cxx_compiler=g++
+
+  export CONAN_CMAKE_FIND_ROOT_PATH=$toolchain
+  export CONAN_CMAKE_SYSROOT=$toolchain
+  export CC=$target_host-$cc_compiler
+  export CXX=$target_host-$cxx_compiler
+
+  XCOMPILE_PROFILE="-pr:b ../.conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
+fi
+
+conan install \
+    -pr:h ../.conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
+    ${XCOMPILE_PROFILE} \
+    --build "${WHICH_DEPS_TO_BUILD}" ..

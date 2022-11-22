@@ -24,7 +24,6 @@ class VehicleAppCppSdkConan(ConanFile):
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
     requires = "openssl/1.1.1q", "libcurl/7.84.0", "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0", "grpc/1.48.0", "protobuf/3.21.4", "cpr/1.9.0", "fmt/9.1.0", "zlib/1.2.13"
-    build_requires = "protobuf/3.21.4"
     generators = "cmake"
     author = "Robert Bosch GmbH"
 
@@ -79,3 +78,8 @@ class VehicleAppCppSdkConan(ConanFile):
     def imports(self):
         self.copy("license*", src=".", dst="./licenses",
                   folder=True, ignore_case=True)
+
+    def build_requirements(self):
+        # 'build' context (protoc.exe will be available)
+        self.tool_requires("protobuf/3.21.4")
+        self.tool_requires("grpc/1.48.0")
