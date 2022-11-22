@@ -30,6 +30,7 @@ Arguments:
 -t <name>, --target <name>       Builds only the target <name> instead of all targets. 
 -no-examples                     Disables the build of the SDK examples. 
 -s, --static                     Links all dependencies statically. 
+-x, --cross <arch>               Cross compiles for the specified architecture.
 -h, --help                       Shows this help.
 "
 }
