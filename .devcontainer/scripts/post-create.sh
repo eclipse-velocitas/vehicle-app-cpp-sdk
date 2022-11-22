@@ -17,7 +17,6 @@
 set -e
 
 sudo chmod +x .devcontainer/scripts/*.sh
-sudo chmod +x .vscode/scripts/runtime/k3d/*.sh
 sudo chmod +x .vscode/scripts/runtime/local/*.sh
 sudo chown -R $(whoami) $HOME
 
@@ -60,5 +59,3 @@ echo "#######################################################"
 echo "### Install Dependencies                            ###"
 echo "#######################################################"
 ./install_dependencies.sh 2>&1 | tee -a $HOME/install_dependencies.log
-
-
