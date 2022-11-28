@@ -8,25 +8,21 @@
 		// Use Debian 11, Ubuntu 18.04 or Ubuntu 22.04 on local arm64/Apple Silicon
 		"args": {
 			"VARIANT": "ubuntu-22.04",
-			"PROXY": "${localEnv:DEVCONTAINER_PROXY}",
-			"PROXY_PORT": "${localEnv:DEVCONTAINER_PROXY_PORT}",
-			"PROXY_HOST": "${localEnv:DEVCONTAINER_PROXY_HOST}",
 			"WORKSPACE_ROOT": "${containerWorkspaceFolder}"
 		}
 	},
 	"runArgs": [
+		"--init",
+		"--privileged",
 		"--cap-add=SYS_PTRACE",
 		"--security-opt",
 		"seccomp=unconfined"
 	],
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:1": {
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "os-provided"
-		}
-	},
+	// workaround for the devcontainer features
+	"overrideCommand": false,
+	"mounts": [
+		"source=dind-var-lib-docker,target=/var/lib/docker,type=volume"
+	],
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
 		"[cpp]": {
