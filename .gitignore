@@ -65,3 +65,5 @@ conan_imports_manifest.txt
 
 # conan home
 .conan_home
+
+.pytest_cache

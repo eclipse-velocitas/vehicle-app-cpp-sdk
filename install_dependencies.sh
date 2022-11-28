@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright (c) 2022 Robert Bosch GmbH
 #
 # This program and the accompanying materials are made available under the
