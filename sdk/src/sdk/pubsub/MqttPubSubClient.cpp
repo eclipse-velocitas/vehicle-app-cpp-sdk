@@ -17,6 +17,7 @@
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/Status.h"
+#include "sdk/ThreadPool.h"
 
 #include <mqtt/async_client.h>
 #include <unordered_map>
@@ -73,12 +74,15 @@ private:
         // Todo: Replace by solution capable handling wildcards
         auto range = m_subscriberMap.equal_range(topic);
         for (auto it = range.first; it != range.second; ++it) {
-            try {
-                it->second->insertNewItem(std::string(payload));
-            } catch (std::exception& e) {
-                it->second->insertError(Status(
-                    fmt::format("MQTT: Callback threw an exception on update: {}", e.what())));
-            }
+            auto subscription = it->second;
+            ThreadPool::getInstance()->enqueue(Job::create([subscription, payload]() {
+                try {
+                    subscription->insertNewItem(std::string(payload));
+                } catch (std::exception& e) {
+                    subscription->insertError(Status(
+                        fmt::format("MQTT: Callback threw an exception on update: {}", e.what())));
+                }
+            }));
         }
     }
 
