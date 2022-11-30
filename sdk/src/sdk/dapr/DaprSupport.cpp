@@ -40,11 +40,10 @@ void waitForSidecar() {
                 const auto response =
                     cpr::Get(cpr::Url(fmt::format("http://localhost:{}/v1.0/healthz", targetPort)));
                 success = response.status_code == STATUS_NO_CONTENT;
-                logger().debug(fmt::format("dapr: Health endpoint returned status code: {}, {}",
-                                           response.status_code, response.text));
+                logger().debug("dapr: Health endpoint returned status code: {}, {}",
+                               response.status_code, response.text);
             } catch (const std::exception& e) {
-                logger().debug(
-                    fmt::format("dapr: Exception occurred during health endpoint: {}", e.what()));
+                logger().debug("dapr: Exception occurred during health endpoint: {}", e.what());
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }

@@ -53,12 +53,12 @@ public:
     bool isConnected() const override { return m_client.is_connected(); }
 
     void publishOnTopic(const std::string& topic, const std::string& data) override {
-        logger().debug(fmt::format(R"(Publish on topic "{}": "{}")", topic, data));
+        logger().debug(R"(Publish on topic "{}": "{}")", topic, data);
         m_client.publish(topic, data)->wait();
     }
 
     AsyncSubscriptionPtr_t<std::string> subscribeTopic(const std::string& topic) override {
-        logger().debug(fmt::format("Subscribing to {}", topic));
+        logger().debug("Subscribing to {}", topic);
         auto subscription = std::make_shared<AsyncSubscription<std::string>>();
         m_subscriberMap.insert(std::make_pair(topic, subscription));
         m_client.subscribe(topic, 0)->wait();
@@ -69,7 +69,7 @@ private:
     void message_arrived(mqtt::const_message_ptr msg) override {
         const std::string& topic   = msg->get_topic();
         const std::string& payload = msg->get_payload_str();
-        logger().debug(fmt::format(R"(MQTT: Update on topic "{}": "{}")", topic, payload));
+        logger().debug(R"(MQTT: Update on topic "{}": "{}")", topic, payload);
 
         // Todo: Replace by solution capable handling wildcards
         auto range = m_subscriberMap.equal_range(topic);
