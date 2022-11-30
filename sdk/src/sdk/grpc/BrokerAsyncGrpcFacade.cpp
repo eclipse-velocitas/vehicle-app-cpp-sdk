@@ -50,8 +50,8 @@ void BrokerAsyncGrpcFacade::GetDatapoints(
                 errorHandler(status);
             };
         } catch (std::exception& e) {
-            velocitas::logger().error(
-                fmt::format("GRPC: Exception occurred during \"GetDatapoints\": {}", e.what()));
+            velocitas::logger().error("GRPC: Exception occurred during \"GetDatapoints\": {}",
+                                      e.what());
         }
     };
 

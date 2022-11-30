@@ -66,8 +66,8 @@ private:
                 try {
                     m_onDataHandler(m_reply);
                 } catch (std::exception& e) {
-                    velocitas::logger().error(fmt::format(
-                        "GRPC: Exception occurred during \"GetDatapoints\": {}", e.what()));
+                    velocitas::logger().error(
+                        "GRPC: Exception occurred during \"GetDatapoints\": {}", e.what());
                 }
                 this->StartRead(&m_reply);
             }
