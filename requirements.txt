@@ -13,8 +13,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-gcovr
-conan
+gcovr==5.2
+conan==1.55.0
 
-pre-commit
-cpplint
+pre-commit==2.20.0
+cpplint==1.6.1
