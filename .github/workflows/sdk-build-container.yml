@@ -57,7 +57,7 @@ jobs:
 
       - name: "Build image"
         id: image_build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v3.2.0
         with:
           push: true
           file: sdk/Dockerfile
