@@ -17,6 +17,7 @@
 #ifndef VEHICLE_APP_SDK_MODEL_H
 #define VEHICLE_APP_SDK_MODEL_H
 
+#include "sdk/DataPointBatch.h"
 #include "sdk/Node.h"
 
 #include <string>
@@ -31,6 +32,8 @@ namespace velocitas {
 class Model : public Node {
 public:
     using Node::Node;
+
+    [[nodiscard]] DataPointBatch setMany() const { return DataPointBatch{}; }
 };
 
 /**

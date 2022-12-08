@@ -19,6 +19,7 @@
 #include "sdk/grpc/AsyncGrpcFacade.h"
 #include "sdk/grpc/BrokerAsyncGrpcFacade.h"
 #include "sdk/grpc/GrpcDataPointValueProvider.h"
+#include "sdk/vdb/DataPointsResult.h"
 
 #include "sdk/Exceptions.h"
 #include "sdk/Job.h"
@@ -60,46 +61,180 @@ std::string VehicleDataBrokerClient::getVdbEndpointAddress() {
     return fmt::format("localhost:{}", daprGrpcPort);
 }
 
-std::shared_ptr<DataPoint>
+sdv::databroker::v1::Datapoint convertToGrpcDataPoint(const DataPointResult& dataPoint) {
+    sdv::databroker::v1::Datapoint grpcDataPoint{};
+
+    switch (dataPoint.getType()) {
+    case DataPointResult::Type::BOOL: {
+        grpcDataPoint.set_bool_value(
+            dynamic_cast<const TypedDataPointResult<bool>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::BOOL_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointResult<std::vector<bool>>*>(&dataPoint)->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_bool_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::DOUBLE: {
+        grpcDataPoint.set_double_value(
+            dynamic_cast<const TypedDataPointResult<double>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::DOUBLE_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointResult<std::vector<double>>*>(&dataPoint)->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_double_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::FLOAT: {
+        grpcDataPoint.set_float_value(
+            dynamic_cast<const TypedDataPointResult<float>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::FLOAT_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointResult<std::vector<float>>*>(&dataPoint)->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_float_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::INT32: {
+        grpcDataPoint.set_int32_value(
+            dynamic_cast<const TypedDataPointResult<int32_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::INT32_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointResult<std::vector<int32_t>>*>(&dataPoint)->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_int32_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::INT64: {
+        grpcDataPoint.set_int64_value(
+            dynamic_cast<const TypedDataPointResult<int64_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::INT64_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointResult<std::vector<int64_t>>*>(&dataPoint)->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_int64_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::STRING: {
+        grpcDataPoint.set_string_value(
+            dynamic_cast<const TypedDataPointResult<std::string>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::STRING_ARRAY: {
+        auto array = dynamic_cast<const TypedDataPointResult<std::vector<std::string>>*>(&dataPoint)
+                         ->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_string_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::UINT32: {
+        grpcDataPoint.set_uint32_value(
+            dynamic_cast<const TypedDataPointResult<uint32_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::UINT32_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointResult<std::vector<uint32_t>>*>(&dataPoint)->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_uint32_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::UINT64: {
+        grpcDataPoint.set_uint64_value(
+            dynamic_cast<const TypedDataPointResult<uint64_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointResult::Type::UINT64_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointResult<std::vector<uint64_t>>*>(&dataPoint)->value();
+        for (const auto& entry : array) {
+            grpcDataPoint.mutable_uint64_array()->add_values(entry);
+        }
+        break;
+    }
+    case DataPointResult::Type::INVALID:
+    default:
+        throw InvalidTypeException("");
+    }
+
+    return grpcDataPoint;
+}
+
+std::shared_ptr<DataPointResult>
 convertDataPointToInternal(const std::string&                    name,
                            const sdv::databroker::v1::Datapoint& grpcDataPoint) {
-    auto valueProvider = std::make_shared<GrpcDataPointValueProvider>(grpcDataPoint);
+    GrpcDataPointValueProvider valueProvider{grpcDataPoint};
+
     switch (grpcDataPoint.value_case()) {
     case sdv::databroker::v1::Datapoint::ValueCase::kStringValue:
-        return std::make_shared<DataPointString>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::string>>(
+            name, valueProvider.getStringValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kInt32Value:
-        return std::make_shared<DataPointInt32>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<int32_t>>(name, grpcDataPoint.int32_value(),
+                                                               valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kInt64Value:
-        return std::make_shared<DataPointInt64>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<int64_t>>(name, grpcDataPoint.int64_value(),
+                                                               valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kUint32Value:
-        return std::make_shared<DataPointUint32>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<uint32_t>>(name, grpcDataPoint.uint32_value(),
+                                                                valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kUint64Value:
-        return std::make_shared<DataPointUint64>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<uint64_t>>(name, grpcDataPoint.uint64_value(),
+                                                                valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kFloatValue:
-        return std::make_shared<DataPointFloat>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<float>>(name, grpcDataPoint.float_value(),
+                                                             valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kDoubleValue:
-        return std::make_shared<DataPointDouble>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<double>>(name, grpcDataPoint.double_value(),
+                                                              valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kStringArray:
-        return std::make_shared<DataPointStringArray>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<std::string>>>(
+            name, valueProvider.getStringArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kInt32Array:
-        return std::make_shared<DataPointInt32Array>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<int32_t>>>(
+            name, valueProvider.getInt32ArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kInt64Array:
-        return std::make_shared<DataPointInt64Array>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<int64_t>>>(
+            name, valueProvider.getInt64ArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kUint32Array:
-        return std::make_shared<DataPointUint32Array>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<uint32_t>>>(
+            name, valueProvider.getUint32ArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kUint64Array:
-        return std::make_shared<DataPointUint64Array>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<uint64_t>>>(
+            name, valueProvider.getUint64ArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kFloatArray:
-        return std::make_shared<DataPointFloatArray>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<float>>>(
+            name, valueProvider.getFloatArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kDoubleArray:
-        return std::make_shared<DataPointDoubleArray>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<double>>>(
+            name, valueProvider.getDoubleArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kBoolValue:
-        return std::make_shared<DataPointBoolean>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<bool>>(name, valueProvider.getBoolValue(),
+                                                            valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kBoolArray:
-        return std::make_shared<DataPointBooleanArray>(name, valueProvider);
+        return std::make_shared<TypedDataPointResult<std::vector<bool>>>(
+            name, valueProvider.getBoolArrayValue(), valueProvider.getTimestamp());
     case sdv::databroker::v1::Datapoint::ValueCase::kFailureValue:
-        return std::make_shared<DataPointFailure>(
-            name, sdv::databroker::v1::Datapoint_Failure_Name(grpcDataPoint.failure_value()));
+        throw RpcException(fmt::format(
+            "Datapoint failure: {}",
+            sdv::databroker::v1::Datapoint_Failure_Name(grpcDataPoint.failure_value())));
     default:
         throw RpcException("Unknown value case!");
     }
@@ -123,6 +258,31 @@ VehicleDataBrokerClient::getDatapoints(const std::vector<std::string>& datapoint
         [result](auto status) {
             result->insertError(
                 Status(fmt::format("RPC 'GetDatapoints' failed:", status.error_message())));
+        });
+    return result;
+}
+
+AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t> VehicleDataBrokerClient::setDatapoints(
+    const std::vector<std::unique_ptr<DataPointResult>>& datapoints) {
+    auto result = std::make_shared<AsyncResult<SetErrorMap_t>>();
+
+    std::map<std::string, sdv::databroker::v1::Datapoint> grpcDataPoints{};
+    for (const auto& dataPoint : datapoints) {
+        grpcDataPoints[dataPoint->getPath()] = convertToGrpcDataPoint(*dataPoint);
+    }
+
+    m_asyncBrokerFacade->SetDatapoints(
+        grpcDataPoints,
+        [result](const sdv::databroker::v1::SetDatapointsReply& reply) {
+            SetErrorMap_t errorMap;
+            for (const auto& [key, error] : reply.errors()) {
+                errorMap[key] = sdv::databroker::v1::DatapointError_Name(error);
+            }
+            result->insertResult(std::move(errorMap));
+        },
+        [result](auto status) {
+            result->insertError(
+                Status(fmt::format("RPC 'SetDatapoints' failed:", status.error_message())));
         });
     return result;
 }

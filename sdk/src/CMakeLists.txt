@@ -15,6 +15,8 @@
 set(TARGET_NAME "vehicle-app-sdk")
 
 add_library(${TARGET_NAME}
+    sdk/vdb/DataPointBatch.cpp
+
     sdk/VehicleApp.cpp
     sdk/pubsub/MqttPubSubClient.cpp
     sdk/Node.cpp

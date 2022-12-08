@@ -17,26 +17,14 @@
 #ifndef VEHICLE_APP_SDK_QUERYBUILDER_H
 #define VEHICLE_APP_SDK_QUERYBUILDER_H
 
-#include "sdk/Node.h"
+#include "sdk/DataPoint.h"
 
 #include <string>
 #include <vector>
 
 namespace velocitas {
 
-/**
- * @brief Builder for where subclauses within the VDB query.
- *
- */
-class WhereClauseBuilder final {
-public:
-    WhereClauseBuilder() = default;
-
-    WhereClauseBuilder& dataPoint(const Node& node);
-    WhereClauseBuilder& matchesCriteria(const std::string& criteria);
-
-    std::string build();
-};
+template <typename T> class WhereClauseBuilder;
 
 /**
  * @brief Builder for VDB queries.
@@ -44,17 +32,59 @@ public:
  */
 class QueryBuilder final {
 public:
-    static QueryBuilder select(const Node& node);
+    static QueryBuilder select(const DataPoint& dataPoint);
 
-    QueryBuilder& join(std::vector<const Node*> args);
-    QueryBuilder& where(const std::string& condition);
+    static QueryBuilder select(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints);
 
-    std::string build();
+    template <typename TDataPoint>
+    WhereClauseBuilder<typename TDataPoint::value_type> where(const TDataPoint& dataPoint) {
+        return WhereClauseBuilder<typename TDataPoint::value_type>(this, dataPoint);
+    }
+
+    [[nodiscard]] std::string build() const;
 
 private:
     QueryBuilder() = default;
 
     std::vector<std::string> m_queryContext;
+
+    template <typename T> friend class WhereClauseBuilder;
+};
+
+/**
+ * @brief Builder for where subclauses within the VDB query.
+ *
+ */
+template <typename T> class WhereClauseBuilder final {
+public:
+    WhereClauseBuilder(QueryBuilder* parent, const DataPoint& dataPoint)
+        : m_parent{parent} {
+        m_parent->m_queryContext.emplace_back("WHERE");
+        m_parent->m_queryContext.emplace_back(dataPoint.getPath());
+    }
+
+    WhereClauseBuilder& gt(T value) {
+        m_parent->m_queryContext.emplace_back(">");
+        m_parent->m_queryContext.emplace_back(std::to_string(value));
+        return *this;
+    }
+
+    WhereClauseBuilder& lt(T value) {
+        m_parent->m_queryContext.emplace_back("<");
+        m_parent->m_queryContext.emplace_back(std::to_string(value));
+        return *this;
+    }
+
+    WhereClauseBuilder& eq(T value) {
+        m_parent->m_queryContext.emplace_back("=");
+        m_parent->m_queryContext.emplace_back(std::to_string(value));
+        return *this;
+    }
+
+    [[nodiscard]] std::string build() const { return m_parent->build(); }
+
+private:
+    QueryBuilder* m_parent{nullptr};
 };
 
 } // namespace velocitas

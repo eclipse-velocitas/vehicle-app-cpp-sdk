@@ -81,11 +81,11 @@ Status toInternalStatus(grpc::Status status) {
 }
 
 SeatService::SeatService(Model* parent)
-    : Service(m_appID, parent) {
+    : Service("VehicleService", parent) {
     m_asyncGrpcFacade = std::make_shared<SeatServiceAsyncGrpcFacade>(
         grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
     m_asyncGrpcFacade->setContextModifier(
-        [this](auto& context) { context.AddMetadata("dapr-app-id", m_appID); });
+        [this](auto& context) { context.AddMetadata("dapr-app-id", getName()); });
 }
 
 AsyncResultPtr_t<VoidResult> SeatService::move(const SeatService::Seat& seat) {

@@ -1,15 +1,15 @@
 [
     {
-        "Name": "sampleapp",
-        "Port": -1,
+        "Name": "set-data-points",
+        "Port": 50008,
         "DAPR_GRPC_PORT": 50001,
         "Dockerfile": "./app/Dockerfile",
         "dependencies": {
             "services": [
                 {
                     "name": "seatservice",
-                    "image": "ghcr.io/boschglobal/kuksa.val.services/seat_service",
-                    "version": "v0.2.0"
+                    "image": "ghcr.io/eclipse/kuksa.val.services/seat_service",
+                    "version": "v0.1.0"
                 }
             ],
             "runtime": [
@@ -20,18 +20,21 @@
                 },
                 {
                     "name": "databroker",
-                    "image": "ghcr.io/boschglobal/kuksa.val/databroker",
-                    "version": "0.0.2"
+                    "image": "ghcr.io/eclipse/kuksa.val/databroker",
+                    "version": "v0.17.0"
                 },
                 {
                     "name": "feedercan",
                     "image": "ghcr.io/eclipse/kuksa.val.feeders/dbc2val",
-                    "version": "v0.1.1"
+                    "version": "v0.1.0"
                 }
             ],
+            "python": {
+                "version": "3.9"
+            },
             "dapr": {
                 "cli": {
-                    "version": "1.9.1"
+                    "version": "1.7.1"
                 },
                 "runtime": {
                     "version": "1.8.1"

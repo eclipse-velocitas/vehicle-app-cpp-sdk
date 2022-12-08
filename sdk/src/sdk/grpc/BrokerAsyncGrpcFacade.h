@@ -39,6 +39,11 @@ public:
         std::function<void(const sdv::databroker::v1::GetDatapointsReply& reply)> replyHandler,
         std::function<void(const grpc::Status& status)>                           errorHandler);
 
+    void SetDatapoints(
+        const std::map<std::string, sdv::databroker::v1::Datapoint>&              datapoints,
+        std::function<void(const sdv::databroker::v1::SetDatapointsReply& reply)> replyHandler,
+        std::function<void(const grpc::Status& status)>                           errorHandler);
+
     void
     Subscribe(const std::string&                                                    query,
               std::function<void(const sdv::databroker::v1::SubscribeReply& reply)> itemHandler,

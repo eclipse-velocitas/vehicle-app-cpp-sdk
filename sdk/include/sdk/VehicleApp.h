@@ -19,7 +19,7 @@
 
 #include "sdk/AsyncResult.h"
 #include "sdk/DataPoint.h"
-#include "sdk/DataPointsResult.h"
+#include "sdk/vdb/DataPointsResult.h"
 
 #include <functional>
 #include <memory>
@@ -27,7 +27,6 @@
 
 namespace velocitas {
 
-class IVehicleDataBrokerClient;
 class IPubSubClient;
 
 /**
@@ -111,7 +110,8 @@ protected:
      *     the data point result of the requested data point.
      */
     template <typename TDataPoint>
-    AsyncResultPtr_t<typename TDataPoint::value_type> getDataPoint(const TDataPoint& dataPoint) const {
+    AsyncResultPtr_t<typename TDataPoint::value_type>
+    getDataPoint(const TDataPoint& dataPoint) const {
         return getDataPoint_internal(dataPoint)->template map<typename TDataPoint::value_type>(
             [&dataPoint](const DataPointsResult& dataPointsResult) {
                 return dataPointsResult.get<TDataPoint>(dataPoint)->value();
@@ -119,9 +119,9 @@ protected:
     }
 
     /**
-     * @brief Subscribes to the query string for data points.
+     * @brief Subscribes to the query for data points.
      *
-     * @param queryString   The query string to subscribe to.
+     * @param query   The query to subscribe to.
      * @return AsyncSubscriptionPtr_t<DataPointsResult>   The subscription to the data points.
      */
     AsyncSubscriptionPtr_t<DataPointsResult> subscribeDataPoints(const std::string& queryString);

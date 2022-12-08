@@ -19,7 +19,9 @@
 
 #include "sdk/AsyncResult.h"
 #include "sdk/DataPoint.h"
-#include "sdk/DataPointsResult.h"
+#include "sdk/vdb/DataPointsResult.h"
+
+#include <map>
 
 namespace velocitas {
 
@@ -29,7 +31,9 @@ namespace velocitas {
  */
 class IVehicleDataBrokerClient {
 public:
-    virtual ~IVehicleDataBrokerClient(){};
+    using SetErrorMap_t = std::map<std::string, std::string>;
+
+    virtual ~IVehicleDataBrokerClient() = default;
 
     IVehicleDataBrokerClient(const IVehicleDataBrokerClient&)            = delete;
     IVehicleDataBrokerClient(IVehicleDataBrokerClient&&)                 = delete;
@@ -45,6 +49,15 @@ public:
      */
     virtual AsyncResultPtr_t<DataPointsResult>
     getDatapoints(const std::vector<std::string>& datapoints) = 0;
+
+    /**
+     * @brief Set datapoint values in the VDB.
+     *
+     * @return AsyncResultPtr_t<SetErrorMap_t> A map which contains [key, error] entries
+     * if a data point could not be set.
+     */
+    virtual AsyncResultPtr_t<SetErrorMap_t>
+    setDatapoints(const std::vector<std::unique_ptr<DataPointResult>>& datapoints) = 0;
 
     /**
      * @brief Subscribe to updates for the given query.

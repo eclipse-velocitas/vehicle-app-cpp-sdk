@@ -9,33 +9,20 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/sdk_utests",
-            "args": [],
+            "args": [ ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "externalConsole": false,
             "MIMode": "gdb",
-            "setupCommands": [],
+            "setupCommands": [ ],
             "preLaunchTask": "CMake: build",
         },
         {
-            "name": "VehicleApp - Unit Tests",
+            "name": "Example - SeatAdjuster",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/App_utests",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [],
-            "preLaunchTask": "CMake: build",
-        },
-        {
-            "name": "VehicleApp - Debug (dapr run)",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/bin/App",
-            "args": [],
+            "program": "${workspaceFolder}/build/bin/example-seatadjusterapp",
+            "args": [ ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
@@ -50,8 +37,32 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
-            "setupCommands": [],
-            "preLaunchTask": "CPP - Build and Run daprized App",
+            "setupCommands": [ ],
+            "preLaunchTask": "dapr-VehicleApp-run",
+            "postDebugTask": "dapr-VehicleApp-stop",
+        },
+        {
+            "name": "Example - SetDataPointsExample",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/example-set-data-points",
+            "args": [ ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "DAPR_GRPC_PORT",
+                    "value": "50001"
+                },
+                {
+                    "name": "DAPR_HTTP_PORT",
+                    "value": "3500"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [ ],
+            "preLaunchTask": "dapr-VehicleApp-run",
             "postDebugTask": "dapr-VehicleApp-stop",
         }
     ]

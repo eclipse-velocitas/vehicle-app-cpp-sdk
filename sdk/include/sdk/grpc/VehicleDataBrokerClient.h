@@ -17,7 +17,7 @@
 #ifndef VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
 #define VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
 
-#include "sdk/IVehicleDataBrokerClient.h"
+#include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <memory>
 #include <vector>
@@ -45,6 +45,9 @@ public:
 
     AsyncResultPtr_t<DataPointsResult>
     getDatapoints(const std::vector<std::string>& datapoints) override;
+
+    AsyncResultPtr_t<SetErrorMap_t>
+    setDatapoints(const std::vector<std::unique_ptr<DataPointResult>>& datapoints) override;
 
     AsyncSubscriptionPtr_t<DataPointsResult> subscribe(const std::string& query) override;
 

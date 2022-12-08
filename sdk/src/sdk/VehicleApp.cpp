@@ -17,9 +17,9 @@
 #include "sdk/VehicleApp.h"
 
 #include "sdk/IPubSubClient.h"
-#include "sdk/IVehicleDataBrokerClient.h"
 #include "sdk/Logger.h"
 #include "sdk/dapr/DaprSupport.h"
+#include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
@@ -33,8 +33,10 @@ namespace velocitas {
 
 VehicleApp::VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
                        std::shared_ptr<IPubSubClient>            pubSubClient)
-    : m_vdbClient(std::move(vdbClient))
-    , m_pubSubClient(std::move(pubSubClient)) {}
+    : m_vdbClient(vdbClient)
+    , m_pubSubClient(std::move(pubSubClient)) {
+    VehicleModelContext::getInstance().setVdbc(vdbClient);
+}
 
 void VehicleApp::run() {
     m_pubSubClient->connect();

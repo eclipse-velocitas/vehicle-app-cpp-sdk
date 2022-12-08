@@ -3,13 +3,12 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/sdk/include"
             ],
-            "defines": [],
+            "defines": [ ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "c++11",
-            "intelliSenseMode": "linux-clang-x64",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

@@ -14,11 +14,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/DataPoint.h"
+#include "sdk/vdb/DataPointsResult.h"
+#include "sdk/vdb/IDataPointValueProvider.h"
 #include "sdv/databroker/v1/types.grpc.pb.h"
 
 namespace velocitas {
 
+/**
+ * @brief Value provider implementation for gRPC provided DataPoints
+ *
+ */
 class GrpcDataPointValueProvider : public IDataPointValueProvider {
 public:
     explicit GrpcDataPointValueProvider(sdv::databroker::v1::Datapoint datapoint);
@@ -39,7 +44,7 @@ public:
     std::vector<uint64_t>    getUint64ArrayValue() const override;
     std::string              getStringValue() const override;
     std::vector<std::string> getStringArrayValue() const override;
-    Timestamp                getTimestamp() const override;
+    Timestamp                getTimestamp() const;
 
 protected:
     const sdv::databroker::v1::Datapoint& getDataPoint() const;

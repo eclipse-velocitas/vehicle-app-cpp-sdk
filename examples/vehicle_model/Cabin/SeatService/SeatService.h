@@ -121,7 +121,6 @@ public:
 
 private:
     std::shared_ptr<SeatServiceAsyncGrpcFacade> m_asyncGrpcFacade;
-    const std::string                           m_appID{"VehicleService"};
 };
 } // namespace velocitas::vehicle::cabin
 #endif // VMDL_EXAMPLE_VEHICLE_CABIN_SEATSERVICE_H

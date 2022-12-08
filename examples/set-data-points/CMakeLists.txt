@@ -12,7 +12,25 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(vehicle_model)
+set(TARGET_NAME "example-set-data-points")
 
-add_subdirectory(seat-adjuster)
-add_subdirectory(set-data-points)
+add_executable(${TARGET_NAME}
+    src/SetDataPointsApp.cpp
+)
+
+include_directories(
+    ${CMAKE_BINARY_DIR}/gens
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
+    .
+)
+
+add_dependencies(${TARGET_NAME}
+    vehicle-app-sdk
+    vehicle-model-example
+)
+
+target_link_libraries(${TARGET_NAME}
+    vehicle-app-sdk
+    vehicle-model-example
+)

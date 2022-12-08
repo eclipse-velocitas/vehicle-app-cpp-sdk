@@ -17,93 +17,17 @@
 #ifndef VEHICLE_APP_SDK_DATAPOINT_H
 #define VEHICLE_APP_SDK_DATAPOINT_H
 
+#include "sdk/AsyncResult.h"
 #include "sdk/Node.h"
+#include "sdk/VehicleModelContext.h"
+#include "sdk/vdb/DataPointsResult.h"
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace velocitas {
-
-/**
- * @brief See
- * https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/timestamp.proto
- */
-struct Timestamp {
-    int64_t seconds;
-    int32_t nanos;
-};
-
-class DataPoint;
-class DataPointBoolean;
-class DataPointBooleanArray;
-class DataPointDouble;
-class DataPointDoubleArray;
-class DataPointFloat;
-class DataPointFloatArray;
-class DataPointDouble;
-class DataPointDoubleArray;
-class DataPointInt32;
-class DataPointInt32Array;
-class DataPointInt64;
-class DataPointInt64Array;
-class DataPointUint32;
-class DataPointUint32Array;
-class DataPointUint64;
-class DataPointUint64Array;
-class DataPointString;
-class DataPointStringArray;
-class DataPointFailure;
-
-/**
- * @brief Interface for providing values to Datapoints.
- *        Allows different communication middleware to feed results into
- *        DataPoints.
- */
-class IDataPointValueProvider {
-public:
-    IDataPointValueProvider()          = default;
-    virtual ~IDataPointValueProvider() = default;
-
-    IDataPointValueProvider(const IDataPointValueProvider&)            = delete;
-    IDataPointValueProvider(IDataPointValueProvider&&)                 = delete;
-    IDataPointValueProvider& operator=(const IDataPointValueProvider&) = delete;
-    IDataPointValueProvider& operator=(IDataPointValueProvider&&)      = delete;
-
-    [[nodiscard]] virtual bool getBoolValue() const = 0;
-
-    [[nodiscard]] virtual std::vector<bool> getBoolArrayValue() const = 0;
-
-    [[nodiscard]] virtual float getFloatValue() const = 0;
-
-    [[nodiscard]] virtual std::vector<float> getFloatArrayValue() const = 0;
-
-    [[nodiscard]] virtual double getDoubleValue() const = 0;
-
-    [[nodiscard]] virtual std::vector<double> getDoubleArrayValue() const = 0;
-
-    [[nodiscard]] virtual int32_t getInt32Value() const = 0;
-
-    [[nodiscard]] virtual std::vector<int32_t> getInt32ArrayValue() const = 0;
-
-    [[nodiscard]] virtual int64_t getInt64Value() const = 0;
-
-    [[nodiscard]] virtual std::vector<int64_t> getInt64ArrayValue() const = 0;
-
-    [[nodiscard]] virtual uint32_t getUint32Value() const = 0;
-
-    [[nodiscard]] virtual std::vector<uint32_t> getUint32ArrayValue() const = 0;
-
-    [[nodiscard]] virtual uint64_t getUint64Value() const = 0;
-
-    [[nodiscard]] virtual std::vector<uint64_t> getUint64ArrayValue() const = 0;
-
-    [[nodiscard]] virtual std::string getStringValue() const = 0;
-
-    [[nodiscard]] virtual std::vector<std::string> getStringArrayValue() const = 0;
-
-    [[nodiscard]] virtual Timestamp getTimestamp() const = 0;
-};
 
 /**
  * @brief Base class for data points.
@@ -117,7 +41,7 @@ class DataPoint : public Node {
 public:
     using Node::Node;
 
-    DataPoint(const std::string& name, std::shared_ptr<IDataPointValueProvider> valueProvider);
+    DataPoint(const std::string& name);
 
     ~DataPoint() override = default;
 
@@ -126,23 +50,16 @@ public:
     DataPoint& operator=(const DataPoint&) = delete;
     DataPoint& operator=(DataPoint&&)      = delete;
 
-    virtual DataPointFailure&         asFailure();
     [[nodiscard]] virtual bool        isValid() const { return true; }
     [[nodiscard]] virtual std::string toString() const = 0;
 
-    /**
-     * @brief Return the timestamp of the data point.
-     *
-     * @return Timestamp The timestamp at which the value was captured.
-     */
-    [[nodiscard]] Timestamp getTimestamp() const;
-
-protected:
-    [[nodiscard]] const IDataPointValueProvider& getValueProvider() const;
-
-private:
-    std::shared_ptr<IDataPointValueProvider> m_valueProvider;
+    bool operator<(const DataPoint& rhs) const { return getPath() < rhs.getPath(); }
 };
+
+inline bool operator<(const std::reference_wrapper<DataPoint>& lhs,
+                      const std::reference_wrapper<DataPoint>& rhs) {
+    return lhs.get().getPath() < rhs.get().getPath();
+}
 
 /**
  * @brief A data point with the type bool.
@@ -161,7 +78,8 @@ public:
     DataPointBoolean& operator=(const DataPointBoolean&) = delete;
     DataPointBoolean& operator=(DataPointBoolean&&)      = delete;
 
-    [[nodiscard]] bool value() const { return getValueProvider().getBoolValue(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -183,7 +101,8 @@ public:
     DataPointBooleanArray& operator=(const DataPointBooleanArray&) = delete;
     DataPointBooleanArray& operator=(DataPointBooleanArray&&)      = delete;
 
-    [[nodiscard]] std::vector<bool> value() const { return getValueProvider().getBoolArrayValue(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -205,7 +124,8 @@ public:
     DataPointInt32& operator=(const DataPointInt32&) = delete;
     DataPointInt32& operator=(DataPointInt32&&)      = delete;
 
-    [[nodiscard]] int32_t value() const { return getValueProvider().getInt32Value(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -227,9 +147,8 @@ public:
     DataPointInt32Array& operator=(const DataPointInt32Array&) = delete;
     DataPointInt32Array& operator=(DataPointInt32Array&&)      = delete;
 
-    [[nodiscard]] std::vector<int32_t> value() const {
-        return getValueProvider().getInt32ArrayValue();
-    }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -251,7 +170,8 @@ public:
     DataPointInt64& operator=(const DataPointInt64&) = delete;
     DataPointInt64& operator=(DataPointInt64&&)      = delete;
 
-    [[nodiscard]] int64_t value() const { return getValueProvider().getInt64Value(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -273,9 +193,8 @@ public:
     DataPointInt64Array& operator=(const DataPointInt64Array&) = delete;
     DataPointInt64Array& operator=(DataPointInt64Array&&)      = delete;
 
-    [[nodiscard]] std::vector<int64_t> value() const {
-        return getValueProvider().getInt64ArrayValue();
-    }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -297,7 +216,8 @@ public:
     DataPointUint32& operator=(const DataPointUint32&) = delete;
     DataPointUint32& operator=(DataPointUint32&&)      = delete;
 
-    [[nodiscard]] uint32_t value() const { return getValueProvider().getUint32Value(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -319,9 +239,8 @@ public:
     DataPointUint32Array& operator=(const DataPointUint32Array&) = delete;
     DataPointUint32Array& operator=(DataPointUint32Array&&)      = delete;
 
-    [[nodiscard]] std::vector<uint32_t> value() const {
-        return getValueProvider().getUint32ArrayValue();
-    }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -343,7 +262,8 @@ public:
     DataPointUint64& operator=(const DataPointUint64&) = delete;
     DataPointUint64& operator=(DataPointUint64&&)      = delete;
 
-    [[nodiscard]] uint64_t value() const { return getValueProvider().getUint64Value(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -365,9 +285,8 @@ public:
     DataPointUint64Array& operator=(const DataPointUint64Array&) = delete;
     DataPointUint64Array& operator=(DataPointUint64Array&&)      = delete;
 
-    [[nodiscard]] std::vector<uint64_t> value() const {
-        return getValueProvider().getUint64ArrayValue();
-    }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -389,7 +308,8 @@ public:
     DataPointFloat& operator=(const DataPointFloat&) = delete;
     DataPointFloat& operator=(DataPointFloat&&)      = delete;
 
-    [[nodiscard]] float value() const { return getValueProvider().getFloatValue(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -411,9 +331,8 @@ public:
     DataPointFloatArray& operator=(const DataPointFloatArray&) = delete;
     DataPointFloatArray& operator=(DataPointFloatArray&&)      = delete;
 
-    [[nodiscard]] std::vector<float> value() const {
-        return getValueProvider().getFloatArrayValue();
-    }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -435,7 +354,8 @@ public:
     DataPointDouble& operator=(const DataPointDouble&) = delete;
     DataPointDouble& operator=(DataPointDouble&&)      = delete;
 
-    [[nodiscard]] double value() const { return getValueProvider().getDoubleValue(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -457,9 +377,8 @@ public:
     DataPointDoubleArray& operator=(const DataPointDoubleArray&) = delete;
     DataPointDoubleArray& operator=(DataPointDoubleArray&&)      = delete;
 
-    [[nodiscard]] std::vector<double> value() const {
-        return getValueProvider().getDoubleArrayValue();
-    }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -481,7 +400,8 @@ public:
     DataPointString& operator=(const DataPointString&) = delete;
     DataPointString& operator=(DataPointString&&)      = delete;
 
-    [[nodiscard]] std::string value() const { return getValueProvider().getStringValue(); }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -503,9 +423,8 @@ public:
     DataPointStringArray& operator=(const DataPointStringArray&) = delete;
     DataPointStringArray& operator=(DataPointStringArray&&)      = delete;
 
-    [[nodiscard]] std::vector<std::string> value() const {
-        return getValueProvider().getStringArrayValue();
-    }
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
 
     [[nodiscard]] std::string toString() const override;
 };
@@ -526,8 +445,6 @@ public:
     DataPointFailure& operator=(DataPointFailure&&)      = delete;
 
     [[nodiscard]] bool isValid() const override { return false; }
-
-    DataPointFailure& asFailure() override { return *this; }
 
     [[nodiscard]] const std::string& getReason() const { return m_failureReason; }
 

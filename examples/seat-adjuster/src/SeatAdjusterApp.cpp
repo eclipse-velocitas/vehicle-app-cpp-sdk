@@ -16,9 +16,9 @@
 
 #include "SeatAdjusterApp.h"
 #include "sdk/IPubSubClient.h"
-#include "sdk/IVehicleDataBrokerClient.h"
 #include "sdk/Logger.h"
 #include "sdk/QueryBuilder.h"
+#include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
