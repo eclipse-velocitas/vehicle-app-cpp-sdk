@@ -4,7 +4,7 @@
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
 |bottle|0.12.23|MIT|
-|certifi|2022.9.24|Mozilla Public License 2.0|
+|certifi|2022.12.7|Mozilla Public License 2.0|
 |cfgv|3.3.1|MIT|
 |charset-normalizer|2.1.1|MIT|
 |colorama|0.4.6|BSD|
@@ -23,7 +23,7 @@
 |node-semver|0.6.1|MIT|
 |nodeenv|1.7.0|BSD|
 |patch-ng|1.17.4|MIT|
-|platformdirs|2.5.4|MIT|
+|platformdirs|2.6.0|MIT|
 |pluginbase|1.0.1|BSD|
 |pre-commit|2.20.0|MIT|
 |Pygments|2.13.0|BSD|
