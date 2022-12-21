@@ -19,7 +19,7 @@
 
 #include "sdk/AsyncResult.h"
 #include "sdk/DataPoint.h"
-#include "sdk/vdb/DataPointsResult.h"
+#include "sdk/DataPointValues.h"
 
 #include <map>
 
@@ -45,9 +45,9 @@ public:
      *
      * @param datapoints The list of data point paths to query.
      *
-     * @return AsyncResultPtr_t<DataPointsResult>
+     * @return AsyncResultPtr_t<DataPointValues>
      */
-    virtual AsyncResultPtr_t<DataPointsResult>
+    virtual AsyncResultPtr_t<DataPointValues>
     getDatapoints(const std::vector<std::string>& datapoints) = 0;
 
     /**
@@ -57,16 +57,16 @@ public:
      * if a data point could not be set.
      */
     virtual AsyncResultPtr_t<SetErrorMap_t>
-    setDatapoints(const std::vector<std::unique_ptr<DataPointResult>>& datapoints) = 0;
+    setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& datapoints) = 0;
 
     /**
      * @brief Subscribe to updates for the given query.
      *
      * @param query The query to subscribe to.
      *
-     * @return AsyncSubscriptionPtr<DataPointsResult>
+     * @return AsyncSubscriptionPtr<DataPointValues>
      */
-    virtual AsyncSubscriptionPtr_t<DataPointsResult> subscribe(const std::string& query) = 0;
+    virtual AsyncSubscriptionPtr_t<DataPointValues> subscribe(const std::string& query) = 0;
 
     /**
      * @brief Create an instance of the IVehicleDataBrokerClient.

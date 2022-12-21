@@ -17,8 +17,9 @@
 #include "sdk/DataPointBatch.h"
 
 #include "sdk/DataPoint.h"
+#include "sdk/DataPointValues.h"
 #include "sdk/Exceptions.h"
-#include "sdk/vdb/DataPointsResult.h"
+#include "sdk/VehicleModelContext.h"
 
 #include "VehicleDataBrokerClientMock.h"
 
@@ -42,7 +43,7 @@ public:
     }
 
     template <typename T> void bla(const std::string& path, typename T::value_type value) {
-        auto needle = TypedDataPointResult<typename T::value_type>(path, value);
+        auto needle = TypedDataPointValue<typename T::value_type>(path, value);
         EXPECT_CALL(*m_vdbcMock, setDatapoints(UnorderedElementsAre(Pointee(needle))))
             .Times(1)
             .WillRepeatedly(Return(m_asyncResult));
@@ -62,7 +63,7 @@ TEST_F(Test_DataPointBatch, apply_onePoint_requestContainsOnePoint) {
     DataPointInt32 dataPoint{"foo", nullptr};
 
     EXPECT_CALL(*m_vdbcMock, setDatapoints(UnorderedElementsAre(Pointee(
-                                 TypedDataPointResult<DataPointInt32::value_type>("foo", 1)))))
+                                 TypedDataPointValue<DataPointInt32::value_type>("foo", 1)))))
         .Times(1)
         .WillRepeatedly(Return(m_asyncResult));
 
@@ -80,8 +81,8 @@ TEST_F(Test_DataPointBatch, apply_twoPoints_requestContainsTwoPoints) {
 
     EXPECT_CALL(*m_vdbcMock,
                 setDatapoints(UnorderedElementsAre(
-                    Pointee(TypedDataPointResult<DataPointInt32::value_type>(path1, value1)),
-                    Pointee(TypedDataPointResult<DataPointFloat::value_type>(path2, value2)))))
+                    Pointee(TypedDataPointValue<DataPointInt32::value_type>(path1, value1)),
+                    Pointee(TypedDataPointValue<DataPointFloat::value_type>(path2, value2)))))
         .Times(1)
         .WillRepeatedly(Return(m_asyncResult));
 
@@ -105,9 +106,9 @@ TEST_F(Test_DataPointBatch, apply_threePoints_requestContainsThreePoints) {
 
     EXPECT_CALL(*m_vdbcMock,
                 setDatapoints(UnorderedElementsAre(
-                    Pointee(TypedDataPointResult<DataPointInt32::value_type>(path1, value1)),
-                    Pointee(TypedDataPointResult<DataPointFloat::value_type>(path2, value2)),
-                    Pointee(TypedDataPointResult<DataPointBoolean::value_type>(path3, value3)))))
+                    Pointee(TypedDataPointValue<DataPointInt32::value_type>(path1, value1)),
+                    Pointee(TypedDataPointValue<DataPointFloat::value_type>(path2, value2)),
+                    Pointee(TypedDataPointValue<DataPointBoolean::value_type>(path3, value3)))))
         .Times(1)
         .WillRepeatedly(Return(m_asyncResult));
 

@@ -70,7 +70,7 @@ void SeatAdjusterApp::onStart() {
         ->onError([this](auto&& status) { onErrorTopic(std::forward<decltype(status)>(status)); });
 }
 
-void SeatAdjusterApp::onSpeedChanged(const velocitas::DataPointsResult& dataPoints) {
+void SeatAdjusterApp::onSpeedChanged(const velocitas::DataPointValues& dataPoints) {
     velocitas::logger().info("Speed has changed: {}",
                              dataPoints.get(m_vehicleModel->getSpeed())->value());
 }
@@ -131,7 +131,7 @@ void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
     }
 }
 
-void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointsResult& dataPoints) {
+void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointValues& dataPoints) {
     const auto& seatPositionDataPoint =
         m_vehicleModel->getCabin()
             .getSeat()

@@ -17,12 +17,12 @@
 #include "sdk/DataPoint.h"
 
 #include "sdk/Exceptions.h"
+#include "sdk/VehicleModelContext.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <fmt/core.h>
 
 #include <memory>
-#include <sstream>
 #include <utility>
 
 namespace velocitas {
@@ -38,19 +38,19 @@ std::string DataPointFailure::toString() const {
     return fmt::format("DataPoint: ('{}', failure: '{}')", getName(), getReason());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointBoolean::value_type>> DataPointBoolean::get() const {
+template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>::get() const {
     return VehicleModelContext::getInstance()
         .getVdbc()
         ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<value_type>>([this](const DataPointsResult& dataPointsResult) {
+        ->map<TypedDataPointValue<T>>([this](const DataPointValues& dataPointsResult) {
             return *dataPointsResult.get(*this);
         });
 }
 
-AsyncResultPtr_t<Status> DataPointBoolean::set(DataPointBoolean::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
+template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) {
+    std::vector<std::unique_ptr<DataPointValue>> vec;
     vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
+    vec.emplace_back(std::make_unique<TypedDataPointValue<T>>(getPath(), value));
     return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
         [this](auto errorMap) {
             const auto iter = errorMap.find(this->getPath());
@@ -61,436 +61,85 @@ AsyncResultPtr_t<Status> DataPointBoolean::set(DataPointBoolean::value_type valu
         });
 }
 
-std::string DataPointBoolean::toString() const {
+template <> std::string TypedDataPoint<bool>::toString() const {
     return fmt::format("DataPointBoolean: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointBooleanArray::value_type>>
-DataPointBooleanArray::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointBooleanArray::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointBooleanArray::set(DataPointBooleanArray::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointBooleanArray::toString() const {
+template <> std::string TypedDataPoint<std::vector<bool>>::toString() const {
     return fmt::format("DataPointBooleanArray: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointDouble::value_type>> DataPointDouble::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointDouble::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointDouble::set(DataPointDouble::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointDouble::toString() const {
-    return fmt::format("DataPointDouble: ('{}')", getName());
-}
-
-AsyncResultPtr_t<TypedDataPointResult<DataPointDoubleArray::value_type>>
-DataPointDoubleArray::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointDoubleArray::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointDoubleArray::set(DataPointDoubleArray::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointDoubleArray::toString() const {
-    return fmt::format("DataPointDoubleArray: ('{}')", getName());
-}
-
-AsyncResultPtr_t<TypedDataPointResult<DataPointFloat::value_type>> DataPointFloat::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointFloat::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointFloat::set(DataPointFloat::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointFloat::toString() const {
-    return fmt::format("DataPointFloat: ('{}')", getName());
-}
-
-AsyncResultPtr_t<TypedDataPointResult<DataPointFloatArray::value_type>>
-DataPointFloatArray::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointFloatArray::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointFloatArray::set(DataPointFloatArray::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointFloatArray::toString() const {
-    return fmt::format("DataPointFloatArray: ('{}')", getName());
-}
-
-AsyncResultPtr_t<TypedDataPointResult<DataPointInt32::value_type>> DataPointInt32::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointInt32::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointInt32::set(DataPointInt32::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointInt32::toString() const {
+template <> std::string TypedDataPoint<int32_t>::toString() const {
     return fmt::format("DataPointInt32: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointInt32Array::value_type>>
-DataPointInt32Array::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointInt32Array::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointInt32Array::set(DataPointInt32Array::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointInt32Array::toString() const {
+template <> std::string TypedDataPoint<std::vector<int32_t>>::toString() const {
     return fmt::format("DataPointInt32Array: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointInt64::value_type>> DataPointInt64::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointInt64::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointInt64::set(DataPointInt64::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointInt64::toString() const {
+template <> std::string TypedDataPoint<int64_t>::toString() const {
     return fmt::format("DataPointInt64: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointInt64Array::value_type>>
-DataPointInt64Array::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointInt64Array::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointInt64Array::set(DataPointInt64Array::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointInt64Array::toString() const {
+template <> std::string TypedDataPoint<std::vector<int64_t>>::toString() const {
     return fmt::format("DataPointInt64Array: ('{}' : '{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointUint32::value_type>> DataPointUint32::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointUint32::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointUint32::set(DataPointUint32::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointUint32::toString() const {
+template <> std::string TypedDataPoint<uint32_t>::toString() const {
     return fmt::format("DataPointUint32: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointUint32Array::value_type>>
-DataPointUint32Array::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointUint32Array::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointUint32Array::set(DataPointUint32Array::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointUint32Array::toString() const {
+template <> std::string TypedDataPoint<std::vector<uint32_t>>::toString() const {
     return fmt::format("DataPointUint32Array: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointUint64::value_type>> DataPointUint64::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointUint64::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointUint64::set(DataPointUint64::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointUint64::toString() const {
+template <> std::string TypedDataPoint<uint64_t>::toString() const {
     return fmt::format("DataPointUint64: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointUint64Array::value_type>>
-DataPointUint64Array::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointUint64Array::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointUint64Array::set(DataPointUint64Array::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointUint64Array::toString() const {
+template <> std::string TypedDataPoint<std::vector<uint64_t>>::toString() const {
     return fmt::format("DataPointUint64Array: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointString::value_type>> DataPointString::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointString::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
+template <> std::string TypedDataPoint<float>::toString() const {
+    return fmt::format("DataPointFloat: ('{}')", getName());
 }
 
-AsyncResultPtr_t<Status> DataPointString::set(DataPointString::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
+template <> std::string TypedDataPoint<std::vector<float>>::toString() const {
+    return fmt::format("DataPointFloatArray: ('{}')", getName());
 }
 
-std::string DataPointString::toString() const {
+template <> std::string TypedDataPoint<double>::toString() const {
+    return fmt::format("DataPointDouble: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<std::vector<double>>::toString() const {
+    return fmt::format("DataPointDoubleArray: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<std::string>::toString() const {
     return fmt::format("DataPointString: ('{}')", getName());
 }
 
-AsyncResultPtr_t<TypedDataPointResult<DataPointStringArray::value_type>>
-DataPointStringArray::get() const {
-    return VehicleModelContext::getInstance()
-        .getVdbc()
-        ->getDatapoints({getPath()})
-        ->map<TypedDataPointResult<DataPointStringArray::value_type>>(
-            [this](const DataPointsResult& dataPointsResult) {
-                return *dataPointsResult.get(*this);
-            });
-}
-
-AsyncResultPtr_t<Status> DataPointStringArray::set(DataPointStringArray::value_type value) {
-    std::vector<std::unique_ptr<DataPointResult>> vec;
-    vec.reserve(1);
-    vec.emplace_back(std::make_unique<TypedDataPointResult<value_type>>(getPath(), value));
-    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
-        [this](auto errorMap) {
-            const auto iter = errorMap.find(this->getPath());
-            if (iter == errorMap.end()) {
-                return Status();
-            }
-            return Status(iter->second);
-        });
-}
-
-std::string DataPointStringArray::toString() const {
+template <> std::string TypedDataPoint<std::vector<std::string>>::toString() const {
     return fmt::format("DataPointStringArray: ('{}')", getName());
 }
+
+template class TypedDataPoint<bool>;
+template class TypedDataPoint<std::vector<bool>>;
+template class TypedDataPoint<int32_t>;
+template class TypedDataPoint<std::vector<int32_t>>;
+template class TypedDataPoint<int64_t>;
+template class TypedDataPoint<std::vector<int64_t>>;
+template class TypedDataPoint<uint32_t>;
+template class TypedDataPoint<std::vector<uint32_t>>;
+template class TypedDataPoint<uint64_t>;
+template class TypedDataPoint<std::vector<uint64_t>>;
+template class TypedDataPoint<float>;
+template class TypedDataPoint<std::vector<float>>;
+template class TypedDataPoint<double>;
+template class TypedDataPoint<std::vector<double>>;
+template class TypedDataPoint<std::string>;
+template class TypedDataPoint<std::vector<std::string>>;
 
 } // namespace velocitas

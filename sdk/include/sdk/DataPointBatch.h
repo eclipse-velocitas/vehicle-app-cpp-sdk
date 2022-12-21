@@ -18,7 +18,7 @@
 #define VEHICLE_APP_SDK_DATAPOINTBATCH_H
 
 #include "sdk/AsyncResult.h"
-#include "sdk/vdb/DataPointsResult.h"
+#include "sdk/DataPointValues.h"
 
 #include <map>
 #include <vector>
@@ -48,7 +48,7 @@ public:
     template <typename TDataPoint>
     DataPointBatch& add(TDataPoint& dataPoint, typename TDataPoint::value_type value) {
         m_dataPoints.emplace_back(
-            std::make_unique<TypedDataPointResult<typename TDataPoint::value_type>>(
+            std::make_unique<TypedDataPointValue<typename TDataPoint::value_type>>(
                 dataPoint.getPath(), value, Timestamp{}));
 
         return *this;
@@ -67,7 +67,7 @@ public:
     AsyncResultPtr_t<SetErrorMap_t> apply();
 
 private:
-    std::vector<std::unique_ptr<DataPointResult>> m_dataPoints;
+    std::vector<std::unique_ptr<DataPointValue>> m_dataPoints;
 };
 
 } // namespace velocitas

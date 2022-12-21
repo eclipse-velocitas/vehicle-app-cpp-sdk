@@ -45,7 +45,7 @@ public:
      *
      * @param dataPoints  The affected data points.
      */
-    void onSpeedChanged(const velocitas::DataPointsResult& dataPoints);
+    void onSpeedChanged(const velocitas::DataPointValues& dataPoints);
 
     /**
      * @brief Handle successful seat movement requests.
@@ -68,7 +68,7 @@ public:
      *
      * @param dataPoints  The affected data points.
      */
-    void onSeatPositionChanged(const velocitas::DataPointsResult& dataPoints);
+    void onSeatPositionChanged(const velocitas::DataPointValues& dataPoints);
 
     /**
      * @brief Handle errors which occurred during async invocation.

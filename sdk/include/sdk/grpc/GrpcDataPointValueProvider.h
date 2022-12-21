@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/vdb/DataPointsResult.h"
+#include "sdk/DataPointValues.h"
 #include "sdk/vdb/IDataPointValueProvider.h"
 #include "sdv/databroker/v1/types.grpc.pb.h"
 

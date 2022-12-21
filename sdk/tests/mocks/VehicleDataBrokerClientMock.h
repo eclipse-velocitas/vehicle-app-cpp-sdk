@@ -25,13 +25,13 @@ namespace velocitas {
 
 class VehicleDataBrokerClientMock : public IVehicleDataBrokerClient {
 public:
-    MOCK_METHOD(AsyncResultPtr_t<DataPointsResult>, getDatapoints,
+    MOCK_METHOD(AsyncResultPtr_t<DataPointValues>, getDatapoints,
                 (const std::vector<std::string>& datapoints));
 
     MOCK_METHOD(AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t>, setDatapoints,
-                (const std::vector<std::unique_ptr<DataPointResult>>& datapoints));
+                (const std::vector<std::unique_ptr<DataPointValue>>& datapoints));
 
-    MOCK_METHOD(AsyncSubscriptionPtr_t<DataPointsResult>, subscribe, (const std::string& query));
+    MOCK_METHOD(AsyncSubscriptionPtr_t<DataPointValues>, subscribe, (const std::string& query));
 };
 
 } // namespace velocitas

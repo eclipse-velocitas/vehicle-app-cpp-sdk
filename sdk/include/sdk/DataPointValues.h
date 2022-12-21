@@ -24,7 +24,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <variant>
+#include <utility>
 #include <vector>
 
 namespace velocitas {
@@ -44,10 +44,10 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
 
 class DataPoint;
 
-class DataPointResult {
+class DataPointValue {
 public:
     enum class Type {
-        INVALID = -1,
+        INVALID,
         BOOL,
         BOOL_ARRAY,
         INT32,
@@ -66,22 +66,22 @@ public:
         STRING_ARRAY
     };
 
-    DataPointResult(Type type, std::string path, Timestamp timestamp)
+    DataPointValue(Type type, std::string path, Timestamp timestamp)
         : m_type{type}
         , m_path(std::move(path))
         , m_timestamp(std::move(timestamp)) {}
 
-    virtual ~DataPointResult()                         = default;
-    DataPointResult(const DataPointResult&)            = default;
-    DataPointResult(DataPointResult&&)                 = default;
-    DataPointResult& operator=(const DataPointResult&) = default;
-    DataPointResult& operator=(DataPointResult&&)      = default;
+    virtual ~DataPointValue()                        = default;
+    DataPointValue(const DataPointValue&)            = default;
+    DataPointValue(DataPointValue&&)                 = default;
+    DataPointValue& operator=(const DataPointValue&) = default;
+    DataPointValue& operator=(DataPointValue&&)      = default;
 
     [[nodiscard]] const std::string& getPath() const { return m_path; }
     [[nodiscard]] const Timestamp&   getTimestamp() const { return m_timestamp; }
     [[nodiscard]] Type               getType() const { return m_type; }
 
-    bool operator==(const DataPointResult& other) const {
+    bool operator==(const DataPointValue& other) const {
         return std::tie(m_path, m_timestamp, m_type) ==
                std::tie(other.m_path, other.m_timestamp, other.m_type);
     }
@@ -92,96 +92,94 @@ private:
     Type        m_type{Type::INVALID};
 };
 
-template <typename T> DataPointResult::Type getValueType() {
+template <typename T> DataPointValue::Type getValueType() {
     static_assert(std::is_same<T, std::false_type>::value, "Value type not supported!");
-    return DataPointResult::Type::INVALID;
+    return DataPointValue::Type::INVALID;
 }
 
-template <> inline DataPointResult::Type getValueType<bool>() {
-    return DataPointResult::Type::BOOL;
+template <> inline DataPointValue::Type getValueType<bool>() { return DataPointValue::Type::BOOL; }
+template <> inline DataPointValue::Type getValueType<std::vector<bool>>() {
+    return DataPointValue::Type::BOOL_ARRAY;
 }
-template <> inline DataPointResult::Type getValueType<std::vector<bool>>() {
-    return DataPointResult::Type::BOOL_ARRAY;
+template <> inline DataPointValue::Type getValueType<int32_t>() {
+    return DataPointValue::Type::INT32;
 }
-template <> inline DataPointResult::Type getValueType<int32_t>() {
-    return DataPointResult::Type::INT32;
+template <> inline DataPointValue::Type getValueType<std::vector<int32_t>>() {
+    return DataPointValue::Type::INT32_ARRAY;
 }
-template <> inline DataPointResult::Type getValueType<std::vector<int32_t>>() {
-    return DataPointResult::Type::INT32_ARRAY;
+template <> inline DataPointValue::Type getValueType<int64_t>() {
+    return DataPointValue::Type::INT64;
 }
-template <> inline DataPointResult::Type getValueType<int64_t>() {
-    return DataPointResult::Type::INT64;
+template <> inline DataPointValue::Type getValueType<std::vector<int64_t>>() {
+    return DataPointValue::Type::INT64_ARRAY;
 }
-template <> inline DataPointResult::Type getValueType<std::vector<int64_t>>() {
-    return DataPointResult::Type::INT64_ARRAY;
+template <> inline DataPointValue::Type getValueType<uint32_t>() {
+    return DataPointValue::Type::UINT32;
 }
-template <> inline DataPointResult::Type getValueType<uint32_t>() {
-    return DataPointResult::Type::UINT32;
+template <> inline DataPointValue::Type getValueType<std::vector<uint32_t>>() {
+    return DataPointValue::Type::UINT32_ARRAY;
 }
-template <> inline DataPointResult::Type getValueType<std::vector<uint32_t>>() {
-    return DataPointResult::Type::UINT32_ARRAY;
+template <> inline DataPointValue::Type getValueType<uint64_t>() {
+    return DataPointValue::Type::UINT64;
 }
-template <> inline DataPointResult::Type getValueType<uint64_t>() {
-    return DataPointResult::Type::UINT64;
+template <> inline DataPointValue::Type getValueType<std::vector<uint64_t>>() {
+    return DataPointValue::Type::UINT64_ARRAY;
 }
-template <> inline DataPointResult::Type getValueType<std::vector<uint64_t>>() {
-    return DataPointResult::Type::UINT64_ARRAY;
+template <> inline DataPointValue::Type getValueType<float>() {
+    return DataPointValue::Type::FLOAT;
 }
-template <> inline DataPointResult::Type getValueType<float>() {
-    return DataPointResult::Type::FLOAT;
+template <> inline DataPointValue::Type getValueType<std::vector<float>>() {
+    return DataPointValue::Type::FLOAT_ARRAY;
 }
-template <> inline DataPointResult::Type getValueType<std::vector<float>>() {
-    return DataPointResult::Type::FLOAT_ARRAY;
+template <> inline DataPointValue::Type getValueType<double>() {
+    return DataPointValue::Type::DOUBLE;
 }
-template <> inline DataPointResult::Type getValueType<double>() {
-    return DataPointResult::Type::DOUBLE;
+template <> inline DataPointValue::Type getValueType<std::vector<double>>() {
+    return DataPointValue::Type::DOUBLE_ARRAY;
 }
-template <> inline DataPointResult::Type getValueType<std::vector<double>>() {
-    return DataPointResult::Type::DOUBLE_ARRAY;
+template <> inline DataPointValue::Type getValueType<std::string>() {
+    return DataPointValue::Type::STRING;
 }
-template <> inline DataPointResult::Type getValueType<std::string>() {
-    return DataPointResult::Type::STRING;
-}
-template <> inline DataPointResult::Type getValueType<std::vector<std::string>>() {
-    return DataPointResult::Type::STRING_ARRAY;
+template <> inline DataPointValue::Type getValueType<std::vector<std::string>>() {
+    return DataPointValue::Type::STRING_ARRAY;
 }
 
-template <typename T> class TypedDataPointResult : public DataPointResult {
+template <typename T> class TypedDataPointValue : public DataPointValue {
 public:
-    TypedDataPointResult()
-        : DataPointResult(Type::INVALID, "", Timestamp{}){};
+    TypedDataPointValue()
+        : DataPointValue(Type::INVALID, "", Timestamp{}){};
 
-    TypedDataPointResult(std::string path, T value)
-        : DataPointResult(getValueType<T>(), std::forward<decltype(path)>(path), Timestamp{})
+    TypedDataPointValue(std::string path, T value)
+        : DataPointValue(getValueType<T>(), std::forward<decltype(path)>(path), Timestamp{})
         , m_value(std::move(value)) {}
 
-    TypedDataPointResult(std::string path, T value, Timestamp timestamp)
-        : DataPointResult(getValueType<T>(), std::forward<decltype(path)>(path),
-                          std::forward<decltype(timestamp)>(timestamp))
+    TypedDataPointValue(std::string path, T value, Timestamp timestamp)
+        : DataPointValue(getValueType<T>(), std::forward<decltype(path)>(path),
+                         std::forward<decltype(timestamp)>(timestamp))
         , m_value(std::move(value)) {}
 
     [[nodiscard]] const T& value() const { return m_value; }
 
-    bool operator==(const TypedDataPointResult& other) const {
-        return DataPointResult::operator==(other) && m_value == other.m_value;
+    bool operator==(const TypedDataPointValue& other) const {
+        return DataPointValue::operator==(other) && m_value == other.m_value;
     }
 
 private:
     T m_value;
 };
 
-using DataPointMap_t = std::map<std::string, std::shared_ptr<DataPointResult>>;
+using DataPointMap_t = std::map<std::string, std::shared_ptr<DataPointValue>>;
 
 /**
  * @brief Result of an operation which returns multiple data points.
  *        Provides typed access to obtained data points.
  *
  */
-class DataPointsResult final {
+class DataPointValues final {
 public:
-    DataPointsResult() = default;
+    DataPointValues() = default;
 
-    DataPointsResult(DataPointMap_t&& dataPointsMap)
+    DataPointValues(DataPointMap_t&& dataPointsMap)
         : m_dataPointsMap(std::move(dataPointsMap)){};
 
     /**
@@ -192,7 +190,7 @@ public:
      * @return std::shared_ptr<TDataPointType>  The data point contained in the result.
      */
     template <class TDataPointType>
-    [[nodiscard]] std::shared_ptr<TypedDataPointResult<typename TDataPointType::value_type>>
+    [[nodiscard]] std::shared_ptr<TypedDataPointValue<typename TDataPointType::value_type>>
     get(const TDataPointType& dataPoint) const {
         static_assert(std::is_base_of_v<DataPoint, TDataPointType>);
 
@@ -201,14 +199,14 @@ public:
                 fmt::format("{} is not contained in result!", dataPoint.getPath()));
         }
 
-        std::shared_ptr<DataPointResult> result = m_dataPointsMap.at(dataPoint.getPath());
+        std::shared_ptr<DataPointValue> result = m_dataPointsMap.at(dataPoint.getPath());
         /*
         if (!result->isValid()) {
             throw InvalidValueException(fmt::format("{} is invalid: {}!", result->getPath(),
                                                     result->asFailure().getReason()));
         }*/
 
-        return std::dynamic_pointer_cast<TypedDataPointResult<typename TDataPointType::value_type>>(
+        return std::dynamic_pointer_cast<TypedDataPointValue<typename TDataPointType::value_type>>(
             result);
         ;
     }
@@ -219,7 +217,7 @@ public:
      * @return true   Result is empty.
      * @return false  Result is not empty.
      */
-    bool empty() { return m_dataPointsMap.empty(); }
+    [[nodiscard]] bool empty() const { return m_dataPointsMap.empty(); }
 
 private:
     DataPointMap_t m_dataPointsMap;

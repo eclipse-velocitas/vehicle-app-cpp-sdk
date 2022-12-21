@@ -18,13 +18,11 @@
 #define VEHICLE_APP_SDK_DATAPOINT_H
 
 #include "sdk/AsyncResult.h"
+#include "sdk/DataPointValues.h"
 #include "sdk/Node.h"
-#include "sdk/VehicleModelContext.h"
-#include "sdk/vdb/DataPointsResult.h"
 
-#include <memory>
+#include <cstdint>
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace velocitas {
@@ -62,372 +60,44 @@ inline bool operator<(const std::reference_wrapper<DataPoint>& lhs,
 }
 
 /**
- * @brief A data point with the type bool.
+ * @brief A typed data point template.
  *
  */
-class DataPointBoolean : public DataPoint {
+template <typename T> class TypedDataPoint : public DataPoint {
 public:
     using DataPoint::DataPoint;
 
-    using value_type = bool;
+    using value_type = T;
 
-    ~DataPointBoolean() override = default;
+    ~TypedDataPoint() override = default;
 
-    DataPointBoolean(const DataPointBoolean&)            = delete;
-    DataPointBoolean(DataPointBoolean&&)                 = delete;
-    DataPointBoolean& operator=(const DataPointBoolean&) = delete;
-    DataPointBoolean& operator=(DataPointBoolean&&)      = delete;
+    TypedDataPoint(const TypedDataPoint&)            = delete;
+    TypedDataPoint(TypedDataPoint&&)                 = delete;
+    TypedDataPoint& operator=(const TypedDataPoint&) = delete;
+    TypedDataPoint& operator=(TypedDataPoint&&)      = delete;
 
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
+    [[nodiscard]] AsyncResultPtr_t<TypedDataPointValue<T>> get() const;
+    [[nodiscard]] AsyncResultPtr_t<Status>                 set(T value);
 
     [[nodiscard]] std::string toString() const override;
 };
 
-/**
- * @brief A data point with the type bool array.
- *
- */
-class DataPointBooleanArray : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<bool>;
-
-    ~DataPointBooleanArray() override = default;
-
-    DataPointBooleanArray(const DataPointBooleanArray&)            = delete;
-    DataPointBooleanArray(DataPointBooleanArray&&)                 = delete;
-    DataPointBooleanArray& operator=(const DataPointBooleanArray&) = delete;
-    DataPointBooleanArray& operator=(DataPointBooleanArray&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type int32.
- *
- */
-class DataPointInt32 : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = int32_t;
-
-    ~DataPointInt32() override = default;
-
-    DataPointInt32(const DataPointInt32&)            = delete;
-    DataPointInt32(DataPointInt32&&)                 = delete;
-    DataPointInt32& operator=(const DataPointInt32&) = delete;
-    DataPointInt32& operator=(DataPointInt32&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type int32 array.
- *
- */
-class DataPointInt32Array : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<int32_t>;
-
-    ~DataPointInt32Array() override = default;
-
-    DataPointInt32Array(const DataPointInt32Array&)            = delete;
-    DataPointInt32Array(DataPointInt32Array&&)                 = delete;
-    DataPointInt32Array& operator=(const DataPointInt32Array&) = delete;
-    DataPointInt32Array& operator=(DataPointInt32Array&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type int64.
- *
- */
-class DataPointInt64 : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = int64_t;
-
-    ~DataPointInt64() override = default;
-
-    DataPointInt64(const DataPointInt64&)            = delete;
-    DataPointInt64(DataPointInt64&&)                 = delete;
-    DataPointInt64& operator=(const DataPointInt64&) = delete;
-    DataPointInt64& operator=(DataPointInt64&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type int64 array.
- *
- */
-class DataPointInt64Array : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<int64_t>;
-
-    ~DataPointInt64Array() override = default;
-
-    DataPointInt64Array(const DataPointInt64Array&)            = delete;
-    DataPointInt64Array(DataPointInt64Array&&)                 = delete;
-    DataPointInt64Array& operator=(const DataPointInt64Array&) = delete;
-    DataPointInt64Array& operator=(DataPointInt64Array&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type uint32.
- *
- */
-class DataPointUint32 : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = uint32_t;
-
-    ~DataPointUint32() override = default;
-
-    DataPointUint32(const DataPointUint32&)            = delete;
-    DataPointUint32(DataPointUint32&&)                 = delete;
-    DataPointUint32& operator=(const DataPointUint32&) = delete;
-    DataPointUint32& operator=(DataPointUint32&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type uint32 array.
- *
- */
-class DataPointUint32Array : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<uint32_t>;
-
-    ~DataPointUint32Array() override = default;
-
-    DataPointUint32Array(const DataPointUint32Array&)            = delete;
-    DataPointUint32Array(DataPointUint32Array&&)                 = delete;
-    DataPointUint32Array& operator=(const DataPointUint32Array&) = delete;
-    DataPointUint32Array& operator=(DataPointUint32Array&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type uint64.
- *
- */
-class DataPointUint64 : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = uint64_t;
-
-    ~DataPointUint64() override = default;
-
-    DataPointUint64(const DataPointUint64&)            = delete;
-    DataPointUint64(DataPointUint64&&)                 = delete;
-    DataPointUint64& operator=(const DataPointUint64&) = delete;
-    DataPointUint64& operator=(DataPointUint64&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type uint64 array.
- *
- */
-class DataPointUint64Array : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<uint64_t>;
-
-    ~DataPointUint64Array() override = default;
-
-    DataPointUint64Array(const DataPointUint64Array&)            = delete;
-    DataPointUint64Array(DataPointUint64Array&&)                 = delete;
-    DataPointUint64Array& operator=(const DataPointUint64Array&) = delete;
-    DataPointUint64Array& operator=(DataPointUint64Array&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type float.
- *
- */
-class DataPointFloat : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = float;
-
-    ~DataPointFloat() override = default;
-
-    DataPointFloat(const DataPointFloat&)            = delete;
-    DataPointFloat(DataPointFloat&&)                 = delete;
-    DataPointFloat& operator=(const DataPointFloat&) = delete;
-    DataPointFloat& operator=(DataPointFloat&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type float array.
- *
- */
-class DataPointFloatArray : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<float>;
-
-    ~DataPointFloatArray() override = default;
-
-    DataPointFloatArray(const DataPointFloatArray&)            = delete;
-    DataPointFloatArray(DataPointFloatArray&&)                 = delete;
-    DataPointFloatArray& operator=(const DataPointFloatArray&) = delete;
-    DataPointFloatArray& operator=(DataPointFloatArray&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type double.
- *
- */
-class DataPointDouble : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = double;
-
-    ~DataPointDouble() override = default;
-
-    DataPointDouble(const DataPointDouble&)            = delete;
-    DataPointDouble(DataPointDouble&&)                 = delete;
-    DataPointDouble& operator=(const DataPointDouble&) = delete;
-    DataPointDouble& operator=(DataPointDouble&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type double array.
- *
- */
-class DataPointDoubleArray : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<double>;
-
-    ~DataPointDoubleArray() override = default;
-
-    DataPointDoubleArray(const DataPointDoubleArray&)            = delete;
-    DataPointDoubleArray(DataPointDoubleArray&&)                 = delete;
-    DataPointDoubleArray& operator=(const DataPointDoubleArray&) = delete;
-    DataPointDoubleArray& operator=(DataPointDoubleArray&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type string.
- *
- */
-class DataPointString : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::string;
-
-    ~DataPointString() override = default;
-
-    DataPointString(const DataPointString&)            = delete;
-    DataPointString(DataPointString&&)                 = delete;
-    DataPointString& operator=(const DataPointString&) = delete;
-    DataPointString& operator=(DataPointString&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
-
-/**
- * @brief A data point with the type string array.
- *
- */
-class DataPointStringArray : public DataPoint {
-public:
-    using DataPoint::DataPoint;
-
-    using value_type = std::vector<std::string>;
-
-    ~DataPointStringArray() override = default;
-
-    DataPointStringArray(const DataPointStringArray&)            = delete;
-    DataPointStringArray(DataPointStringArray&&)                 = delete;
-    DataPointStringArray& operator=(const DataPointStringArray&) = delete;
-    DataPointStringArray& operator=(DataPointStringArray&&)      = delete;
-
-    [[nodiscard]] AsyncResultPtr_t<TypedDataPointResult<value_type>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                           set(value_type value);
-
-    [[nodiscard]] std::string toString() const override;
-};
+using DataPointBoolean      = TypedDataPoint<bool>;
+using DataPointBooleanArray = TypedDataPoint<std::vector<bool>>;
+using DataPointInt32        = TypedDataPoint<int32_t>;
+using DataPointInt32Array   = TypedDataPoint<std::vector<int32_t>>;
+using DataPointInt64        = TypedDataPoint<int64_t>;
+using DataPointInt64Array   = TypedDataPoint<std::vector<int64_t>>;
+using DataPointUint32       = TypedDataPoint<uint32_t>;
+using DataPointUint32Array  = TypedDataPoint<std::vector<uint32_t>>;
+using DataPointUint64       = TypedDataPoint<uint64_t>;
+using DataPointUint64Array  = TypedDataPoint<std::vector<uint64_t>>;
+using DataPointFloat        = TypedDataPoint<float>;
+using DataPointFloatArray   = TypedDataPoint<std::vector<float>>;
+using DataPointDouble       = TypedDataPoint<double>;
+using DataPointDoubleArray  = TypedDataPoint<std::vector<double>>;
+using DataPointString       = TypedDataPoint<std::string>;
+using DataPointStringArray  = TypedDataPoint<std::vector<std::string>>;
 
 /**
  * @brief A data point which caused a failure.
@@ -451,7 +121,7 @@ public:
     [[nodiscard]] std::string toString() const override;
 
 private:
-    std::string m_failureReason;
+    const std::string m_failureReason;
 };
 
 } // namespace velocitas

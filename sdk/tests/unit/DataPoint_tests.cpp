@@ -15,7 +15,8 @@
  */
 
 #include "sdk/DataPoint.h"
-#include "sdk/vdb/DataPointsResult.h"
+#include "sdk/DataPointValues.h"
+#include "sdk/VehicleModelContext.h"
 
 #include "VehicleDataBrokerClientMock.h"
 
@@ -35,7 +36,7 @@ template <typename T> void setTestCaseImpl(typename T::value_type value) {
     asyncResult->insertResult(
         IVehicleDataBrokerClient::SetErrorMap_t{}); // pre-fill result so we don't block
 
-    auto needle = TypedDataPointResult<typename T::value_type>(MY_PATH, value);
+    auto needle = TypedDataPointValue<typename T::value_type>(MY_PATH, value);
     EXPECT_CALL(*mockVdbc, setDatapoints(UnorderedElementsAre(Pointee(needle))))
         .Times(1)
         .WillRepeatedly(Return(asyncResult));
@@ -52,13 +53,12 @@ template <typename T> void getTestCaseImpl(typename T::value_type expectedValue)
     const std::string MY_PATH{"foo.bar"};
 
     auto mockVdbc    = std::make_shared<VehicleDataBrokerClientMock>();
-    auto asyncResult = std::make_shared<AsyncResult<DataPointsResult>>();
+    auto asyncResult = std::make_shared<AsyncResult<DataPointValues>>();
 
     DataPointMap_t map;
     map[MY_PATH] =
-        std::make_shared<TypedDataPointResult<typename T::value_type>>(MY_PATH, expectedValue);
-    asyncResult->insertResult(
-        DataPointsResult(std::move(map))); // pre-fill result so we don't block
+        std::make_shared<TypedDataPointValue<typename T::value_type>>(MY_PATH, expectedValue);
+    asyncResult->insertResult(DataPointValues(std::move(map))); // pre-fill result so we don't block
 
     EXPECT_CALL(*mockVdbc, getDatapoints(UnorderedElementsAre(MY_PATH)))
         .Times(1)
