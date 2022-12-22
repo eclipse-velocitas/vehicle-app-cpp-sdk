@@ -15,10 +15,10 @@
 |fasteners|0.18|Apache 2.0|
 |filelock|3.8.2|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.5.9|MIT|
+|identify|2.5.11|MIT|
 |idna|3.4|BSD|
 |Jinja2|3.1.2|New BSD|
-|lxml|4.9.1|BSD|
+|lxml|4.9.2|New BSD|
 |MarkupSafe|2.1.1|New BSD|
 |node-semver|0.6.1|MIT|
 |nodeenv|1.7.0|BSD|
