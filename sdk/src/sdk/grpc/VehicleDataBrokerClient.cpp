@@ -61,6 +61,26 @@ std::string VehicleDataBrokerClient::getVdbEndpointAddress() {
     return fmt::format("localhost:{}", daprGrpcPort);
 }
 
+static sdv::databroker::v1::Datapoint_Failure
+dataPointFailure_to_grpcFailure(DataPointFailure failure) {
+    switch (failure) {
+    case DataPointFailure::INVALID_VALUE:
+        return sdv::databroker::v1::Datapoint_Failure_INVALID_VALUE;
+    case DataPointFailure::NOT_AVAILABLE:
+        return sdv::databroker::v1::Datapoint_Failure_NOT_AVAILABLE;
+    case DataPointFailure::UNKNOWN_DATAPOINT:
+        return sdv::databroker::v1::Datapoint_Failure_UNKNOWN_DATAPOINT;
+    case DataPointFailure::ACCESS_DENIED:
+        return sdv::databroker::v1::Datapoint_Failure_ACCESS_DENIED;
+    case DataPointFailure::INTERNAL_ERROR:
+        return sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR;
+    default:
+        logger().error("Unknown 'DataPointFailure': {}", static_cast<unsigned int>(failure));
+        assert(false);
+        return sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR;
+    }
+}
+
 sdv::databroker::v1::Datapoint convertToGrpcDataPoint(const DataPointValue& dataPoint) {
     sdv::databroker::v1::Datapoint grpcDataPoint{};
 
@@ -157,7 +177,6 @@ sdv::databroker::v1::Datapoint convertToGrpcDataPoint(const DataPointValue& data
                                                                        array.cend());
         break;
     }
-    case DataPointValue::Type::INVALID:
     default:
         throw InvalidTypeException("");
     }
@@ -172,9 +191,9 @@ convertDataPointToInternal(const std::string&                    name,
 
     switch (grpcDataPoint.value_case()) {
     case sdv::databroker::v1::Datapoint::ValueCase::kFailureValue:
-        throw RpcException(fmt::format(
-            "Datapoint failure: {}",
-            sdv::databroker::v1::Datapoint_Failure_Name(grpcDataPoint.failure_value())));
+        return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, name,
+                                                valueProvider.getTimestamp(),
+                                                valueProvider.getDataPointFailure());
     case sdv::databroker::v1::Datapoint::ValueCase::kStringValue:
         return std::make_shared<TypedDataPointValue<std::string>>(
             name, valueProvider.getStringValue(), valueProvider.getTimestamp());

@@ -114,8 +114,8 @@ protected:
     AsyncResultPtr_t<typename TDataPoint::value_type>
     getDataPoint(const TDataPoint& dataPoint) const {
         return getDataPoint_internal(dataPoint)->template map<typename TDataPoint::value_type>(
-            [&dataPoint](const DataPointValues& dataPointsResult) {
-                return dataPointsResult.get<TDataPoint>(dataPoint)->value();
+            [&dataPoint](const DataPointValues& dataPointValues) {
+                return dataPointValues.get<TDataPoint>(dataPoint)->value();
             });
     }
 

@@ -40,7 +40,6 @@ public:
     using Node::Node;
 
     DataPoint(const std::string& name);
-
     ~DataPoint() override = default;
 
     DataPoint(const DataPoint&)            = delete;
@@ -48,7 +47,6 @@ public:
     DataPoint& operator=(const DataPoint&) = delete;
     DataPoint& operator=(DataPoint&&)      = delete;
 
-    [[nodiscard]] virtual bool        isValid() const { return true; }
     [[nodiscard]] virtual std::string toString() const = 0;
 
     bool operator<(const DataPoint& rhs) const { return getPath() < rhs.getPath(); }
@@ -98,31 +96,6 @@ using DataPointDouble       = TypedDataPoint<double>;
 using DataPointDoubleArray  = TypedDataPoint<std::vector<double>>;
 using DataPointString       = TypedDataPoint<std::string>;
 using DataPointStringArray  = TypedDataPoint<std::vector<std::string>>;
-
-/**
- * @brief A data point which caused a failure.
- *
- */
-class DataPointFailure : public DataPoint {
-public:
-    DataPointFailure(std::string name, std::string failureReason);
-
-    ~DataPointFailure() override = default;
-
-    DataPointFailure(const DataPointFailure&)            = delete;
-    DataPointFailure(DataPointFailure&&)                 = delete;
-    DataPointFailure& operator=(const DataPointFailure&) = delete;
-    DataPointFailure& operator=(DataPointFailure&&)      = delete;
-
-    [[nodiscard]] bool isValid() const override { return false; }
-
-    [[nodiscard]] const std::string& getReason() const { return m_failureReason; }
-
-    [[nodiscard]] std::string toString() const override;
-
-private:
-    const std::string m_failureReason;
-};
 
 } // namespace velocitas
 

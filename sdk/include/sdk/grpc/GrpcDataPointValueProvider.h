@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/DataPointValues.h"
 #include "sdk/vdb/IDataPointValueProvider.h"
 #include "sdv/databroker/v1/types.grpc.pb.h"
 
@@ -28,6 +27,7 @@ class GrpcDataPointValueProvider : public IDataPointValueProvider {
 public:
     explicit GrpcDataPointValueProvider(sdv::databroker::v1::Datapoint datapoint);
 
+    DataPointFailure         getDataPointFailure() const override;
     bool                     getBoolValue() const override;
     std::vector<bool>        getBoolArrayValue() const override;
     float                    getFloatValue() const override;

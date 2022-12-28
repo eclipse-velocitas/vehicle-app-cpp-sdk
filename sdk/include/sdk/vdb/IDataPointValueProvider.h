@@ -17,9 +17,13 @@
 #ifndef VEHICLE_APP_SDK_DATAPOINTVALUEPROVIDER_H
 #define VEHICLE_APP_SDK_DATAPOINTVALUEPROVIDER_H
 
+#include "sdk/DataPointValues.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
+
+namespace velocitas {
 
 /**
  * @brief Interface for providing values to Datapoints.
@@ -35,6 +39,8 @@ public:
     IDataPointValueProvider(IDataPointValueProvider&&)                 = delete;
     IDataPointValueProvider& operator=(const IDataPointValueProvider&) = delete;
     IDataPointValueProvider& operator=(IDataPointValueProvider&&)      = delete;
+
+    [[nodiscard]] virtual DataPointFailure getDataPointFailure() const = 0;
 
     [[nodiscard]] virtual bool getBoolValue() const = 0;
 
@@ -68,5 +74,7 @@ public:
 
     [[nodiscard]] virtual std::vector<std::string> getStringArrayValue() const = 0;
 };
+
+} // namespace velocitas
 
 #endif // VEHICLE_APP_SDK_DATAPOINTVALUEPROVIDER_H

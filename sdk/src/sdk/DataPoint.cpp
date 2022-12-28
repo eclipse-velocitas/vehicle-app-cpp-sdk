@@ -30,21 +30,12 @@ namespace velocitas {
 DataPoint::DataPoint(const std::string& name)
     : Node(name) {}
 
-DataPointFailure::DataPointFailure(std::string name, std::string failureReason)
-    : DataPoint(std::move(name), nullptr)
-    , m_failureReason{std::move(failureReason)} {}
-
-std::string DataPointFailure::toString() const {
-    return fmt::format("DataPoint: ('{}', failure: '{}')", getName(), getReason());
-}
-
 template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>::get() const {
     return VehicleModelContext::getInstance()
         .getVdbc()
         ->getDatapoints({getPath()})
-        ->map<TypedDataPointValue<T>>([this](const DataPointValues& dataPointsResult) {
-            return *dataPointsResult.get(*this);
-        });
+        ->map<TypedDataPointValue<T>>(
+            [this](const DataPointValues& dataPointValues) { return *dataPointValues.get(*this); });
 }
 
 template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) {

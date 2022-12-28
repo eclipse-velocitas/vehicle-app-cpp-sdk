@@ -14,13 +14,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_DATAPOINTSRESULT_H
-#define VEHICLE_APP_SDK_DATAPOINTSRESULT_H
+#ifndef VEHICLE_APP_SDK_DATAPOINTVALUES_H
+#define VEHICLE_APP_SDK_DATAPOINTVALUES_H
 
 #include "sdk/Exceptions.h"
 
 #include <fmt/core.h>
 
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
@@ -39,10 +40,27 @@ struct Timestamp {
 };
 
 inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
-    return lhs.seconds == rhs.seconds && lhs.seconds == rhs.seconds;
+    return lhs.seconds == rhs.seconds && lhs.nanos == rhs.nanos;
 }
 
 class DataPoint;
+
+enum class DataPointFailure {
+    // No failure, i.e. is a valid data point
+    NONE,
+    // The data point is known, but doesn't have a valid value
+    INVALID_VALUE,
+    // The data point is known, but no value is available
+    NOT_AVAILABLE,
+    // Unknown datapoint
+    UNKNOWN_DATAPOINT,
+    // Access denied
+    ACCESS_DENIED,
+    // Unexpected internal error
+    INTERNAL_ERROR,
+};
+
+std::string toString(DataPointFailure);
 
 class DataPointValue {
 public:
@@ -66,10 +84,12 @@ public:
         STRING_ARRAY
     };
 
-    DataPointValue(Type type, std::string path, Timestamp timestamp)
-        : m_type{type}
-        , m_path(std::move(path))
-        , m_timestamp(std::move(timestamp)) {}
+    DataPointValue(Type type, std::string path, Timestamp timestamp,
+                   DataPointFailure failure = DataPointFailure::NONE)
+        : m_path(std::move(path))
+        , m_type{type}
+        , m_timestamp(std::move(timestamp))
+        , m_failure{failure} {}
 
     virtual ~DataPointValue()                        = default;
     DataPointValue(const DataPointValue&)            = default;
@@ -78,18 +98,21 @@ public:
     DataPointValue& operator=(DataPointValue&&)      = default;
 
     [[nodiscard]] const std::string& getPath() const { return m_path; }
-    [[nodiscard]] const Timestamp&   getTimestamp() const { return m_timestamp; }
     [[nodiscard]] Type               getType() const { return m_type; }
+    [[nodiscard]] const Timestamp&   getTimestamp() const { return m_timestamp; }
+    [[nodiscard]] bool               isValid() const { return m_failure == DataPointFailure::NONE; }
+    [[nodiscard]] DataPointFailure   getFailure() const { return m_failure; }
 
     bool operator==(const DataPointValue& other) const {
-        return std::tie(m_path, m_timestamp, m_type) ==
-               std::tie(other.m_path, other.m_timestamp, other.m_type);
+        return std::tie(m_path, m_type, m_timestamp, m_failure) ==
+               std::tie(other.m_path, other.m_type, other.m_timestamp, other.m_failure);
     }
 
 private:
-    std::string m_path;
-    Timestamp   m_timestamp{};
-    Type        m_type{Type::INVALID};
+    std::string      m_path;
+    Type             m_type{Type::INVALID};
+    Timestamp        m_timestamp{};
+    DataPointFailure m_failure{DataPointFailure::NONE};
 };
 
 template <typename T> DataPointValue::Type getValueType() {
@@ -158,7 +181,19 @@ public:
                          std::forward<decltype(timestamp)>(timestamp))
         , m_value(std::move(value)) {}
 
-    [[nodiscard]] const T& value() const { return m_value; }
+    TypedDataPointValue(std::string path, DataPointFailure failure,
+                        Timestamp timestamp = Timestamp{})
+        : DataPointValue(getValueType<T>(), std::forward<decltype(path)>(path),
+                         std::forward<decltype(timestamp)>(timestamp), failure)
+        , m_value{} {}
+
+    [[nodiscard]] const T& value() const {
+        if (!isValid()) {
+            throw InvalidValueException(
+                fmt::format("'{}' has no valid value: {}!", getPath(), toString(getFailure())));
+        }
+        return m_value;
+    }
 
     bool operator==(const TypedDataPointValue& other) const {
         return DataPointValue::operator==(other) && m_value == other.m_value;
@@ -180,7 +215,7 @@ public:
     DataPointValues() = default;
 
     DataPointValues(DataPointMap_t&& dataPointsMap)
-        : m_dataPointsMap(std::move(dataPointsMap)){};
+        : m_dataPointsMap(std::move(dataPointsMap)) {}
 
     /**
      * @brief Get the desired data point from the result.
@@ -200,15 +235,13 @@ public:
         }
 
         std::shared_ptr<DataPointValue> result = m_dataPointsMap.at(dataPoint.getPath());
-        /*
-        if (!result->isValid()) {
-            throw InvalidValueException(fmt::format("{} is invalid: {}!", result->getPath(),
-                                                    result->asFailure().getReason()));
-        }*/
+        if (result->isValid()) {
+            return std::dynamic_pointer_cast<
+                TypedDataPointValue<typename TDataPointType::value_type>>(result);
+        }
 
-        return std::dynamic_pointer_cast<TypedDataPointValue<typename TDataPointType::value_type>>(
-            result);
-        ;
+        return std::make_shared<TypedDataPointValue<typename TDataPointType::value_type>>(
+            result->getPath(), result->getFailure(), result->getTimestamp());
     }
 
     /**
@@ -225,4 +258,4 @@ private:
 
 } // namespace velocitas
 
-#endif // VEHICLE_APP_SDK_DATAPOINTSRESULT_H
+#endif // VEHICLE_APP_SDK_DATAPOINTVALUES_H
