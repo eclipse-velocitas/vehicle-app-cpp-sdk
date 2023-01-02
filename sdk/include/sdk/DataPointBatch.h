@@ -46,7 +46,7 @@ public:
      * @return DataPointBatch&  A reference to the batch for method chaining.
      */
     template <typename TDataPoint>
-    DataPointBatch& add(TDataPoint& dataPoint, typename TDataPoint::value_type value) {
+    DataPointBatch& add(const TDataPoint& dataPoint, typename TDataPoint::value_type value) {
         m_dataPoints.emplace_back(
             std::make_unique<TypedDataPointValue<typename TDataPoint::value_type>>(
                 dataPoint.getPath(), value, Timestamp{}));

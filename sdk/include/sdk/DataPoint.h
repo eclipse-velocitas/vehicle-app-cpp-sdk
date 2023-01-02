@@ -39,7 +39,7 @@ class DataPoint : public Node {
 public:
     using Node::Node;
 
-    DataPoint(const std::string& name);
+    explicit DataPoint(const std::string& name);
     ~DataPoint() override = default;
 
     DataPoint(const DataPoint&)            = delete;

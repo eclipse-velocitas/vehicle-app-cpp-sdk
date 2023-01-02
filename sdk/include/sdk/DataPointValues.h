@@ -172,19 +172,14 @@ public:
     TypedDataPointValue()
         : DataPointValue(Type::INVALID, "", Timestamp{}){};
 
-    TypedDataPointValue(std::string path, T value)
-        : DataPointValue(getValueType<T>(), std::forward<decltype(path)>(path), Timestamp{})
+    TypedDataPointValue(const std::string& path, T value, Timestamp timestamp = Timestamp{})
+        : DataPointValue(getValueType<T>(), path, std::forward<decltype(timestamp)>(timestamp))
         , m_value(std::move(value)) {}
 
-    TypedDataPointValue(std::string path, T value, Timestamp timestamp)
-        : DataPointValue(getValueType<T>(), std::forward<decltype(path)>(path),
-                         std::forward<decltype(timestamp)>(timestamp))
-        , m_value(std::move(value)) {}
-
-    TypedDataPointValue(std::string path, DataPointFailure failure,
+    TypedDataPointValue(const std::string& path, DataPointFailure failure,
                         Timestamp timestamp = Timestamp{})
-        : DataPointValue(getValueType<T>(), std::forward<decltype(path)>(path),
-                         std::forward<decltype(timestamp)>(timestamp), failure)
+        : DataPointValue(getValueType<T>(), path, std::forward<decltype(timestamp)>(timestamp),
+                         failure)
         , m_value{} {}
 
     [[nodiscard]] const T& value() const {
