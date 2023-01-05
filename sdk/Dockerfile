@@ -29,7 +29,7 @@ RUN apk update && \
     apk add git && \
     apk add nodejs && \
     apk add npm && \
-    pip3 install "conan==1.60.2"
+    pip3 install "conan==1.63.0"
 
 COPY . /sdk
 

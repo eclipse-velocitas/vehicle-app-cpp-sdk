@@ -28,7 +28,7 @@
 |pre-commit|3.5.0|MIT|
 |pygments|2.17.2|Simplified BSD|
 |PyJWT|2.8.0|MIT|
-|python-dateutil|2.9.0|Apache 2.0<br/>BSD|
+|python-dateutil|2.9.0.post0|Apache 2.0<br/>BSD|
 |PyYAML|6.0.1|MIT|
 |requests|2.31.0|Apache 2.0|
 |setuptools|58.1.0|MIT|
