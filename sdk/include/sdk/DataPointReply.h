@@ -47,11 +47,11 @@ public:
         : m_dataPointsMap(std::move(dataPointsMap)) {}
 
     /**
-     * @brief Get the desired data point from the result.
+     * @brief Get the desired data point from the reply.
      *
      * @tparam TDataPointType   The type of the data point to return.
-     * @param dataPoint         The data point to query from the result.
-     * @return std::shared_ptr<TDataPointType>  The data point contained in the result.
+     * @param dataPoint         The data point to query from the reply.
+     * @return std::shared_ptr<TDataPointType>  The data point contained in the reply.
      */
     template <class TDataPointType>
     [[nodiscard]] std::shared_ptr<TypedDataPointValue<typename TDataPointType::value_type>>
@@ -60,24 +60,24 @@ public:
 
         if (m_dataPointsMap.find(dataPoint.getPath()) == m_dataPointsMap.end()) {
             throw InvalidValueException(
-                fmt::format("{} is not contained in result!", dataPoint.getPath()));
+                fmt::format("{} is not contained in reply!", dataPoint.getPath()));
         }
 
-        std::shared_ptr<DataPointValue> result = m_dataPointsMap.at(dataPoint.getPath());
-        if (result->isValid()) {
+        std::shared_ptr<DataPointValue> value = m_dataPointsMap.at(dataPoint.getPath());
+        if (value->isValid()) {
             return std::dynamic_pointer_cast<
-                TypedDataPointValue<typename TDataPointType::value_type>>(result);
+                TypedDataPointValue<typename TDataPointType::value_type>>(value);
         }
 
         return std::make_shared<TypedDataPointValue<typename TDataPointType::value_type>>(
-            result->getPath(), result->getFailure(), result->getTimestamp());
+            value->getPath(), value->getFailure(), value->getTimestamp());
     }
 
     /**
-     * @brief Check if the result is empty.
+     * @brief Check if the reply is empty.
      *
-     * @return true   Result is empty.
-     * @return false  Result is not empty.
+     * @return true   Reply is empty.
+     * @return false  Reply is not empty.
      */
     [[nodiscard]] bool empty() const { return m_dataPointsMap.empty(); }
 

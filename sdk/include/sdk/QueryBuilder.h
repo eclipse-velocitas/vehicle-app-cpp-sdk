@@ -85,8 +85,7 @@ public:
      * @brief Adds a greater than condition for the chosen data point
      *
      * @param value   The value of the data point must be greater than this
-     * @return A reference to a WhereClauseBuilder for adding more conditions or triggering the
-     * final build
+     * @return This instance for method chaining.
      */
     WhereClauseBuilder& gt(T value) {
         m_parent->m_queryContext.emplace_back(">");
@@ -98,8 +97,7 @@ public:
      * @brief Adds a lesser than condition for the chosen data point
      *
      * @param value   The value of the data point must be smaller than this
-     * @return A reference to a WhereClauseBuilder for adding more conditions or triggering the
-     * final build
+     * @return This instance for method chaining.
      */
     WhereClauseBuilder& lt(T value) {
         m_parent->m_queryContext.emplace_back("<");
@@ -111,8 +109,7 @@ public:
      * @brief Adds a equals to condition for the chosen data point
      *
      * @param value   The value of the data point must be equal to this
-     * @return A reference to a WhereClauseBuilder for adding more conditions or triggering the
-     * final build
+     * @return This instance for method chaining.
      */
     WhereClauseBuilder& eq(T value) {
         m_parent->m_queryContext.emplace_back("=");

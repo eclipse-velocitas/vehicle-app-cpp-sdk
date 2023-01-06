@@ -29,7 +29,7 @@ const sdv::databroker::v1::Datapoint& GrpcDataPointValueProvider::getDataPoint()
     return m_datapoint;
 }
 
-DataPointValue::Failure GrpcDataPointValueProvider::getDataPointValueFailure() const {
+DataPointValue::Failure GrpcDataPointValueProvider::getFailure() const {
     switch (m_datapoint.failure_value()) {
     case sdv::databroker::v1::Datapoint_Failure_INVALID_VALUE:
         return DataPointValue::Failure::INVALID_VALUE;

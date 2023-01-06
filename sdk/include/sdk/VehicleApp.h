@@ -97,7 +97,7 @@ protected:
      * @brief Get values for all provided data points from the data broker.
      *
      * @param dataPoints    Vector of data points to obtain values for.
-     * @return The result contains the data point values for all requested data points.
+     * @return The reply containing the data point values for all requested data points.
      */
     AsyncResultPtr_t<DataPointReply>
     getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints);
@@ -107,7 +107,7 @@ protected:
      *
      * @param dataPoint    The data point to obtain values for.
      * @return AsyncResultPtr_t<typename TDataPoint::value_type>  The result containing
-     *     the data point result of the requested data point.
+     *     the data point value of the requested data point.
      */
     template <typename TDataPoint>
     AsyncResultPtr_t<typename TDataPoint::value_type>

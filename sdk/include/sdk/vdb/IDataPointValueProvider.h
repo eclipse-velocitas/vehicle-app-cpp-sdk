@@ -40,7 +40,7 @@ public:
     IDataPointValueProvider& operator=(const IDataPointValueProvider&) = delete;
     IDataPointValueProvider& operator=(IDataPointValueProvider&&)      = delete;
 
-    [[nodiscard]] virtual DataPointValue::Failure getDataPointValueFailure() const = 0;
+    [[nodiscard]] virtual DataPointValue::Failure getFailure() const = 0;
 
     [[nodiscard]] virtual bool getBoolValue() const = 0;
 

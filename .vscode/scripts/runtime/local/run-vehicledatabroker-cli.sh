@@ -25,6 +25,10 @@ source $UTILS_DIRECTORY/get-appmanifest-data.sh
 
 sudo chown $(whoami) $HOME
 
+DATABROKER_REPO="https://github.com/boschglobal/kuksa.val"
+# Needed because of how the databroker release is tagged
+DATABROKER_VERSION=$DATABROKER_TAG
+
 #Detect host environment (distinguish for Mac M1 processor)
 if [[ `uname -m` == 'aarch64' || `uname -m` == 'arm64' ]]; then
     PROCESSOR="aarch64"
@@ -33,13 +37,13 @@ else
 fi
 echo "Detected ${PROCESSOR} architecture"
 DATABROKER_BINARY_NAME="databroker_${PROCESSOR}.tar.gz"
-DATABROKER_INSTALL_PATH="$ROOT_DIRECTORY/.vscode/scripts/assets/databroker/$DATABROKER_CLI_TAG/$PROCESSOR"
+DATABROKER_INSTALL_PATH="$ROOT_DIRECTORY/.vscode/scripts/assets/databroker/$DATABROKER_VERSION/$PROCESSOR"
 DATABROKER_EXEC_PATH="$DATABROKER_INSTALL_PATH/target/release"
 
 if [[ ! -f "$DATABROKER_EXEC_PATH/databroker" ]]
 then
-    DL_URL="${DATABROKER_CLI_IMAGE}/${DATABROKER_CLI_TAG}/${DATABROKER_BINARY_NAME}"
-    echo "Downloading ${DATABROKER_BINARY_NAME} v$DATABROKER_CLI_TAG"
+    DL_URL="${DATABROKER_REPO}/releases/download/${DATABROKER_VERSION}/${DATABROKER_BINARY_NAME}"
+    echo "Downloading ${DATABROKER_BINARY_NAME} v$DATABROKER_VERSION"
     curl -o $DATABROKER_INSTALL_PATH/$DATABROKER_BINARY_NAME --create-dirs -L -H "Accept: application/octet-stream" "$DL_URL"
     tar -xf $DATABROKER_INSTALL_PATH/$DATABROKER_BINARY_NAME -C $DATABROKER_INSTALL_PATH
 fi

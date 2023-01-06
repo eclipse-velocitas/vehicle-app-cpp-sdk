@@ -192,7 +192,7 @@ convertDataPointToInternal(const std::string&                    name,
     case sdv::databroker::v1::Datapoint::ValueCase::kFailureValue:
         return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, name,
                                                 valueProvider.getTimestamp(),
-                                                valueProvider.getDataPointValueFailure());
+                                                valueProvider.getFailure());
     case sdv::databroker::v1::Datapoint::ValueCase::kStringValue:
         return std::make_shared<TypedDataPointValue<std::string>>(
             name, valueProvider.getStringValue(), valueProvider.getTimestamp());
