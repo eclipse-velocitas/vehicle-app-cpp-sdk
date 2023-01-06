@@ -43,13 +43,13 @@ public:
     VehicleDataBrokerClient& operator=(const VehicleDataBrokerClient&) = delete;
     VehicleDataBrokerClient& operator=(VehicleDataBrokerClient&&)      = delete;
 
-    AsyncResultPtr_t<DataPointValues>
+    AsyncResultPtr_t<DataPointReply>
     getDatapoints(const std::vector<std::string>& datapoints) override;
 
     AsyncResultPtr_t<SetErrorMap_t>
     setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& datapoints) override;
 
-    AsyncSubscriptionPtr_t<DataPointValues> subscribe(const std::string& query) override;
+    AsyncSubscriptionPtr_t<DataPointReply> subscribe(const std::string& query) override;
 
 private:
     static std::string getVdbEndpointAddress();

@@ -18,12 +18,14 @@
 #define VEHICLE_APP_SDK_IVEHICLEDATABROKERCLIENT_H
 
 #include "sdk/AsyncResult.h"
-#include "sdk/DataPoint.h"
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointReply.h"
 
 #include <map>
 
 namespace velocitas {
+
+class DataPointReply;
+class DataPointValue;
 
 /**
  * @brief Interface for implementing VehicleDataBroker clients.
@@ -45,9 +47,9 @@ public:
      *
      * @param datapoints The list of data point paths to query.
      *
-     * @return AsyncResultPtr_t<DataPointValues>
+     * @return The AsyncResult containing the values of all requested data points
      */
-    virtual AsyncResultPtr_t<DataPointValues>
+    virtual AsyncResultPtr_t<DataPointReply>
     getDatapoints(const std::vector<std::string>& datapoints) = 0;
 
     /**
@@ -64,9 +66,9 @@ public:
      *
      * @param query The query to subscribe to.
      *
-     * @return AsyncSubscriptionPtr<DataPointValues>
+     * @return The subscription to the data points.
      */
-    virtual AsyncSubscriptionPtr_t<DataPointValues> subscribe(const std::string& query) = 0;
+    virtual AsyncSubscriptionPtr_t<DataPointReply> subscribe(const std::string& query) = 0;
 
     /**
      * @brief Create an instance of the IVehicleDataBrokerClient.

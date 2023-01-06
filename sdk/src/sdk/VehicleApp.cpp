@@ -65,7 +65,7 @@ AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::stri
     return m_pubSubClient->subscribeTopic(topic);
 }
 
-AsyncResultPtr_t<DataPointValues>
+AsyncResultPtr_t<DataPointReply>
 VehicleApp::getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints) {
     std::vector<std::string> dataPointPaths;
     dataPointPaths.reserve(dataPoints.size());
@@ -76,7 +76,7 @@ VehicleApp::getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& 
     return m_vdbClient->getDatapoints(dataPointPaths);
 }
 
-AsyncResultPtr_t<DataPointValues>
+AsyncResultPtr_t<DataPointReply>
 VehicleApp::getDataPoint_internal(const DataPoint& dataPoint) const {
     std::vector<std::string> dataPointPaths;
     dataPointPaths.reserve(1);
@@ -84,7 +84,7 @@ VehicleApp::getDataPoint_internal(const DataPoint& dataPoint) const {
     return m_vdbClient->getDatapoints(dataPointPaths);
 }
 
-AsyncSubscriptionPtr_t<DataPointValues> VehicleApp::subscribeDataPoints(const std::string& query) {
+AsyncSubscriptionPtr_t<DataPointReply> VehicleApp::subscribeDataPoints(const std::string& query) {
     return m_vdbClient->subscribe(query);
 }
 

@@ -16,7 +16,7 @@
 
 #include "sdk/grpc/VehicleDataBrokerClient.h"
 
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointValue.h"
 #include "sdk/grpc/AsyncGrpcFacade.h"
 #include "sdk/grpc/BrokerAsyncGrpcFacade.h"
 #include "sdk/grpc/GrpcDataPointValueProvider.h"
@@ -61,21 +61,20 @@ std::string VehicleDataBrokerClient::getVdbEndpointAddress() {
     return fmt::format("localhost:{}", daprGrpcPort);
 }
 
-static sdv::databroker::v1::Datapoint_Failure
-dataPointFailure_to_grpcFailure(DataPointFailure failure) {
+static sdv::databroker::v1::Datapoint_Failure mapToGrpcType(DataPointValue::Failure failure) {
     switch (failure) {
-    case DataPointFailure::INVALID_VALUE:
+    case DataPointValue::Failure::INVALID_VALUE:
         return sdv::databroker::v1::Datapoint_Failure_INVALID_VALUE;
-    case DataPointFailure::NOT_AVAILABLE:
+    case DataPointValue::Failure::NOT_AVAILABLE:
         return sdv::databroker::v1::Datapoint_Failure_NOT_AVAILABLE;
-    case DataPointFailure::UNKNOWN_DATAPOINT:
+    case DataPointValue::Failure::UNKNOWN_DATAPOINT:
         return sdv::databroker::v1::Datapoint_Failure_UNKNOWN_DATAPOINT;
-    case DataPointFailure::ACCESS_DENIED:
+    case DataPointValue::Failure::ACCESS_DENIED:
         return sdv::databroker::v1::Datapoint_Failure_ACCESS_DENIED;
-    case DataPointFailure::INTERNAL_ERROR:
+    case DataPointValue::Failure::INTERNAL_ERROR:
         return sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR;
     default:
-        logger().error("Unknown 'DataPointFailure': {}", static_cast<unsigned int>(failure));
+        logger().error("Unknown 'DataPointValue::Failure': {}", static_cast<unsigned int>(failure));
         assert(false);
         return sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR;
     }
@@ -193,7 +192,7 @@ convertDataPointToInternal(const std::string&                    name,
     case sdv::databroker::v1::Datapoint::ValueCase::kFailureValue:
         return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, name,
                                                 valueProvider.getTimestamp(),
-                                                valueProvider.getDataPointFailure());
+                                                valueProvider.getDataPointValueFailure());
     case sdv::databroker::v1::Datapoint::ValueCase::kStringValue:
         return std::make_shared<TypedDataPointValue<std::string>>(
             name, valueProvider.getStringValue(), valueProvider.getTimestamp());
@@ -249,9 +248,9 @@ convertDataPointToInternal(const std::string&                    name,
     return nullptr;
 }
 
-AsyncResultPtr_t<DataPointValues>
+AsyncResultPtr_t<DataPointReply>
 VehicleDataBrokerClient::getDatapoints(const std::vector<std::string>& datapoints) {
-    auto result = std::make_shared<AsyncResult<DataPointValues>>();
+    auto result = std::make_shared<AsyncResult<DataPointReply>>();
     m_asyncBrokerFacade->GetDatapoints(
         datapoints,
         [result](auto reply) {
@@ -260,7 +259,7 @@ VehicleDataBrokerClient::getDatapoints(const std::vector<std::string>& datapoint
                 resultMap[key] = convertDataPointToInternal(key, value);
             }
 
-            result->insertResult(DataPointValues(std::move(resultMap)));
+            result->insertResult(DataPointReply(std::move(resultMap)));
         },
         [result](auto status) {
             result->insertError(
@@ -294,9 +293,9 @@ AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t> VehicleDataBrokerClien
     return result;
 }
 
-AsyncSubscriptionPtr_t<DataPointValues>
+AsyncSubscriptionPtr_t<DataPointReply>
 VehicleDataBrokerClient::subscribe(const std::string& query) {
-    auto subscription = std::make_shared<AsyncSubscription<DataPointValues>>();
+    auto subscription = std::make_shared<AsyncSubscription<DataPointReply>>();
     m_asyncBrokerFacade->Subscribe(
         query,
         [subscription](const auto& item) {
@@ -305,7 +304,7 @@ VehicleDataBrokerClient::subscribe(const std::string& query) {
             for (const auto& [key, value] : fieldsMap) {
                 resultFields[key] = convertDataPointToInternal(key, value);
             }
-            subscription->insertNewItem(DataPointValues(std::move(resultFields)));
+            subscription->insertNewItem(DataPointReply(std::move(resultFields)));
         },
         [subscription](const auto& status) {
             subscription->insertError(

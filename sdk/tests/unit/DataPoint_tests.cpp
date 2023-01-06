@@ -15,7 +15,7 @@
  */
 
 #include "sdk/DataPoint.h"
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointValue.h"
 #include "sdk/VehicleModelContext.h"
 
 #include "VehicleDataBrokerClientMock.h"
@@ -53,12 +53,12 @@ template <typename T> void getTestCaseImpl(typename T::value_type expectedValue)
     const std::string MY_PATH{"foo.bar"};
 
     auto mockVdbc    = std::make_shared<VehicleDataBrokerClientMock>();
-    auto asyncResult = std::make_shared<AsyncResult<DataPointValues>>();
+    auto asyncResult = std::make_shared<AsyncResult<DataPointReply>>();
 
     DataPointMap_t map;
     map[MY_PATH] =
         std::make_shared<TypedDataPointValue<typename T::value_type>>(MY_PATH, expectedValue);
-    asyncResult->insertResult(DataPointValues(std::move(map))); // pre-fill result so we don't block
+    asyncResult->insertResult(DataPointReply(std::move(map))); // pre-fill result so we don't block
 
     EXPECT_CALL(*mockVdbc, getDatapoints(UnorderedElementsAre(MY_PATH)))
         .Times(1)

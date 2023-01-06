@@ -18,7 +18,7 @@
 #define VEHICLE_APP_SDK_VEHICLEAPP_H
 
 #include "sdk/AsyncResult.h"
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointReply.h"
 
 #include <functional>
 #include <memory>
@@ -97,10 +97,9 @@ protected:
      * @brief Get values for all provided data points from the data broker.
      *
      * @param dataPoints    Vector of data points to obtain values for.
-     * @return AsyncResultPtr_t<DataPointValues>  The result containing the data point
-     *     results for all requested data points.
+     * @return The result contains the data point values for all requested data points.
      */
-    AsyncResultPtr_t<DataPointValues>
+    AsyncResultPtr_t<DataPointReply>
     getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints);
 
     /**
@@ -114,7 +113,7 @@ protected:
     AsyncResultPtr_t<typename TDataPoint::value_type>
     getDataPoint(const TDataPoint& dataPoint) const {
         return getDataPoint_internal(dataPoint)->template map<typename TDataPoint::value_type>(
-            [&dataPoint](const DataPointValues& dataPointValues) {
+            [&dataPoint](const DataPointReply& dataPointValues) {
                 return dataPointValues.get<TDataPoint>(dataPoint)->value();
             });
     }
@@ -122,10 +121,10 @@ protected:
     /**
      * @brief Subscribes to the query for data points.
      *
-     * @param query   The query to subscribe to.
-     * @return AsyncSubscriptionPtr_t<DataPointValues>   The subscription to the data points.
+     * @param queryString   The query to subscribe to.
+     * @return The subscription to the data points.
      */
-    AsyncSubscriptionPtr_t<DataPointValues> subscribeDataPoints(const std::string& queryString);
+    AsyncSubscriptionPtr_t<DataPointReply> subscribeDataPoints(const std::string& queryString);
 
     /**
      * @brief Get the Vehicle Data Broker Client object.
@@ -142,7 +141,7 @@ protected:
     std::shared_ptr<IPubSubClient> getPubSubClient();
 
 private:
-    [[nodiscard]] AsyncResultPtr_t<DataPointValues>
+    [[nodiscard]] AsyncResultPtr_t<DataPointReply>
     getDataPoint_internal(const DataPoint& dataPoint) const;
 
     std::shared_ptr<IVehicleDataBrokerClient> m_vdbClient;

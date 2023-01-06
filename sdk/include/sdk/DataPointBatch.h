@@ -18,7 +18,7 @@
 #define VEHICLE_APP_SDK_DATAPOINTBATCH_H
 
 #include "sdk/AsyncResult.h"
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointValue.h"
 
 #include <map>
 #include <vector>

@@ -22,7 +22,7 @@ add_library(${TARGET_NAME}
     sdk/Node.cpp
     sdk/QueryBuilder.cpp
     sdk/DataPoint.cpp
-    sdk/DataPointValues.cpp
+    sdk/DataPointValue.cpp
     sdk/ThreadPool.cpp
     sdk/Job.cpp
     sdk/Utils.cpp

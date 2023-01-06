@@ -27,7 +27,7 @@ class GrpcDataPointValueProvider : public IDataPointValueProvider {
 public:
     explicit GrpcDataPointValueProvider(sdv::databroker::v1::Datapoint datapoint);
 
-    DataPointFailure         getDataPointFailure() const override;
+    DataPointValue::Failure  getDataPointValueFailure() const override;
     bool                     getBoolValue() const override;
     std::vector<bool>        getBoolArrayValue() const override;
     float                    getFloatValue() const override;

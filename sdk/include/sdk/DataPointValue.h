@@ -14,17 +14,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_DATAPOINTVALUES_H
-#define VEHICLE_APP_SDK_DATAPOINTVALUES_H
+#ifndef VEHICLE_APP_SDK_DATAPOINTVALUE_H
+#define VEHICLE_APP_SDK_DATAPOINTVALUE_H
 
 #include "sdk/Exceptions.h"
 
 #include <fmt/core.h>
 
+#include <cassert>
 #include <cstdint>
-#include <map>
-#include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -42,25 +42,6 @@ struct Timestamp {
 inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
     return lhs.seconds == rhs.seconds && lhs.nanos == rhs.nanos;
 }
-
-class DataPoint;
-
-enum class DataPointFailure {
-    // No failure, i.e. is a valid data point
-    NONE,
-    // The data point is known, but doesn't have a valid value
-    INVALID_VALUE,
-    // The data point is known, but no value is available
-    NOT_AVAILABLE,
-    // Unknown datapoint
-    UNKNOWN_DATAPOINT,
-    // Access denied
-    ACCESS_DENIED,
-    // Unexpected internal error
-    INTERNAL_ERROR,
-};
-
-std::string toString(DataPointFailure);
 
 class DataPointValue {
 public:
@@ -84,8 +65,23 @@ public:
         STRING_ARRAY
     };
 
+    enum class Failure {
+        // No failure, i.e. is a valid data point
+        NONE,
+        // The data point is known, but doesn't have a valid value
+        INVALID_VALUE,
+        // The data point is known, but no value is available
+        NOT_AVAILABLE,
+        // Unknown datapoint
+        UNKNOWN_DATAPOINT,
+        // Access denied
+        ACCESS_DENIED,
+        // Unexpected internal error
+        INTERNAL_ERROR,
+    };
+
     DataPointValue(Type type, std::string path, Timestamp timestamp,
-                   DataPointFailure failure = DataPointFailure::NONE)
+                   Failure failure = Failure::NONE)
         : m_path(std::move(path))
         , m_type{type}
         , m_timestamp(std::move(timestamp))
@@ -100,8 +96,8 @@ public:
     [[nodiscard]] const std::string& getPath() const { return m_path; }
     [[nodiscard]] Type               getType() const { return m_type; }
     [[nodiscard]] const Timestamp&   getTimestamp() const { return m_timestamp; }
-    [[nodiscard]] bool               isValid() const { return m_failure == DataPointFailure::NONE; }
-    [[nodiscard]] DataPointFailure   getFailure() const { return m_failure; }
+    [[nodiscard]] bool               isValid() const { return m_failure == Failure::NONE; }
+    [[nodiscard]] Failure            getFailure() const { return m_failure; }
 
     bool operator==(const DataPointValue& other) const {
         return std::tie(m_path, m_type, m_timestamp, m_failure) ==
@@ -109,11 +105,13 @@ public:
     }
 
 private:
-    std::string      m_path;
-    Type             m_type{Type::INVALID};
-    Timestamp        m_timestamp{};
-    DataPointFailure m_failure{DataPointFailure::NONE};
+    std::string m_path;
+    Type        m_type{Type::INVALID};
+    Timestamp   m_timestamp{};
+    Failure     m_failure{Failure::NONE};
 };
+
+std::string toString(DataPointValue::Failure);
 
 template <typename T> DataPointValue::Type getValueType() {
     static_assert(std::is_same<T, std::false_type>::value, "Value type not supported!");
@@ -176,11 +174,13 @@ public:
         : DataPointValue(getValueType<T>(), path, std::forward<decltype(timestamp)>(timestamp))
         , m_value(std::move(value)) {}
 
-    TypedDataPointValue(const std::string& path, DataPointFailure failure,
+    TypedDataPointValue(const std::string& path, DataPointValue::Failure failure,
                         Timestamp timestamp = Timestamp{})
         : DataPointValue(getValueType<T>(), path, std::forward<decltype(timestamp)>(timestamp),
                          failure)
-        , m_value{} {}
+        , m_value{} {
+        assert(failure != Failure::NONE);
+    }
 
     [[nodiscard]] const T& value() const {
         if (!isValid()) {
@@ -198,59 +198,6 @@ private:
     T m_value;
 };
 
-using DataPointMap_t = std::map<std::string, std::shared_ptr<DataPointValue>>;
-
-/**
- * @brief Result of an operation which returns multiple data points.
- *        Provides typed access to obtained data points.
- *
- */
-class DataPointValues final {
-public:
-    DataPointValues() = default;
-
-    DataPointValues(DataPointMap_t&& dataPointsMap)
-        : m_dataPointsMap(std::move(dataPointsMap)) {}
-
-    /**
-     * @brief Get the desired data point from the result.
-     *
-     * @tparam TDataPointType   The type of the data point to return.
-     * @param dataPoint         The data point to query from the result.
-     * @return std::shared_ptr<TDataPointType>  The data point contained in the result.
-     */
-    template <class TDataPointType>
-    [[nodiscard]] std::shared_ptr<TypedDataPointValue<typename TDataPointType::value_type>>
-    get(const TDataPointType& dataPoint) const {
-        static_assert(std::is_base_of_v<DataPoint, TDataPointType>);
-
-        if (m_dataPointsMap.find(dataPoint.getPath()) == m_dataPointsMap.end()) {
-            throw InvalidValueException(
-                fmt::format("{} is not contained in result!", dataPoint.getPath()));
-        }
-
-        std::shared_ptr<DataPointValue> result = m_dataPointsMap.at(dataPoint.getPath());
-        if (result->isValid()) {
-            return std::dynamic_pointer_cast<
-                TypedDataPointValue<typename TDataPointType::value_type>>(result);
-        }
-
-        return std::make_shared<TypedDataPointValue<typename TDataPointType::value_type>>(
-            result->getPath(), result->getFailure(), result->getTimestamp());
-    }
-
-    /**
-     * @brief Check if the result is empty.
-     *
-     * @return true   Result is empty.
-     * @return false  Result is not empty.
-     */
-    [[nodiscard]] bool empty() const { return m_dataPointsMap.empty(); }
-
-private:
-    DataPointMap_t m_dataPointsMap;
-};
-
 } // namespace velocitas
 
-#endif // VEHICLE_APP_SDK_DATAPOINTVALUES_H
+#endif // VEHICLE_APP_SDK_DATAPOINTVALUE_H

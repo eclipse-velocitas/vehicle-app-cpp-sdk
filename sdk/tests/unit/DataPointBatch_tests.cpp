@@ -17,7 +17,7 @@
 #include "sdk/DataPointBatch.h"
 
 #include "sdk/DataPoint.h"
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointValue.h"
 #include "sdk/Exceptions.h"
 #include "sdk/VehicleModelContext.h"
 

@@ -29,22 +29,22 @@ const sdv::databroker::v1::Datapoint& GrpcDataPointValueProvider::getDataPoint()
     return m_datapoint;
 }
 
-DataPointFailure GrpcDataPointValueProvider::getDataPointFailure() const {
+DataPointValue::Failure GrpcDataPointValueProvider::getDataPointValueFailure() const {
     switch (m_datapoint.failure_value()) {
     case sdv::databroker::v1::Datapoint_Failure_INVALID_VALUE:
-        return DataPointFailure::INVALID_VALUE;
+        return DataPointValue::Failure::INVALID_VALUE;
     case sdv::databroker::v1::Datapoint_Failure_NOT_AVAILABLE:
-        return DataPointFailure::NOT_AVAILABLE;
+        return DataPointValue::Failure::NOT_AVAILABLE;
     case sdv::databroker::v1::Datapoint_Failure_UNKNOWN_DATAPOINT:
-        return DataPointFailure::UNKNOWN_DATAPOINT;
+        return DataPointValue::Failure::UNKNOWN_DATAPOINT;
     case sdv::databroker::v1::Datapoint_Failure_ACCESS_DENIED:
-        return DataPointFailure::ACCESS_DENIED;
+        return DataPointValue::Failure::ACCESS_DENIED;
     case sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR:
-        return DataPointFailure::INTERNAL_ERROR;
+        return DataPointValue::Failure::INTERNAL_ERROR;
     default:
-        logger().error("Unknown 'DataPointFailure': {}", m_datapoint.failure_value());
+        logger().error("Unknown 'DataPointValue::Failure': {}", m_datapoint.failure_value());
         assert(false);
-        return DataPointFailure::INTERNAL_ERROR;
+        return DataPointValue::Failure::INTERNAL_ERROR;
     }
 }
 

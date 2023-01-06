@@ -18,7 +18,7 @@
 #define VEHICLE_APP_SDK_DATAPOINT_H
 
 #include "sdk/AsyncResult.h"
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointValue.h"
 #include "sdk/Node.h"
 
 #include <cstdint>

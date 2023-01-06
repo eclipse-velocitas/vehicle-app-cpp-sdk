@@ -24,6 +24,11 @@
                     "version": "0.0.2"
                 },
                 {
+                    "name": "databroker_cli",
+                    "image": "https://github.com/boschglobal/kuksa.val/releases/download/",
+                    "version": "0.0.2"
+                },
+                {
                     "name": "feedercan",
                     "image": "ghcr.io/eclipse/kuksa.val.feeders/dbc2val",
                     "version": "v0.1.1"

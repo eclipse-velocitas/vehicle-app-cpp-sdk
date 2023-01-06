@@ -35,7 +35,7 @@ template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>
         .getVdbc()
         ->getDatapoints({getPath()})
         ->map<TypedDataPointValue<T>>(
-            [this](const DataPointValues& dataPointValues) { return *dataPointValues.get(*this); });
+            [this](const DataPointReply& dataPointValues) { return *dataPointValues.get(*this); });
 }
 
 template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) {

@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_DATAPOINTVALUEPROVIDER_H
-#define VEHICLE_APP_SDK_DATAPOINTVALUEPROVIDER_H
+#ifndef VEHICLE_APP_SDK_IDATAPOINTVALUEPROVIDER_H
+#define VEHICLE_APP_SDK_IDATAPOINTVALUEPROVIDER_H
 
-#include "sdk/DataPointValues.h"
+#include "sdk/DataPointValue.h"
 
 #include <cstdint>
 #include <string>
@@ -40,7 +40,7 @@ public:
     IDataPointValueProvider& operator=(const IDataPointValueProvider&) = delete;
     IDataPointValueProvider& operator=(IDataPointValueProvider&&)      = delete;
 
-    [[nodiscard]] virtual DataPointFailure getDataPointFailure() const = 0;
+    [[nodiscard]] virtual DataPointValue::Failure getDataPointValueFailure() const = 0;
 
     [[nodiscard]] virtual bool getBoolValue() const = 0;
 
@@ -77,4 +77,4 @@ public:
 
 } // namespace velocitas
 
-#endif // VEHICLE_APP_SDK_DATAPOINTVALUEPROVIDER_H
+#endif // VEHICLE_APP_SDK_IDATAPOINTVALUEPROVIDER_H
