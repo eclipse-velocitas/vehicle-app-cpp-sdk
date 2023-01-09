@@ -18,8 +18,7 @@
 #define VEHICLE_APP_SDK_VEHICLEAPP_H
 
 #include "sdk/AsyncResult.h"
-#include "sdk/DataPoint.h"
-#include "sdk/DataPointsResult.h"
+#include "sdk/DataPointReply.h"
 
 #include <functional>
 #include <memory>
@@ -27,8 +26,9 @@
 
 namespace velocitas {
 
-class IVehicleDataBrokerClient;
+class DataPoint;
 class IPubSubClient;
+class IVehicleDataBrokerClient;
 
 /**
  * @brief Base class for all vehicle apps which manages an app's lifecycle.
@@ -97,10 +97,9 @@ protected:
      * @brief Get values for all provided data points from the data broker.
      *
      * @param dataPoints    Vector of data points to obtain values for.
-     * @return AsyncResultPtr_t<DataPointsResult>  The result containing the data point
-     *     results for all requested data points.
+     * @return The reply containing the data point values for all requested data points.
      */
-    AsyncResultPtr_t<DataPointsResult>
+    AsyncResultPtr_t<DataPointReply>
     getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints);
 
     /**
@@ -108,23 +107,24 @@ protected:
      *
      * @param dataPoint    The data point to obtain values for.
      * @return AsyncResultPtr_t<typename TDataPoint::value_type>  The result containing
-     *     the data point result of the requested data point.
+     *     the data point value of the requested data point.
      */
     template <typename TDataPoint>
-    AsyncResultPtr_t<typename TDataPoint::value_type> getDataPoint(const TDataPoint& dataPoint) const {
+    AsyncResultPtr_t<typename TDataPoint::value_type>
+    getDataPoint(const TDataPoint& dataPoint) const {
         return getDataPoint_internal(dataPoint)->template map<typename TDataPoint::value_type>(
-            [&dataPoint](const DataPointsResult& dataPointsResult) {
-                return dataPointsResult.get<TDataPoint>(dataPoint)->value();
+            [&dataPoint](const DataPointReply& dataPointValues) {
+                return dataPointValues.get<TDataPoint>(dataPoint)->value();
             });
     }
 
     /**
-     * @brief Subscribes to the query string for data points.
+     * @brief Subscribes to the query for data points.
      *
-     * @param queryString   The query string to subscribe to.
-     * @return AsyncSubscriptionPtr_t<DataPointsResult>   The subscription to the data points.
+     * @param queryString   The query to subscribe to.
+     * @return The subscription to the data points.
      */
-    AsyncSubscriptionPtr_t<DataPointsResult> subscribeDataPoints(const std::string& queryString);
+    AsyncSubscriptionPtr_t<DataPointReply> subscribeDataPoints(const std::string& queryString);
 
     /**
      * @brief Get the Vehicle Data Broker Client object.
@@ -141,7 +141,7 @@ protected:
     std::shared_ptr<IPubSubClient> getPubSubClient();
 
 private:
-    [[nodiscard]] AsyncResultPtr_t<DataPointsResult>
+    [[nodiscard]] AsyncResultPtr_t<DataPointReply>
     getDataPoint_internal(const DataPoint& dataPoint) const;
 
     std::shared_ptr<IVehicleDataBrokerClient> m_vdbClient;

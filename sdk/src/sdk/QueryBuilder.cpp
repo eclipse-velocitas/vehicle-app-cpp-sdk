@@ -17,31 +17,31 @@
 #include "sdk/QueryBuilder.h"
 #include "sdk/Utils.h"
 
+#include <algorithm>
+
 namespace velocitas {
 
-QueryBuilder QueryBuilder::select(const Node& node) {
+QueryBuilder QueryBuilder::select(const DataPoint& dataPoint) {
     QueryBuilder builder;
     builder.m_queryContext.emplace_back("SELECT");
-    builder.m_queryContext.push_back(node.getPath());
+    builder.m_queryContext.push_back(dataPoint.getPath());
     return builder;
 }
 
-QueryBuilder& QueryBuilder::join(std::vector<const Node*> args) {
-    for (const auto* const arg : args) {
-        m_queryContext.emplace_back(",");
-        m_queryContext.push_back(arg->getPath());
-    }
+QueryBuilder
+QueryBuilder::select(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints) {
+    QueryBuilder builder;
+    builder.m_queryContext.emplace_back("SELECT");
 
-    return *this;
+    std::vector<std::string> paths;
+    paths.reserve(dataPoints.size());
+    std::transform(dataPoints.begin(), dataPoints.end(), std::back_inserter(paths),
+                   [](const auto& dataPoint) { return dataPoint.get().getPath(); });
+
+    builder.m_queryContext.emplace_back(StringUtils::join(paths, ", "));
+    return builder;
 }
 
-QueryBuilder& QueryBuilder::where(const std::string& condition) {
-    m_queryContext.emplace_back("WHERE");
-    m_queryContext.emplace_back(condition);
-
-    return *this;
-}
-
-std::string QueryBuilder::build() { return StringUtils::join(m_queryContext, " "); }
+std::string QueryBuilder::build() const { return StringUtils::join(m_queryContext, " "); }
 
 } // namespace velocitas

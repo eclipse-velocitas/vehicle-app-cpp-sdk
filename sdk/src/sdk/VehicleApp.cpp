@@ -17,9 +17,10 @@
 #include "sdk/VehicleApp.h"
 
 #include "sdk/IPubSubClient.h"
-#include "sdk/IVehicleDataBrokerClient.h"
 #include "sdk/Logger.h"
+#include "sdk/VehicleModelContext.h"
 #include "sdk/dapr/DaprSupport.h"
+#include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
@@ -33,8 +34,10 @@ namespace velocitas {
 
 VehicleApp::VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
                        std::shared_ptr<IPubSubClient>            pubSubClient)
-    : m_vdbClient(std::move(vdbClient))
-    , m_pubSubClient(std::move(pubSubClient)) {}
+    : m_vdbClient(vdbClient)
+    , m_pubSubClient(std::move(pubSubClient)) {
+    VehicleModelContext::getInstance().setVdbc(vdbClient);
+}
 
 void VehicleApp::run() {
     m_pubSubClient->connect();
@@ -62,7 +65,7 @@ AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::stri
     return m_pubSubClient->subscribeTopic(topic);
 }
 
-AsyncResultPtr_t<DataPointsResult>
+AsyncResultPtr_t<DataPointReply>
 VehicleApp::getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints) {
     std::vector<std::string> dataPointPaths;
     dataPointPaths.reserve(dataPoints.size());
@@ -73,7 +76,7 @@ VehicleApp::getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& 
     return m_vdbClient->getDatapoints(dataPointPaths);
 }
 
-AsyncResultPtr_t<DataPointsResult>
+AsyncResultPtr_t<DataPointReply>
 VehicleApp::getDataPoint_internal(const DataPoint& dataPoint) const {
     std::vector<std::string> dataPointPaths;
     dataPointPaths.reserve(1);
@@ -81,7 +84,7 @@ VehicleApp::getDataPoint_internal(const DataPoint& dataPoint) const {
     return m_vdbClient->getDatapoints(dataPointPaths);
 }
 
-AsyncSubscriptionPtr_t<DataPointsResult> VehicleApp::subscribeDataPoints(const std::string& query) {
+AsyncSubscriptionPtr_t<DataPointReply> VehicleApp::subscribeDataPoints(const std::string& query) {
     return m_vdbClient->subscribe(query);
 }
 

@@ -17,7 +17,7 @@
 #ifndef VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
 #define VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
 
-#include "sdk/IVehicleDataBrokerClient.h"
+#include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <memory>
 #include <vector>
@@ -43,10 +43,13 @@ public:
     VehicleDataBrokerClient& operator=(const VehicleDataBrokerClient&) = delete;
     VehicleDataBrokerClient& operator=(VehicleDataBrokerClient&&)      = delete;
 
-    AsyncResultPtr_t<DataPointsResult>
+    AsyncResultPtr_t<DataPointReply>
     getDatapoints(const std::vector<std::string>& datapoints) override;
 
-    AsyncSubscriptionPtr_t<DataPointsResult> subscribe(const std::string& query) override;
+    AsyncResultPtr_t<SetErrorMap_t>
+    setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& datapoints) override;
+
+    AsyncSubscriptionPtr_t<DataPointReply> subscribe(const std::string& query) override;
 
 private:
     static std::string getVdbEndpointAddress();

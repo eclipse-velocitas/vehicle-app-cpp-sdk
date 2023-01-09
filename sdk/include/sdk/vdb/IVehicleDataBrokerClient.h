@@ -18,10 +18,14 @@
 #define VEHICLE_APP_SDK_IVEHICLEDATABROKERCLIENT_H
 
 #include "sdk/AsyncResult.h"
-#include "sdk/DataPoint.h"
-#include "sdk/DataPointsResult.h"
+#include "sdk/DataPointReply.h"
+
+#include <map>
 
 namespace velocitas {
+
+class DataPointReply;
+class DataPointValue;
 
 /**
  * @brief Interface for implementing VehicleDataBroker clients.
@@ -29,7 +33,9 @@ namespace velocitas {
  */
 class IVehicleDataBrokerClient {
 public:
-    virtual ~IVehicleDataBrokerClient(){};
+    using SetErrorMap_t = std::map<std::string, std::string>;
+
+    virtual ~IVehicleDataBrokerClient() = default;
 
     IVehicleDataBrokerClient(const IVehicleDataBrokerClient&)            = delete;
     IVehicleDataBrokerClient(IVehicleDataBrokerClient&&)                 = delete;
@@ -41,19 +47,28 @@ public:
      *
      * @param datapoints The list of data point paths to query.
      *
-     * @return AsyncResultPtr_t<DataPointsResult>
+     * @return The AsyncResult containing the values of all requested data points
      */
-    virtual AsyncResultPtr_t<DataPointsResult>
+    virtual AsyncResultPtr_t<DataPointReply>
     getDatapoints(const std::vector<std::string>& datapoints) = 0;
+
+    /**
+     * @brief Set datapoint values in the VDB.
+     *
+     * @return AsyncResultPtr_t<SetErrorMap_t> A map which contains [key, error] entries
+     * if a data point could not be set.
+     */
+    virtual AsyncResultPtr_t<SetErrorMap_t>
+    setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& datapoints) = 0;
 
     /**
      * @brief Subscribe to updates for the given query.
      *
      * @param query The query to subscribe to.
      *
-     * @return AsyncSubscriptionPtr<DataPointsResult>
+     * @return The subscription to the data points.
      */
-    virtual AsyncSubscriptionPtr_t<DataPointsResult> subscribe(const std::string& query) = 0;
+    virtual AsyncSubscriptionPtr_t<DataPointReply> subscribe(const std::string& query) = 0;
 
     /**
      * @brief Create an instance of the IVehicleDataBrokerClient.

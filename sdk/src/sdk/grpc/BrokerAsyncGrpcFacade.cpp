@@ -18,7 +18,6 @@
 #include "sdk/Logger.h"
 #include "sdk/grpc/GrpcCall.h"
 
-#include <fmt/core.h>
 #include <grpcpp/channel.h>
 
 namespace velocitas {
@@ -50,14 +49,45 @@ void BrokerAsyncGrpcFacade::GetDatapoints(
                 errorHandler(status);
             };
         } catch (std::exception& e) {
-            velocitas::logger().error("GRPC: Exception occurred during \"GetDatapoints\": {}",
-                                      e.what());
+            logger().error("GRPC: Exception occurred during \"GetDatapoints\": {}", e.what());
         }
     };
 
     addActiveCall(callData);
 
     m_stub->async()->GetDatapoints(&callData->m_context, &callData->m_request, &callData->m_reply,
+                                   grpcResultHandler);
+}
+
+void BrokerAsyncGrpcFacade::SetDatapoints(
+    const std::map<std::string, sdv::databroker::v1::Datapoint>&              datapoints,
+    std::function<void(const sdv::databroker::v1::SetDatapointsReply& reply)> replyHandler,
+    std::function<void(const grpc::Status& status)>                           errorHandler) {
+    auto callData =
+        std::make_shared<GrpcSingleResponseCall<sdv::databroker::v1::SetDatapointsRequest,
+                                                sdv::databroker::v1::SetDatapointsReply>>();
+
+    for (const auto [key, value] : datapoints) {
+        (*callData->m_request.mutable_datapoints())[key] = value;
+    }
+
+    applyContextModifier(*callData);
+
+    auto grpcResultHandler = [callData, replyHandler, errorHandler](grpc::Status status) {
+        try {
+            if (status.ok()) {
+                replyHandler(callData->m_reply);
+            } else {
+                errorHandler(status);
+            };
+        } catch (std::exception& e) {
+            logger().error("GRPC: Exception occurred during \"SetDatapoints\": {}", e.what());
+        }
+    };
+
+    addActiveCall(callData);
+
+    m_stub->async()->SetDatapoints(&callData->m_context, &callData->m_request, &callData->m_reply,
                                    grpcResultHandler);
 }
 

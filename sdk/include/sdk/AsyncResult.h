@@ -179,6 +179,15 @@ public:
 
         onError([mappedResult](auto status) { mappedResult->insertError(std::move(status)); });
 
+        if (m_mutex.try_lock()) {
+            // result already available?!
+            if (m_status.ok()) {
+                mappedResult->insertResult(mapper(m_result));
+            } else {
+                mappedResult->insertError(std::move(m_status));
+            }
+        }
+
         return mappedResult;
     }
 

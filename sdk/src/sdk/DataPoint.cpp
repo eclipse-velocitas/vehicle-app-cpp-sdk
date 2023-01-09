@@ -17,129 +17,120 @@
 #include "sdk/DataPoint.h"
 
 #include "sdk/Exceptions.h"
+#include "sdk/VehicleModelContext.h"
+#include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <fmt/core.h>
 
-#include <sstream>
+#include <memory>
 #include <utility>
 
 namespace velocitas {
 
-DataPoint::DataPoint(const std::string&                       name,
-                     std::shared_ptr<IDataPointValueProvider> valueProvider)
-    : Node(name)
-    , m_valueProvider(std::move(valueProvider)) {}
+DataPoint::DataPoint(const std::string& name)
+    : Node(name) {}
 
-const IDataPointValueProvider& DataPoint::getValueProvider() const { return *m_valueProvider; }
-
-DataPointFailure& DataPoint::asFailure() {
-    throw InvalidTypeException("DataPoint is not a failure!");
+template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>::get() const {
+    return VehicleModelContext::getInstance()
+        .getVdbc()
+        ->getDatapoints({getPath()})
+        ->map<TypedDataPointValue<T>>(
+            [this](const DataPointReply& dataPointValues) { return *dataPointValues.get(*this); });
 }
 
-Timestamp DataPoint::getTimestamp() const { return m_valueProvider->getTimestamp(); }
-
-DataPointFailure::DataPointFailure(std::string name, std::string failureReason)
-    : DataPoint(std::move(name), nullptr)
-    , m_failureReason{std::move(failureReason)} {}
-
-std::string DataPointFailure::toString() const {
-    return fmt::format("DataPoint: ('{}', failure: '{}')", getName(), getReason());
+template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) {
+    std::vector<std::unique_ptr<DataPointValue>> vec;
+    vec.reserve(1);
+    vec.emplace_back(std::make_unique<TypedDataPointValue<T>>(getPath(), value));
+    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(vec)->map<Status>(
+        [this](auto errorMap) {
+            const auto iter = errorMap.find(this->getPath());
+            if (iter == errorMap.end()) {
+                return Status();
+            }
+            return Status(iter->second);
+        });
 }
 
-std::string DataPointBoolean::toString() const {
-    return fmt::format("DataPointBoolean: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<bool>::toString() const {
+    return fmt::format("DataPointBoolean: ('{}')", getName());
 }
 
-std::string DataPointBooleanArray::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << (elem ? "true" : "false") << ",";
-    }
-    return fmt::format("DataPointBooleanArray: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<bool>>::toString() const {
+    return fmt::format("DataPointBooleanArray: ('{}')", getName());
 }
 
-std::string DataPointDouble::toString() const {
-    return fmt::format("DataPointDouble: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<int32_t>::toString() const {
+    return fmt::format("DataPointInt32: ('{}')", getName());
 }
 
-std::string DataPointDoubleArray::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << elem << ",";
-    }
-    return fmt::format("DataPointDoubleArray: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<int32_t>>::toString() const {
+    return fmt::format("DataPointInt32Array: ('{}')", getName());
 }
 
-std::string DataPointFloat::toString() const {
-    return fmt::format("DataPointFloat: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<int64_t>::toString() const {
+    return fmt::format("DataPointInt64: ('{}')", getName());
 }
 
-std::string DataPointFloatArray::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << elem << ",";
-    }
-    return fmt::format("DataPointFloatArray: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<int64_t>>::toString() const {
+    return fmt::format("DataPointInt64Array: ('{}' : '{}')", getName());
 }
 
-std::string DataPointInt32::toString() const {
-    return fmt::format("DataPointInt32: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<uint32_t>::toString() const {
+    return fmt::format("DataPointUint32: ('{}')", getName());
 }
 
-std::string DataPointInt32Array::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << elem << ",";
-    }
-    return fmt::format("DataPointInt32Array: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<uint32_t>>::toString() const {
+    return fmt::format("DataPointUint32Array: ('{}')", getName());
 }
 
-std::string DataPointInt64::toString() const {
-    return fmt::format("DataPointInt64: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<uint64_t>::toString() const {
+    return fmt::format("DataPointUint64: ('{}')", getName());
 }
 
-std::string DataPointInt64Array::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << elem << ",";
-    }
-    return fmt::format("DataPointInt64Array: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<uint64_t>>::toString() const {
+    return fmt::format("DataPointUint64Array: ('{}')", getName());
 }
 
-std::string DataPointUint32::toString() const {
-    return fmt::format("DataPointUint32: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<float>::toString() const {
+    return fmt::format("DataPointFloat: ('{}')", getName());
 }
 
-std::string DataPointUint32Array::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << elem << ",";
-    }
-    return fmt::format("DataPointUint32Array: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<float>>::toString() const {
+    return fmt::format("DataPointFloatArray: ('{}')", getName());
 }
 
-std::string DataPointUint64::toString() const {
-    return fmt::format("DataPointUint64: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<double>::toString() const {
+    return fmt::format("DataPointDouble: ('{}')", getName());
 }
 
-std::string DataPointUint64Array::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << elem << ",";
-    }
-    return fmt::format("DataPointUint64Array: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<double>>::toString() const {
+    return fmt::format("DataPointDoubleArray: ('{}')", getName());
 }
 
-std::string DataPointString::toString() const {
-    return fmt::format("DataPointString: ('{}' : '{}')", getName(), value());
+template <> std::string TypedDataPoint<std::string>::toString() const {
+    return fmt::format("DataPointString: ('{}')", getName());
 }
 
-std::string DataPointStringArray::toString() const {
-    std::ostringstream oss;
-    for (const auto elem : value()) {
-        oss << elem << ",";
-    }
-    return fmt::format("DataPointStringArray: ('{}' : '{}')", getName(), oss.str());
+template <> std::string TypedDataPoint<std::vector<std::string>>::toString() const {
+    return fmt::format("DataPointStringArray: ('{}')", getName());
 }
+
+template class TypedDataPoint<bool>;
+template class TypedDataPoint<std::vector<bool>>;
+template class TypedDataPoint<int32_t>;
+template class TypedDataPoint<std::vector<int32_t>>;
+template class TypedDataPoint<int64_t>;
+template class TypedDataPoint<std::vector<int64_t>>;
+template class TypedDataPoint<uint32_t>;
+template class TypedDataPoint<std::vector<uint32_t>>;
+template class TypedDataPoint<uint64_t>;
+template class TypedDataPoint<std::vector<uint64_t>>;
+template class TypedDataPoint<float>;
+template class TypedDataPoint<std::vector<float>>;
+template class TypedDataPoint<double>;
+template class TypedDataPoint<std::vector<double>>;
+template class TypedDataPoint<std::string>;
+template class TypedDataPoint<std::vector<std::string>>;
 
 } // namespace velocitas

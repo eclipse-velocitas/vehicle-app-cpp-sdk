@@ -14,37 +14,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_MODEL_H
-#define VEHICLE_APP_SDK_MODEL_H
-
 #include "sdk/DataPointBatch.h"
-#include "sdk/Node.h"
+#include "sdk/VehicleModelContext.h"
+#include "sdk/vdb/IVehicleDataBrokerClient.h"
 
-#include <string>
+#include "sdk/Exceptions.h"
 
 namespace velocitas {
 
-/**
- * @brief The Model class represents a branch of the model tree, including root.
- * Leafs are typcially one of the typed DataPoint* classes.
- * But also a Model class can be a leaf, if it does not contain data Points, just methods.
- */
-class Model : public Node {
-public:
-    using Node::Node;
+AsyncResultPtr_t<DataPointBatch::SetErrorMap_t> DataPointBatch::apply() {
+    if (m_dataPoints.empty()) {
+        throw InvalidValueException("Called DataPointBatch::apply() without any data points!");
+    }
 
-    [[nodiscard]] DataPointBatch setMany() const { return DataPointBatch{}; }
-};
-
-/**
- * @brief Base class for services within the model tree.
- *
- */
-class Service : public Node {
-public:
-    using Node::Node;
-};
+    return VehicleModelContext::getInstance().getVdbc()->setDatapoints(std::move(m_dataPoints));
+}
 
 } // namespace velocitas
-
-#endif // VEHICLE_APP_SDK_MODEL_H
