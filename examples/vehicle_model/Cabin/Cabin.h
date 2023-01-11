@@ -26,94 +26,73 @@
 #include <stdexcept>
 
 namespace velocitas::vehicle {
+
+using ParentClass = Model;
+
 /** Cabin model. */
-class Cabin : public Model {
+class Cabin : public ParentClass {
 public:
-    class SeatCollection {
+    class SeatCollection : public ParentClass {
     public:
-        class Row {
+        class RowType : public ParentClass {
         public:
-            explicit Row(int value) {
-                if ((value < 1) || (value > 2)) {
-                    throw std::runtime_error("Given value is outside of allowed range!");
+            RowType(std::string name, ParentClass* parent)
+                : ParentClass(name, parent)
+                , Pos1("Pos1", this)
+                , Pos2("Pos2", this)
+                , Pos3("Pos3", this) {}
+
+            vehicle::cabin::Seat& Pos(int index) {
+                if (index == 1) {
+                    return Pos1;
                 }
-                m_value = value;
+                if (index == 2) {
+                    return Pos2;
+                }
+                if (index == 3) {
+                    return Pos3;
+                }
+                throw std::runtime_error("Given value is outside of allowed range [1;3]!");
             }
 
-            [[nodiscard]] int getValue() const { return m_value; }
-
-        private:
-            int m_value;
+            vehicle::cabin::Seat Pos1;
+            vehicle::cabin::Seat Pos2;
+            vehicle::cabin::Seat Pos3;
         };
 
-        class Pos {
-        public:
-            explicit Pos(int value) {
-                if ((value < 1) || (value > 3)) {
-                    throw std::runtime_error("Given value is outside of allowed range!");
-                }
-                m_value = value;
-            }
+        explicit SeatCollection(ParentClass* parent)
+            : ParentClass("Seat", parent)
+            , Row1("Row1", this)
+            , Row2("Row2", this) {}
 
-            [[nodiscard]] int getValue() const { return m_value; }
-
-        private:
-            int m_value;
-        };
-
-        explicit SeatCollection(Model* parent)
-            : m_row1Pos1("Seat.Row1.Pos1", parent)
-            , m_row1Pos2("Seat.Row1.Pos2", parent)
-            , m_row1Pos3("Seat.Row1.Pos3", parent)
-            , m_row2Pos1("Seat.Row2.Pos1", parent)
-            , m_row2Pos2("Seat.Row2.Pos2", parent)
-            , m_row2Pos3("Seat.Row2.Pos3", parent) {}
-
-        vehicle::cabin::Seat& elementAt(Row p0, Pos p1) {
-            if ((p0.getValue() == 1) && (p1.getValue() == 1)) {
-                return m_row1Pos1;
+        RowType& Row(int index) {
+            if (index == 1) {
+                return Row1;
             }
-            if ((p0.getValue() == 1) && (p1.getValue() == 2)) {
-                return m_row1Pos2;
+            if (index == 2) {
+                return Row2;
             }
-            if ((p0.getValue() == 1) && (p1.getValue() == 3)) {
-                return m_row1Pos3;
-            }
-            if ((p0.getValue() == 2) && (p1.getValue() == 1)) {
-                return m_row2Pos1;
-            }
-            if ((p0.getValue() == 2) && (p1.getValue() == 2)) {
-                return m_row2Pos2;
-            }
-            if ((p0.getValue() == 2) && (p1.getValue() == 3)) {
-                return m_row2Pos3;
-            }
-            throw std::runtime_error("Invalid parameters!");
+            throw std::runtime_error("Given value is outside of allowed range [1;2]!");
         }
 
-    private:
-        vehicle::cabin::Seat m_row1Pos1;
-        vehicle::cabin::Seat m_row1Pos2;
-        vehicle::cabin::Seat m_row1Pos3;
-        vehicle::cabin::Seat m_row2Pos1;
-        vehicle::cabin::Seat m_row2Pos2;
-        vehicle::cabin::Seat m_row2Pos3;
+        RowType Row1;
+        RowType Row2;
     };
 
-    Cabin(const std::string& name, Model* parent);
+    Cabin(const std::string& name, ParentClass* parent)
+        : ParentClass(name, parent)
+        , Seat(this)
+        , SeatService(this) {}
 
     /**
      * Seat: branch
      * All seats.
      *
      **/
-    SeatCollection& getSeat() { return m_seat; }
-
-    vehicle::cabin::SeatService& getSeatService() { return m_seatService; }
-
-private:
-    SeatCollection              m_seat;
-    vehicle::cabin::SeatService m_seatService;
+    SeatCollection              Seat;
+    vehicle::cabin::SeatService SeatService;
 };
+
 } // namespace velocitas::vehicle
+
 #endif // VMDL_EXAMPLE_VEHICLE_CABIN_H

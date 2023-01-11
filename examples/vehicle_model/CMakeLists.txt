@@ -15,9 +15,6 @@
 set(TARGET_NAME "vehicle-model-example")
 
 add_library(${TARGET_NAME} STATIC
-    Vehicle.cpp
-    Cabin/Cabin.cpp
-    Cabin/Seat/Seat.cpp
     Cabin/SeatService/SeatService.cpp
     Cabin/SeatService/SeatServiceAsyncGrpcFacade.cpp
     service/seats.grpc.pb.cc

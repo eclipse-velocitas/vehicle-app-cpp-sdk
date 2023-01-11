@@ -40,13 +40,6 @@ public:
     void onStart() override;
 
     /**
-     * @brief Handle speed changed events from the VDB.
-     *
-     * @param dataPoints  The affected data points.
-     */
-    void onSpeedChanged(const velocitas::DataPointReply& dataPoints);
-
-    /**
      * @brief Handle successful seat movement requests.
      *
      * @param requestId           The ID of the request requested the movement.
