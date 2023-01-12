@@ -38,25 +38,17 @@ public:
         velocitas::logger().info("Setting data points!");
 
         // set multiple data points at the same time
-        Vehicle.setMany().add(Vehicle.getSpeed(), 1.0F).apply()->await();
+        Vehicle.setMany()
+            .add(Vehicle.Cabin.Seat.Row1.Pos1.Position, 1000)
+            .add(Vehicle.Cabin.Seat.Row1.Pos2.Position, 1000)
+            .apply()
+            ->await();
 
         // set a single data point
-        Vehicle.getCabin()
-            .getSeat()
-            .elementAt(velocitas::vehicle::Cabin::SeatCollection::Row(1),
-                       velocitas::vehicle::Cabin::SeatCollection::Pos(1))
-            .getPosition()
-            .set(100.0F)
-            ->await();
+        Vehicle.Speed.set(100.0F)->await();
 
         // get a single data point
-        Vehicle.getCabin()
-            .getSeat()
-            .elementAt(velocitas::vehicle::Cabin::SeatCollection::Row(1),
-                       velocitas::vehicle::Cabin::SeatCollection::Pos(1))
-            .getPosition()
-            .get()
-            ->await();
+        Vehicle.Cabin.Seat.Row1.Pos1.Position.get()->await();
     }
 
 private:

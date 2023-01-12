@@ -46,14 +46,8 @@ SeatAdjusterApp::SeatAdjusterApp()
 void SeatAdjusterApp::onStart() {
     velocitas::logger().info("Subscribe for Datapoints!");
 
-    const auto& seatPositionDataPoint =
-        m_vehicleModel->getCabin()
-            .getSeat()
-            .elementAt(velocitas::vehicle::Cabin::SeatCollection::Row(1),
-                       velocitas::vehicle::Cabin::SeatCollection::Pos(1))
-            .getPosition();
-
-    subscribeDataPoints(velocitas::QueryBuilder::select(seatPositionDataPoint).build())
+    subscribeDataPoints(
+        velocitas::QueryBuilder::select(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position).build())
         ->onItem([this](auto&& item) { onSeatPositionChanged(std::forward<decltype(item)>(item)); })
         ->onError(
             [this](auto&& status) { onErrorDatapoint(std::forward<decltype(status)>(status)); });
@@ -68,11 +62,6 @@ void SeatAdjusterApp::onStart() {
             onSetPositionRequestReceived(std::forward<decltype(item)>(item));
         })
         ->onError([this](auto&& status) { onErrorTopic(std::forward<decltype(status)>(status)); });
-}
-
-void SeatAdjusterApp::onSpeedChanged(const velocitas::DataPointReply& dataPoints) {
-    velocitas::logger().info("Speed has changed: {}",
-                             dataPoints.get(m_vehicleModel->getSpeed())->value());
 }
 
 void SeatAdjusterApp::onSeatMovementRequested(const velocitas::VoidResult& status, int requestId,
@@ -104,13 +93,10 @@ void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
     const auto desiredSeatPosition = jsonData[JSON_FIELD_POSITION].get<int>();
     const auto requestId           = jsonData[JSON_FIELD_REQUEST_ID].get<int>();
 
-    const auto dataPoints = getDataPoints({m_vehicleModel->getSpeed()})->await();
-
-    const auto vehicleSpeed = dataPoints.get(m_vehicleModel->getSpeed())->value();
+    const auto vehicleSpeed = m_vehicleModel->Speed.get()->await().value();
     if (vehicleSpeed == 0) {
         velocitas::vehicle::cabin::SeatService::SeatLocation location{1, 1};
-        m_vehicleModel->getCabin()
-            .getSeatService()
+        m_vehicleModel->Cabin.SeatService
             .moveComponent(location, velocitas::vehicle::cabin::SeatService::Component::Base,
                            desiredSeatPosition)
             ->onResult([this, requestId, desiredSeatPosition](auto&& result) {
@@ -132,14 +118,8 @@ void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
 }
 
 void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointReply& dataPoints) {
-    const auto& seatPositionDataPoint =
-        m_vehicleModel->getCabin()
-            .getSeat()
-            .elementAt(velocitas::vehicle::Cabin::SeatCollection::Row(1),
-                       velocitas::vehicle::Cabin::SeatCollection::Pos(1))
-            .getPosition();
-
-    const auto seatPositionValue = dataPoints.get(seatPositionDataPoint)->value();
+    const auto seatPositionValue =
+        dataPoints.get(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position)->value();
 
     try {
         nlohmann::json jsonResponse({JSON_FIELD_POSITION, seatPositionValue});

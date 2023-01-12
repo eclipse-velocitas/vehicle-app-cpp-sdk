@@ -23,31 +23,33 @@
 #include "vehicle_model/Cabin/Cabin.h"
 
 namespace velocitas {
+
+using ParentClass = Model;
+
 /** Vehicle model. */
-class Vehicle : public Model {
+class Vehicle : public ParentClass {
 public:
-    Vehicle();
+    Vehicle()
+        : ParentClass("Vehicle")
+        , Speed("Speed", this)
+        , Cabin("Cabin", this) {}
+
+    /**
+     * Speed: sensor
+     * Vehicle speed.
+     *
+     * Unit: km/h
+     */
+    DataPointFloat Speed;
 
     /**
      * Cabin: branch
      * All in-cabin components, including doors.
      *
-     **/
-    vehicle::Cabin& getCabin() { return m_cabin; }
-
-    /**
-     * Speed: DataPoint
-     *
-     * Current speed of the vehicle.
      */
-    DataPointFloat& getSpeed() { return m_speed; }
-
-    static Vehicle& getInstance();
-
-private:
-    DataPointFloat m_speed;
-
-    vehicle::Cabin m_cabin;
+    vehicle::Cabin Cabin;
 };
+
 } // namespace velocitas
+
 #endif // VMDL_EXAMPLE_VEHICLE_H

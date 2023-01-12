@@ -21,10 +21,15 @@
 #include "sdk/Model.h"
 
 namespace velocitas::vehicle::cabin {
+
+using ParentClass = Model;
+
 /** Seat model. */
-class Seat : public Model {
+class Seat : public ParentClass {
 public:
-    Seat(const std::string& name, Model* parent);
+    Seat(const std::string& name, ParentClass* parent)
+        : ParentClass(name, parent)
+        , Position("Position", this) {}
 
     /**
      * Position: actuator
@@ -34,10 +39,9 @@ public:
      * Value range: [0, ]
      * Unit: mm
      **/
-    DataPointUint32& getPosition() { return m_position; }
-
-private:
-    DataPointUint32 m_position;
+    DataPointUint32 Position;
 };
+
 } // namespace velocitas::vehicle::cabin
+
 #endif // VMDL_EXAMPLE_VEHICLE_CABIN_SEAT_H
