@@ -1,0 +1,34 @@
+# Copyright (c) 2022-2023 Robert Bosch GmbH and Microsoft Corporation
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+resolutions:
+  vulnerabilities:
+    - id: "CVE-2018-20225"
+      reason: "MITIGATED_VULNERABILITY"
+      comment: "Mitigating control: avoiding use of the --extra-index-url parameter for pip"
+    - id: "CVE-2019-20907"
+      reason: "INVALID_MATCH_VULNERABILITY"
+      comment: "Only applicable for python version <=3.8.3 or <3.9.0-b5 python 3.9.5 in use"
+    - id: "CVE-2019-20916"
+      reason: "INVALID_MATCH_VULNERABILITY"
+      comment: "pip < 19.2 is affected pip in use 22.3.1"
+    - id: "CVE-2022-23491"
+      reason: "INVALID_MATCH_VULNERABILITY"
+      comment: "certifi is not used by our components directly or indirectly"
+    - id: "sonatype-2012-0071"
+      reason: "INVALID_MATCH_VULNERABILITY"
+      comment: "only relevan for python 2.7 python 3.9.5 in use"
+    - id: "sonatype-2022-6046"
+      reason: "INVALID_MATCH_VULNERABILITY"
+      comment: "affected wheel < 0.38.4 wheel = 0.38.4 in use"

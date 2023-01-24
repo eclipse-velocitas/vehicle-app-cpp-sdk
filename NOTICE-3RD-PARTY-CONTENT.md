@@ -6,7 +6,7 @@
 |bottle|0.12.23|MIT|
 |certifi|2022.12.7|Mozilla Public License 2.0|
 |cfgv|3.3.1|MIT|
-|charset-normalizer|2.1.1|MIT|
+|charset-normalizer|3.0.1|MIT|
 |colorama|0.4.6|BSD|
 |conan|1.55.0|MIT|
 |cpplint|1.6.1|New BSD|
@@ -15,11 +15,11 @@
 |fasteners|0.18|Apache 2.0|
 |filelock|3.9.0|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.5.12|MIT|
+|identify|2.5.15|MIT|
 |idna|3.4|BSD|
 |Jinja2|3.1.2|New BSD|
 |lxml|4.9.2|New BSD|
-|MarkupSafe|2.1.1|New BSD|
+|MarkupSafe|2.1.2|New BSD|
 |node-semver|0.6.1|MIT|
 |nodeenv|1.7.0|BSD|
 |patch-ng|1.17.4|MIT|
@@ -30,7 +30,7 @@
 |PyJWT|2.6.0|MIT|
 |python-dateutil|2.8.2|Apache 2.0<br/>BSD|
 |PyYAML|6.0|MIT|
-|requests|2.28.1|Apache 2.0|
+|requests|2.28.2|Apache 2.0|
 |setuptools|58.1.0|MIT|
 |six|1.16.0|MIT|
 |toml|0.10.2|MIT|
