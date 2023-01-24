@@ -40,12 +40,12 @@
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
-|actions/checkout|v3||
-|docker/build-push-action|v3.2.0||
-|docker/login-action|v2||
-|docker/metadata-action|v4||
-|docker/setup-buildx-action|v2||
-|docker/setup-qemu-action|v2||
-|egor-tensin/setup-gcc|v1||
-|irongut/CodeCoverageSummary|v1.3.0||
-|pre-commit/action|v3.0.0||
+|actions/checkout|v3|MIT License|
+|docker/build-push-action|v3.2.0|Apache License 2.0|
+|docker/login-action|v2|Apache License 2.0|
+|docker/metadata-action|v4|Apache License 2.0|
+|docker/setup-buildx-action|v2|Apache License 2.0|
+|docker/setup-qemu-action|v2|Apache License 2.0|
+|egor-tensin/setup-gcc|v1|MIT License|
+|irongut/CodeCoverageSummary|v1.3.0|MIT License|
+|pre-commit/action|v3.0.0|MIT License|
