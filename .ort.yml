@@ -12,6 +12,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+curations:
+  packages:
+  - id: "PyPI::identify:2.5.17"
+    curations:
+      comment: "Proper license is defined in package repository https://pypi.org/project/identify/"
+      concluded_license: "MIT"
+  - id: "PyPI::setuptools:67.2.0"
+    curations:
+      comment: "Proper license is defined in package repository https://pypi.org/project/setuptools/"
+      concluded_license: "MIT"
+      
 resolutions:
   vulnerabilities:
     - id: "CVE-2018-20225"
