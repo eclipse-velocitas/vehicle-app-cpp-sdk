@@ -23,7 +23,7 @@
 |node-semver|0.6.1|MIT|
 |nodeenv|1.7.0|BSD|
 |patch-ng|1.17.4|MIT|
-|platformdirs|2.6.2|MIT|
+|platformdirs|3.0.0|MIT|
 |pluginbase|1.0.1|BSD|
 |pre-commit|2.20.0|MIT|
 |Pygments|2.14.0|Simplified BSD|
@@ -36,7 +36,7 @@
 |toml|0.10.2|MIT|
 |tqdm|4.64.1|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
 |urllib3|1.26.14|MIT|
-|virtualenv|20.17.1|MIT|
+|virtualenv|20.19.0|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
