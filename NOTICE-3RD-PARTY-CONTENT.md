@@ -8,14 +8,14 @@
 |cfgv|3.3.1|MIT|
 |charset-normalizer|3.0.1|MIT|
 |colorama|0.4.6|BSD|
-|conan|1.55.0|MIT|
+|conan|1.58.0|MIT|
 |cpplint|1.6.1|New BSD|
 |distlib|0.3.6|Python Software Foundation License|
 |distro|1.7.0|Apache 2.0|
 |fasteners|0.18|Apache 2.0|
 |filelock|3.9.0|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.5.17|MIT|
+|identify|2.5.18|MIT|
 |idna|3.4|BSD|
 |Jinja2|3.1.2|New BSD|
 |lxml|4.9.2|New BSD|
