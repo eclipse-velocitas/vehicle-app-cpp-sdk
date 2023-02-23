@@ -44,7 +44,7 @@ jobs:
       - name: install prerequisites
         run: |
           sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
-          pip3 install conan gcovr cpplint
+          pip3 install -r requirements.txt
 
       - name: Set up GCC
         uses: egor-tensin/setup-gcc@v1
