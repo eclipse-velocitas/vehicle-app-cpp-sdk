@@ -3,10 +3,10 @@
 ## Python
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
-|bottle|0.12.24|MIT|
+|bottle|0.12.25|MIT|
 |certifi|2022.12.7|Mozilla Public License 2.0|
 |cfgv|3.3.1|MIT|
-|charset-normalizer|3.0.1|MIT|
+|charset-normalizer|3.1.0|MIT|
 |colorama|0.4.6|BSD|
 |conan|1.58.0|MIT|
 |cpplint|1.6.1|New BSD|
@@ -23,7 +23,7 @@
 |node-semver|0.6.1|MIT|
 |nodeenv|1.7.0|BSD|
 |patch-ng|1.17.4|MIT|
-|platformdirs|3.0.0|MIT|
+|platformdirs|3.1.0|MIT|
 |pluginbase|1.0.1|BSD|
 |pre-commit|2.20.0|MIT|
 |Pygments|2.14.0|Simplified BSD|
@@ -34,9 +34,9 @@
 |setuptools|58.1.0|MIT|
 |six|1.16.0|MIT|
 |toml|0.10.2|MIT|
-|tqdm|4.64.1|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
+|tqdm|4.65.0|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
 |urllib3|1.26.14|MIT|
-|virtualenv|20.19.0|MIT|
+|virtualenv|20.20.0|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
