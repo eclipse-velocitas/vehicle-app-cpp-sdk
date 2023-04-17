@@ -24,7 +24,7 @@ UTILS_DIRECTORY="$ROOT_DIRECTORY/.vscode/scripts/runtime/utils"
 source $UTILS_DIRECTORY/get-appmanifest-data.sh
 
 ### Override default files for feedercan
-CONFIG_DIR="$ROOT_DIRECTORY/deploy/runtime/k3d/volume"
+CONFIG_DIR="$ROOT_DIRECTORY/deploy/runtime/volume"
 
 export VEHICLEDATABROKER_DAPR_APP_ID=vehicledatabroker
 export DAPR_GRPC_PORT=52001
