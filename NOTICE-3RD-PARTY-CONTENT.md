@@ -13,7 +13,7 @@
 |distlib|0.3.6|Python Software Foundation License|
 |distro|1.7.0|Apache 2.0|
 |fasteners|0.18|Apache 2.0|
-|filelock|3.11.0|The Unlicense (Unlicense)|
+|filelock|3.12.0|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
 |identify|2.5.22|MIT|
 |idna|3.4|BSD|
@@ -26,7 +26,7 @@
 |platformdirs|3.2.0|MIT|
 |pluginbase|1.0.1|BSD|
 |pre-commit|2.20.0|MIT|
-|Pygments|2.15.0|Simplified BSD|
+|Pygments|2.15.1|Simplified BSD|
 |PyJWT|2.6.0|MIT|
 |python-dateutil|2.8.2|Apache 2.0<br/>BSD|
 |PyYAML|6.0|MIT|
@@ -36,7 +36,7 @@
 |toml|0.10.2|MIT|
 |tqdm|4.65.0|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
 |urllib3|1.26.15|MIT|
-|virtualenv|20.21.0|MIT|
+|virtualenv|20.22.0|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
