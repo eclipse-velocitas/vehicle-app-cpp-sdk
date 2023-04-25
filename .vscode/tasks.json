@@ -13,6 +13,7 @@
 				"close": true,
 				"reveal": "never"
 			},
+			"hide": true
 		},
 		{
 			"label": "dapr-VehicleApp-stop",
@@ -24,6 +25,7 @@
 				"close": true,
 				"reveal": "never"
 			},
+			"hide": true
 		},
 		{
 			"label": "Local - Mosquitto",
@@ -86,6 +88,7 @@
 			"command": "./.vscode/scripts/runtime/local/run-vehicledatabroker-cli.sh",
 			"group": "none",
 			"isBackground": false,
+			"problemMatcher": []
 		},
 		{
 			"label": "Local - VehicleServices",
@@ -150,7 +153,8 @@
 				"Local - VehicleServices",
 				"Local - FeederCan"
 			],
-			"dependsOrder": "sequence"
+			"dependsOrder": "sequence",
+			"problemMatcher": []
 		},
 		{
 			"label": "Local - VehicleApp (Dapr run)",
@@ -196,7 +200,8 @@
 			"presentation": {
 				"close": false,
 				"panel": "dedicated"
-			}
+			},
+			"problemMatcher": []
 		}
 	]
 }

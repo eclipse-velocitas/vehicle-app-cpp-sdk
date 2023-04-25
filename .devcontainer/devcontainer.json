@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.245.0/containers/cpp
 {
-	"name": "C++",
+	"name": "Vehicle App C++ SDK",
 	"build": {
 		"dockerfile": "Dockerfile",
 		// Update 'VARIANT' to pick an Debian / Ubuntu OS version: debian-11, debian-10, ubuntu-22.04, ubuntu-20.04, ubuntu-18.04
@@ -18,59 +18,62 @@
 		"--security-opt",
 		"seccomp=unconfined"
 	],
-	// workaround for the devcontainer features
-	"overrideCommand": false,
-	"mounts": [
-		"source=dind-var-lib-docker,target=/var/lib/docker,type=volume"
-	],
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"[cpp]": {
-			"editor.defaultFormatter": "xaver.clang-format"
-		},
-		"editor.formatOnSave": true,
-		"clang-tidy.fixOnSave": true,
-		"clang-tidy.lintOnSave": true,
-		"clang-tidy.blacklist": [
-			"app/tests/*",
-			"app/vehicle_model/*",
-			"build/*"
-		],
-		"clang-tidy.buildPath": "./build",
-		"clang-tidy.compilerArgs": [
-			"-std=c++17"
-		],
-		"vsmqtt.brokerProfiles": [
-			{
-				"name": "k3d",
-				"host": "localhost",
-				"port": 31883,
-				"clientId": "vsmqtt_client"
-			},
-			{
-				"name": "local",
-				"host": "localhost",
-				"port": 1883,
-				"clientId": "vsmqtt_client"
-			}
-		],
-		"json.format.keepLines": true
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-vscode.cpptools",
-		"ms-vscode.cmake-tools",
-		"ms-azuretools.vscode-dapr",
-		"rpdswtk.vsmqtt",
-		"ms-kubernetes-tools.vscode-kubernetes-tools",
-		"bierner.markdown-mermaid",
-		"cschlosser.doxdocgen",
-		"xaver.clang-format",
-		"notskm.clang-tidy",
-		"matepek.vscode-catch2-test-adapter",
-		"sanaajani.taskrunnercode",
-		"augustocdias.tasks-shell-input"
-	],
+	"customizations": {
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": {
+				"[cpp]": {
+					"editor.defaultFormatter": "xaver.clang-format"
+				},
+				"editor.formatOnSave": true,
+				"clang-tidy.fixOnSave": true,
+				"clang-tidy.lintOnSave": true,
+				"clang-tidy.blacklist": [
+					"app/tests/*",
+					"app/vehicle_model/*",
+					"build/*"
+				],
+				"clang-tidy.buildPath": "./build",
+				"clang-tidy.compilerArgs": [
+					"-std=c++17"
+				],
+				"vsmqtt.brokerProfiles": [
+					{
+						"name": "k3d",
+						"host": "localhost",
+						"port": 31883,
+						"clientId": "vsmqtt_client"
+					},
+					{
+						"name": "local",
+						"host": "localhost",
+						"port": 1883,
+						"clientId": "vsmqtt_client"
+					}
+				],
+				"json.format.keepLines": true
+			},
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cmake-tools",
+				"ms-azuretools.vscode-dapr",
+				"rpdswtk.vsmqtt",
+				"ms-kubernetes-tools.vscode-kubernetes-tools",
+				"bierner.markdown-mermaid",
+				"cschlosser.doxdocgen",
+				"xaver.clang-format",
+				"notskm.clang-tidy",
+				"matepek.vscode-catch2-test-adapter",
+				"sanaajani.taskrunnercode",
+				"augustocdias.tasks-shell-input"
+			]
+		}
+	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'onCreateCommand' to run commands when the container is created.
