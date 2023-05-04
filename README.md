@@ -8,11 +8,13 @@ The Vehicle App SDK for C++ allows to create `Vehicle Apps` from the [Velocitas]
 ## Folder structure
 
 * 📁 `examples` - example vehicle apps showcasing the use of the SDK
-    * 📁 `SeatAdjuster` - an example application showing how to adjust the driver seat when receiving MQTT messages
+    * 📁 `seat-adjuster` - an example application showing how to adjust the driver seat when receiving MQTT messages
+    * 📁 `set-data-points` - an example application showing how to set single and multiple data points
     * 📁 `vehicle_model` - a handwritten example model to be used by all examples
 * 📁 `sdk`
     * 📁 `include` - the headers which need to be included by users of the SDK
     * 📁 `src` - contains the source code for the SDK from which the SDK library is built
+    * 📁 `test` - contains the unit test code for the SDK
 
 ## Prerequisites
 
