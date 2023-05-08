@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
+# Copyright (c) 2022-2023 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -23,8 +23,7 @@ ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P 
 UTILS_DIRECTORY="$ROOT_DIRECTORY/.vscode/scripts/runtime/utils"
 source $UTILS_DIRECTORY/get-appmanifest-data.sh
 
-DATABROKER_PORT='55555'
-export DATABROKER_GRPC_PORT='52001'
+KUKSA_DATA_BROKER_PORT='55555'
 #export RUST_LOG="info,databroker=debug,vehicle_data_broker=debug"
 
 RUNNING_CONTAINER=$(docker ps | grep "$DATABROKER_IMAGE" | awk '{ print $1 }')
@@ -34,17 +33,16 @@ then
     docker container stop $RUNNING_CONTAINER
 fi
 
-docker run \
-    -p $DATABROKER_PORT:$DATABROKER_PORT \
-    -p $DATABROKER_GRPC_PORT:$DATABROKER_GRPC_PORT \
-    -e DATABROKER_GRPC_PORT \
-    --network host \
-    $DATABROKER_IMAGE:$DATABROKER_TAG &
-
 dapr run \
     --app-id vehicledatabroker \
     --app-protocol grpc \
-    --app-port $DATABROKER_PORT \
-    --dapr-grpc-port $DATABROKER_GRPC_PORT \
+    --app-port $KUKSA_DATA_BROKER_PORT \
     --components-path $ROOT_DIRECTORY/.dapr/components \
-    --config $ROOT_DIRECTORY/.dapr/config.yaml && fg
+    --config $ROOT_DIRECTORY/.dapr/config.yaml \
+-- docker run \
+    -e KUKSA_DATA_BROKER_PORT \
+    -e DAPR_GRPC_PORT \
+    -e DAPR_HTTP_PORT \
+    -e RUST_LOG \
+    --network host \
+    $DATABROKER_IMAGE:$DATABROKER_TAG

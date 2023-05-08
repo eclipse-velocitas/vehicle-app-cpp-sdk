@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
+# Copyright (c) 2022-2023 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -27,18 +27,13 @@ source $UTILS_DIRECTORY/get-appmanifest-data.sh
 configure_service() {
     case $1 in
         seatservice)
-            SEATSERVICE_PORT=50051
-            SEATSERVICE_GRPC_PORT=52002
-            CAN=cansim
-            VEHICLEDATABROKER_DAPR_APP_ID=vehicledatabroker
-            # Configure ports for docker to expose
-            DOCKER_PORTS="-p $SEATSERVICE_PORT:$SEATSERVICE_PORT -p $SEATSERVICE_GRPC_PORT:$SEATSERVICE_GRPC_PORT"
+            export SERVICE_PORT=50051
+            export CAN=cansim
+            export VEHICLEDATABROKER_DAPR_APP_ID=vehicledatabroker
+            # Configure docker networking, e.g. ports for docker to expose
+            DOCKER_NET_CONFIG="--network host"
             # Configure ENVs need to run docker container
-            DOCKER_ENVS="-e VEHICLEDATABROKER_DAPR_APP_ID=$VEHICLEDATABROKER_DAPR_APP_ID -e CAN=$CAN -e DAPR_GRPC_PORT=$SEATSERVICE_GRPC_PORT"
-            # Configure Dapr App Port
-            DAPR_APP_PORT=$SEATSERVICE_PORT
-            # Configure Dapr Grpc Port
-            DAPR_GRPC_PORT=$SEATSERVICE_GRPC_PORT
+            DOCKER_ENVS="-e VEHICLEDATABROKER_DAPR_APP_ID -e CAN -e DAPR_GRPC_PORT -e DAPR_HTTP_PORT -e SERVICE_PORT"
             ;;
         *)
             echo "Unknown Service to configure."
@@ -57,15 +52,13 @@ run_service() {
         docker container stop $RUNNING_CONTAINER
     fi
 
-    docker run $DOCKER_PORTS $DOCKER_ENVS --network host $SERVICE_IMAGE:$SERVICE_TAG &
-
     dapr run \
         --app-id $SERVICE_NAME \
         --app-protocol grpc \
-        --app-port $DAPR_APP_PORT \
-        --dapr-grpc-port $DAPR_GRPC_PORT \
+        --app-port $SERVICE_PORT \
         --components-path $ROOT_DIRECTORY/.dapr/components \
-        --config $ROOT_DIRECTORY/.dapr/config.yaml &
+        --config $ROOT_DIRECTORY/.dapr/config.yaml \
+    -- docker run $DOCKER_NET_CONFIG $DOCKER_ENVS $SERVICE_IMAGE:$SERVICE_TAG &
 }
 
 DEPENDENCIES=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].dependencies)

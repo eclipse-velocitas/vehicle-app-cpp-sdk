@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
+# Copyright (c) 2022-2023 Robert Bosch GmbH and Microsoft Corporation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -24,10 +24,9 @@ UTILS_DIRECTORY="$ROOT_DIRECTORY/.vscode/scripts/runtime/utils"
 source $UTILS_DIRECTORY/get-appmanifest-data.sh
 
 ### Override default files for feedercan
-CONFIG_DIR="$ROOT_DIRECTORY/deploy/runtime/k3d/volume"
+CONFIG_DIR="$ROOT_DIRECTORY/.vscode/scripts/runtime/feeder_config/default"
 
 export VEHICLEDATABROKER_DAPR_APP_ID=vehicledatabroker
-export DAPR_GRPC_PORT=52001
 export LOG_LEVEL=info,databroker=info,dbcfeeder.broker_client=info,dbcfeeder=info
 export USECASE=databroker
 
@@ -42,20 +41,20 @@ then
     docker container stop $RUNNING_CONTAINER
 fi
 
-docker run \
+dapr run \
+    --app-id feedercan \
+    --app-protocol grpc \
+    --components-path $ROOT_DIRECTORY/.dapr/components \
+    --config $ROOT_DIRECTORY/.dapr/config.yaml \
+-- docker run \
     -v ${CONFIG_DIR}:/data \
     -e VEHICLEDATABROKER_DAPR_APP_ID \
     -e DAPR_GRPC_PORT \
+    -e DAPR_HTTP_PORT \
     -e LOG_LEVEL \
     -e USECASE \
     -e CANDUMP_FILE \
     -e DBC_FILE \
     -e MAPPING_FILE \
     --network host \
-    $FEEDERCAN_IMAGE:$FEEDERCAN_TAG &
-
-dapr run \
-    --app-id feedercan \
-    --app-protocol grpc \
-    --components-path $ROOT_DIRECTORY/.dapr/components \
-    --config $ROOT_DIRECTORY/.dapr/config.yaml && fg
+    $FEEDERCAN_IMAGE:$FEEDERCAN_TAG
