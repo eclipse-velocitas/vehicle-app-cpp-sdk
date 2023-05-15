@@ -110,6 +110,9 @@ if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   XCOMPILE_PROFILE="-pr:b ../.conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
 fi
 
+# Enable Conan revision handling to enable pinning googleapis recipe revision (see conanfile.py)
+export CONAN_REVISIONS_ENABLED=1
+
 conan install \
     -pr:h ../.conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
