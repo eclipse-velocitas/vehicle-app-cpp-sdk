@@ -23,7 +23,7 @@ class VehicleAppCppSdkConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
-    requires = "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0", "grpc/1.50.1", "protobuf/3.21.9", "cpr/1.9.3", "fmt/9.1.0"
+    requires = "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0", "grpc/1.50.1", "protobuf/3.21.9", "cpr/1.9.3", "fmt/9.1.0", "googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"
     generators = "cmake"
     author = "Robert Bosch GmbH"
 
