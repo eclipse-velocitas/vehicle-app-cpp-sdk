@@ -83,7 +83,7 @@ class VehicleAppCppSdkConan(ConanFile):
         self.requires("fmt/9.1.0")
         self.requires("nlohmann_json/3.11.2")
         self.requires("grpc/1.48.0")
-        self.requires("protobuf/3.21.9")
+        self.requires("protobuf/3.21.4")
         self.requires("paho-mqtt-cpp/1.2.0")
         self.requires("cpr/1.9.3")
 
@@ -96,6 +96,6 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
-        self.tool_requires("protobuf/3.21.9")
+        self.tool_requires("protobuf/3.21.4")
         self.tool_requires("grpc/1.48.0")
 
