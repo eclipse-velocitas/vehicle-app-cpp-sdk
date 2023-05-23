@@ -80,15 +80,18 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def requirements(self):
         # Direct dependencies:
-        self.requires("fmt/9.1.0")
+        self.requires("openssl/1.1.1q")
+        self.requires("libcurl/7.84.0")
         self.requires("nlohmann_json/3.11.2")
+        self.requires("paho-mqtt-cpp/1.2.0")
         self.requires("grpc/1.48.0")
         self.requires("protobuf/3.21.4")
-        self.requires("paho-mqtt-cpp/1.2.0")
-        self.requires("cpr/1.9.3")
+        self.requires("cpr/1.9.0")
+        self.requires("fmt/9.1.0")
+        self.requires("zlib/1.2.13")
 
         # Transient dependencies:
-        self.requires("openssl/1.1.1t")
+        # self.requires("openssl/1.1.1t")
         # Workaround: Pin recipe revision for transient dependency googleapis for enabling the container build
         self.requires("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439")
         # Workaround: 
