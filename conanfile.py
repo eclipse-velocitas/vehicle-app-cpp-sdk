@@ -23,7 +23,6 @@ class VehicleAppCppSdkConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
-    requires = "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0", "grpc/1.50.1", "protobuf/3.21.9", "cpr/1.9.3", "fmt/9.1.0" #, "googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"
     generators = "cmake"
     author = "Robert Bosch GmbH"
 
@@ -79,9 +78,24 @@ class VehicleAppCppSdkConan(ConanFile):
         self.copy("license*", src=".", dst="./licenses",
                   folder=True, ignore_case=True)
 
+    def requirements(self):
+        # Direct dependencies:
+        self.requires("fmt/9.1.0")
+        self.requires("nlohmann_json/3.11.2")
+        self.requires("grpc/1.48.0")
+        self.requires("protobuf/3.21.9")
+        self.requires("paho-mqtt-cpp/1.2.0")
+        self.requires("cpr/1.9.3")
+
+        # Transient dependencies:
+        self.requires("openssl/1.1.1t")
+        # Workaround: Pin recipe revision for transient dependency googleapis for enabling the container build
+        self.requires("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439")
+        # Workaround: 
+        self.requires("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394")
+
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
-        #self.tool_requires("protobuf/3.21.4")
-        #self.tool_requires("grpc/1.48.0")
-        self.tool_requires("cmake/3.23.5")
+        self.tool_requires("protobuf/3.21.9")
+        self.tool_requires("grpc/1.48.0")
 
