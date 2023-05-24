@@ -30,12 +30,12 @@
 |PyJWT|2.7.0|MIT|
 |python-dateutil|2.8.2|Apache 2.0<br/>BSD|
 |PyYAML|6.0|MIT|
-|requests|2.30.0|Apache 2.0|
+|requests|2.31.0|Apache 2.0|
 |setuptools|58.1.0|MIT|
 |six|1.16.0|MIT|
 |toml|0.10.2|MIT|
 |tqdm|4.65.0|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
-|urllib3|1.26.15|MIT|
+|urllib3|1.26.16|MIT|
 |virtualenv|20.23.0|MIT|
 ## Workflows
 | Dependency | Version | License |

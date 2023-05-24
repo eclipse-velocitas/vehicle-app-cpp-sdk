@@ -50,18 +50,18 @@ they are given here (manually added) for time being:
 
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
-|abseil|20211102.0|Apache 2.0|
-|c-ares|1.18.1|c-ares (MIT-style)|
-|cpr|1.9.0|MIT|
+|abseil|20220623.0|Apache 2.0|
+|c-ares|1.19.0|c-ares (MIT-style)|
+|cpr|1.9.3|MIT|
 |fmt|9.1.0|MIT|
-|googleapis|cci.20220711|Apache 2.0|
-|grpc|1.48.0|Apache 2.0|
+|googleapis|cci.20221108|Apache 2.0|
+|grpc|1.50.1|Apache 2.0|
 |grpc-proto|cci.20220627|Apache 2.0|
-|libcurl|7.84.0|CURL|
+|libcurl|7.87.0|CURL|
 |nlohmann_json|3.11.2|MIT|
-|openssl|1.1.1q|OpenSSL License AND SSLeay License|
+|openssl|1.1.1t|OpenSSL License AND SSLeay License|
 |paho-mqtt-c|1.3.9|EPL 2.0 AND EDL 1.0|
 |paho-mqtt-cpp|1.2.0|EPL 1.0 AND EDL 1.0|
-|protobuf|3.21.4|Google License|
-|re2|20220601|BSD-3-Clause|
-|zlib|1.2.12|zlib/libpng license|
+|protobuf|3.21.9|Google License|
+|re2|20230301|BSD-3-Clause|
+|zlib|1.2.13|zlib/libpng license|
