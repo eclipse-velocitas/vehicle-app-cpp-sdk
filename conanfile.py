@@ -19,7 +19,7 @@ import subprocess
 
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
-    version = "0.2.2"
+    version = "0.3.0"
     license = "Apache-2.0"
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
