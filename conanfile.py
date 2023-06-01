@@ -25,7 +25,7 @@ class VehicleAppCppSdkConan(ConanFile):
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
     # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
-    requires = "openssl/1.1.1t", "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0", "grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce", "protobuf/3.21.9", "cpr/1.9.3", "fmt/9.1.0", "libcurl/7.87.0@#9b166c63d5b06b69358f8698cb8daa45", "grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d", "googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439", "paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"
+    requires = "openssl/1.1.1t", "nlohmann_json/3.11.2", "paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2", "grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce", "protobuf/3.21.9", "cpr/1.9.3", "fmt/9.1.0", "libcurl/7.87.0@#9b166c63d5b06b69358f8698cb8daa45", "grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d", "googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439", "paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"
     generators = "cmake"
     author = "Robert Bosch GmbH"
 
