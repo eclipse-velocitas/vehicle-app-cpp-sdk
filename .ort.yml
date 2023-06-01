@@ -22,24 +22,3 @@ curations:
     curations:
       comment: "Proper license is defined in package repository https://pypi.org/project/setuptools/"
       concluded_license: "MIT"
-      
-resolutions:
-  vulnerabilities:
-    - id: "CVE-2018-20225"
-      reason: "MITIGATED_VULNERABILITY"
-      comment: "Mitigating control: avoiding use of the --extra-index-url parameter for pip"
-    - id: "CVE-2019-20907"
-      reason: "INVALID_MATCH_VULNERABILITY"
-      comment: "Only applicable for python version <=3.8.3 or <3.9.0-b5 python 3.9.5 in use"
-    - id: "CVE-2019-20916"
-      reason: "INVALID_MATCH_VULNERABILITY"
-      comment: "pip < 19.2 is affected pip in use 22.3.1"
-    - id: "CVE-2022-23491"
-      reason: "INVALID_MATCH_VULNERABILITY"
-      comment: "certifi is not used by our components directly or indirectly"
-    - id: "sonatype-2012-0071"
-      reason: "INVALID_MATCH_VULNERABILITY"
-      comment: "only relevan for python 2.7 python 3.9.5 in use"
-    - id: "sonatype-2022-6046"
-      reason: "INVALID_MATCH_VULNERABILITY"
-      comment: "affected wheel < 0.38.4 wheel = 0.38.4 in use"
