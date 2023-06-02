@@ -51,7 +51,7 @@ they are given here (manually added) for time being:
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
 |abseil|20220623.0|Apache 2.0|
-|c-ares|1.19.0|c-ares (MIT-style)|
+|c-ares|1.18.1|c-ares (MIT-style)|
 |cpr|1.9.3|MIT|
 |fmt|9.1.0|MIT|
 |googleapis|cci.20221108|Apache 2.0|
@@ -63,5 +63,5 @@ they are given here (manually added) for time being:
 |paho-mqtt-c|1.3.9|EPL 2.0 AND EDL 1.0|
 |paho-mqtt-cpp|1.2.0|EPL 1.0 AND EDL 1.0|
 |protobuf|3.21.9|Google License|
-|re2|20230301|BSD-3-Clause|
+|re2|20220601|BSD-3-Clause|
 |zlib|1.2.13|zlib/libpng license|
