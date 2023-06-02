@@ -18,7 +18,7 @@ curations:
     curations:
       comment: "Proper license is defined in package repository https://pypi.org/project/identify/"
       concluded_license: "MIT"
-  - id: "Conan::c-ares:1.19.0"
+  - id: "Conan::c-ares:1.18.1"
     curations:
       comment: "Proper license is defined in package repository https://conan.io/center/c-ares"
       concluded_license: "MIT"
