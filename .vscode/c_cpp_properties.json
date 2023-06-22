@@ -3,7 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/sdk/include"
+                "${workspaceFolder}/sdk/include",
+                "${workspaceFolder}/examples"
             ],
             "defines": [ ],
             "compilerPath": "/usr/bin/gcc",

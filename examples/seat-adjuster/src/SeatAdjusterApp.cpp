@@ -44,7 +44,7 @@ SeatAdjusterApp::SeatAdjusterApp()
     , m_vehicleModel(std::make_shared<velocitas::Vehicle>()) {}
 
 void SeatAdjusterApp::onStart() {
-    velocitas::logger().info("Subscribe for Datapoints!");
+    velocitas::logger().info("Subscribe for DataPoints!");
 
     subscribeDataPoints(
         velocitas::QueryBuilder::select(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position).build())
@@ -77,7 +77,7 @@ void SeatAdjusterApp::onSeatMovementRequested(const velocitas::VoidResult& statu
 }
 
 void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
-    velocitas::logger().debug("positionrequest: \"{}\"", data);
+    velocitas::logger().debug("position request: \"{}\"", data);
     const auto jsonData = nlohmann::json::parse(data);
     if (!jsonData.contains(JSON_FIELD_POSITION)) {
         const auto errorMsg = fmt::format("No position specified");
