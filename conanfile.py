@@ -28,7 +28,7 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = \
         "c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc", \
-        "cpr/1.9.3@#26c6732664548385b583b3a0116b8d5e", \
+        "cpr/1.10.1@#18f864679b6ca979b7abb6e1a767f581", \
         "fmt/9.1.0", \
         "googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439", \
         "grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce", \
