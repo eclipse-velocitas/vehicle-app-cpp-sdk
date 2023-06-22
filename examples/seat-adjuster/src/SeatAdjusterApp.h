@@ -28,7 +28,7 @@ namespace example {
 
 /**
  * @brief A sample SeatAdjusterApp.
- * The SeatAdjusterApp subcribes at the VehicleDataBroker for updates for
+ * The SeatAdjusterApp subscribes at the VehicleDataBroker for updates for
  * the Vehicle.Speed signal.It also subscribes at a MQTT topic to listen for
  * incoming requests to change the seat position and calls the SeatService to
  * move the seat upon such a request, but only if Vehicle.Speed equals 0.
