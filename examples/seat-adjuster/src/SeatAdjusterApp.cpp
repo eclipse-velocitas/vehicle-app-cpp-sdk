@@ -44,7 +44,7 @@ SeatAdjusterApp::SeatAdjusterApp()
     , m_vehicleModel(std::make_shared<velocitas::Vehicle>()) {}
 
 void SeatAdjusterApp::onStart() {
-    velocitas::logger().info("Subscribe for DataPoints!");
+    velocitas::logger().info("Subscribe for data points!");
 
     subscribeDataPoints(
         velocitas::QueryBuilder::select(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position).build())
