@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -17,9 +17,31 @@
 #include "sdk/Utils.h"
 
 #include <algorithm>
+#include <cctype>
+#include <cstdlib>
 #include <sstream>
 
 namespace velocitas {
+
+std::string getEnvVar(const std::string& varName, const std::string& defaultValue) {
+    auto* const value = ::getenv(varName.c_str());
+    if (value != nullptr) {
+        return std::string(value);
+    }
+    return defaultValue;
+}
+
+std::string StringUtils::toLower(const std::string& str) {
+    std::string result{str};
+    std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+    return result;
+}
+
+std::string StringUtils::toUpper(const std::string& str) {
+    std::string result{str};
+    std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+    return result;
+}
 
 std::string StringUtils::join(const std::vector<std::string>& stringVector,
                               const std::string&              separator) {

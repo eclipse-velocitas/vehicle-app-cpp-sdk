@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -30,8 +30,9 @@ namespace velocitas {
  */
 class IPubSubClient {
 public:
-    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
-                                                         const std::string& clientId);
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& clientId);
+    [[deprecated]] static std::shared_ptr<IPubSubClient>
+    createInstance(const std::string& brokerUri, const std::string& clientId);
 
     virtual ~IPubSubClient() = default;
 

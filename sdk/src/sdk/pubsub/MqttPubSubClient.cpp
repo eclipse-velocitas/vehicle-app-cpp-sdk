@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -14,10 +14,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "sdk/Config.h"
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/Status.h"
 #include "sdk/ThreadPool.h"
+
+#include "sdk/middleware/NativeMiddleware.h"
 
 #include <mqtt/async_client.h>
 #include <unordered_map>
@@ -39,10 +42,14 @@ public:
     ~MqttPubSubClient() override = default;
 
     void connect() override {
-        auto* const brokerUri      = getenv("MQTT_BROKER_URI");
-        auto        optionsBuilder = mqtt::connect_options_builder();
+        auto optionsBuilder = mqtt::connect_options_builder();
 
+        auto* const brokerUri = getenv("MQTT_BROKER_URI");
         if (brokerUri != nullptr) {
+            logger().warn("You're use deprecated environment variable MQTT_BROKER_URI. Support for "
+                          "this will be removed soon.\n"
+                          "Please switch to current variable {}.",
+                          NativeMiddleware().getServiceEnvVarName("mqtt"));
             optionsBuilder.servers(
                 std::make_shared<mqtt::string_collection>(std::string{brokerUri}));
         }
@@ -92,6 +99,16 @@ private:
     mqtt::async_client m_client;
     TopicMap_t         m_subscriberMap;
 };
+
+std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& clientId) {
+    if (Config::getMiddleware().getType() == Middleware::Type::DAPR) {
+        logger().warn("Velocitas' C++ SDK does not yet support Dapr PubSub "
+                      "-> connecting directly to MQTT broker!");
+    }
+
+    std::string brokerLocation = NativeMiddleware().getServiceLocation("mqtt");
+    return std::make_shared<MqttPubSubClient>(brokerLocation, clientId);
+}
 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,
                                                              const std::string& clientId) {

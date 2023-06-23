@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -23,11 +23,23 @@
 namespace velocitas {
 
 /**
+ * @brief Get the value of the specified environment variable
+ *
+ * @param varName  Name of the environment variable
+ * @param defaultValue  Default if variable is not set
+ * @return std::string containing the value of the variable or the default value
+ */
+std::string getEnvVar(const std::string& varName, const std::string& defaultValue = "");
+
+/**
  * @brief Provides utility methods for handling strings.
  *
  */
 class StringUtils final {
 public:
+    static std::string toLower(const std::string& str);
+    static std::string toUpper(const std::string& str);
+
     static std::string join(const std::vector<std::string>& stringVector,
                             const std::string&              separator);
 

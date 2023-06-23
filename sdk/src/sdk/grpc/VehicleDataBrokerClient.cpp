@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -16,14 +16,15 @@
 
 #include "sdk/grpc/VehicleDataBrokerClient.h"
 
+#include "sdk/Config.h"
 #include "sdk/DataPointValue.h"
-#include "sdk/grpc/AsyncGrpcFacade.h"
-#include "sdk/grpc/BrokerAsyncGrpcFacade.h"
-#include "sdk/grpc/GrpcDataPointValueProvider.h"
-
 #include "sdk/Exceptions.h"
 #include "sdk/Job.h"
 #include "sdk/Logger.h"
+
+#include "sdk/grpc/AsyncGrpcFacade.h"
+#include "sdk/grpc/BrokerAsyncGrpcFacade.h"
+#include "sdk/grpc/GrpcDataPointValueProvider.h"
 
 #include <fmt/core.h>
 #include <grpcpp/channel.h>
@@ -36,30 +37,22 @@
 namespace velocitas {
 
 VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAddress,
-                                                 std::string        vdbAppId)
-    : m_vdbAppId(std::move(vdbAppId)) {
+                                                 std::string        vdbServiceName) {
     m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
         grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
-    m_asyncBrokerFacade->setContextModifier(
-        [this](auto& context) { context.AddMetadata("dapr-app-id", m_vdbAppId); });
+    Middleware::Metadata metadata = Config::getMiddleware().getMetadata(vdbServiceName);
+    m_asyncBrokerFacade->setContextModifier([metadata](auto& context) {
+        for (auto metadatum : metadata) {
+            context.AddMetadata(metadatum.first, metadatum.second);
+        }
+    });
 }
 
-VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAppId)
-    : VehicleDataBrokerClient(getVdbEndpointAddress(), vdbAppId) {}
+VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbServiceName)
+    : VehicleDataBrokerClient(Config::getMiddleware().getServiceLocation(vdbServiceName),
+                              vdbServiceName) {}
 
 VehicleDataBrokerClient::~VehicleDataBrokerClient() {}
-
-std::string VehicleDataBrokerClient::getVdbEndpointAddress() {
-    constexpr auto DEFAULT_DAPR_GRPC_PORT{52001};
-
-    auto        daprGrpcPort = DEFAULT_DAPR_GRPC_PORT;
-    auto* const envPort      = std::getenv("DAPR_GRPC_PORT");
-    if (envPort != nullptr) {
-        daprGrpcPort = atoi(envPort);
-    }
-
-    return fmt::format("localhost:{}", daprGrpcPort);
-}
 
 static sdv::databroker::v1::Datapoint_Failure mapToGrpcType(DataPointValue::Failure failure) {
     switch (failure) {
@@ -315,8 +308,8 @@ VehicleDataBrokerClient::subscribe(const std::string& query) {
 }
 
 std::shared_ptr<IVehicleDataBrokerClient>
-IVehicleDataBrokerClient::createInstance(const std::string& vdbAppId) {
-    return std::make_shared<VehicleDataBrokerClient>(vdbAppId);
+IVehicleDataBrokerClient::createInstance(const std::string& vdbServiceName) {
+    return std::make_shared<VehicleDataBrokerClient>(vdbServiceName);
 }
 
 } // namespace velocitas
