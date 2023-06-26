@@ -30,10 +30,10 @@
 
 namespace velocitas {
 
-static const std::string ENV_DAPR_GRPC_PORT = "DAPR_GRPC_PORT";
-static const std::string ENV_DAPR_HTTP_PORT = "DAPR_HTTP_PORT";
+static constexpr char const* ENV_DAPR_GRPC_PORT = "DAPR_GRPC_PORT";
+static constexpr char const* ENV_DAPR_HTTP_PORT = "DAPR_HTTP_PORT";
 
-static const std::string DAPR_APP_ID_KEY = "dapr-app-id";
+static constexpr char const* DAPR_APP_ID_KEY = "dapr-app-id";
 
 namespace dapr {
 

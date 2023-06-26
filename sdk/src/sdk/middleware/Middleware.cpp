@@ -29,7 +29,7 @@
 
 namespace velocitas {
 
-static const std::string ENV_MIDDLEWARE_TYPE{"SDV_MIDDLEWARE_TYPE"};
+static constexpr char const* ENV_MIDDLEWARE_TYPE = "SDV_MIDDLEWARE_TYPE";
 
 static const std::unordered_map<std::string, Middleware::Type> MIDDLEWARE_NAME_TYPE_MAP = {
     {"", Middleware::Type::DAPR}, // default
