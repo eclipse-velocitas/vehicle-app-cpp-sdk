@@ -18,9 +18,20 @@
 
 #include <gtest/gtest.h>
 
+#include <cstdlib>
+
 using namespace velocitas;
 
-TEST(Test_VehicleDataBrokerClient, getDatapoints_noConnection_throwsAsyncException) {
-    auto client = VehicleDataBrokerClient("my-app-id");
-    EXPECT_THROW(client.getDatapoints({})->await(), AsyncException);
+class Test_VehicleDataBrokerClient : public ::testing::Test {
+protected:
+    static void SetUpTestSuite() { ::setenv("SDV_MIDDLEWARE_TYPE", "native", /*overwrite=*/true); }
+
+    Test_VehicleDataBrokerClient()
+        : m_cut("some-broker-service-name") {}
+
+    VehicleDataBrokerClient m_cut;
+};
+
+TEST_F(Test_VehicleDataBrokerClient, getDatapoints_noConnection_throwsAsyncException) {
+    EXPECT_THROW(m_cut.getDatapoints({})->await(), AsyncException);
 }
