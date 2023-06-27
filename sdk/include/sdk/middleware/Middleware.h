@@ -23,33 +23,92 @@
 
 namespace velocitas {
 
+class IPubSubClient;
+
+/**
+ * @brief Abstract base class for concrete middleware implementations
+ */
 class Middleware {
 public:
-    enum class Type { UNKNOWN, NATIVE, DAPR };
-
+    /**
+     * @brief Returns a reference to a singelton instance of a concrete middleware class
+     *
+     * @return Middleware&
+     */
     static Middleware& getInstance() {
         static std::unique_ptr<Middleware> singleton = instantiate();
         return *singleton;
     }
 
-    virtual Type getType() const = 0;
+    static std::string getTypeDefiningEnvVarName();
 
+    /**
+     * @brief Get the type identifier of the concrete middleware implementation
+     *
+     * @return std::string type of the middleware
+     */
+    std::string getTypeId() const { return m_typeId; }
+
+    /**
+     * @brief Triggers the start of the middleware
+     */
     virtual void start() {}
+    /**
+     * @brief Waits (blocks current thread) until the middleware is started and ready to use
+     */
     virtual void waitUntilReady() {}
+    /**
+     * @brief Stops the middleware
+     */
     virtual void stop() {}
 
+    /**
+     * @brief Get the location description (e.g. uri) of the specified service name
+     *
+     * @param serviceName Name of the service to get the loaction description for
+     * @return std::string representing the location description
+     */
     virtual std::string getServiceLocation(const std::string& serviceName) const = 0;
+
+    /**
+     * @brief Generic type for middleware specific metadata     *
+     */
     using Metadata = std::unordered_map<std::string, std::string>;
+
+    /**
+     * @brief Get the middleware specific metadata needed to communicate with the specified service.
+     *
+     * @param serviceName Name of the service to communicate with
+     * @return Metadata
+     */
     virtual Metadata getMetadata(const std::string& serviceName) const {
         std::ignore = serviceName;
         return Metadata{};
     }
 
+    /**
+     * @brief Create a Pub Sub Client object
+     *
+     * @param clientId
+     * @return std::shared_ptr<IPubSubClient>
+     */
+    virtual std::shared_ptr<IPubSubClient>
+    createPubSubClient(const std::string& clientId) const = 0;
+
 protected:
-    Middleware() = default;
+    /**
+     * @brief Constructor to be called by subclasses
+     *
+     * @param typeId unique identifier for the type of the concrete middleware
+     * implementation
+     */
+    Middleware(std::string&& typeId)
+        : m_typeId(std::move(typeId)) {}
 
 private:
     static std::unique_ptr<Middleware> instantiate();
+
+    const std::string m_typeId;
 
     Middleware(const Middleware&)            = delete;
     Middleware(Middleware&&)                 = delete;

@@ -16,6 +16,7 @@
 
 #include "NativeMiddleware.h"
 
+#include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/Utils.h"
 #include "sdk/dapr/DaprSupport.h"
@@ -40,7 +41,7 @@ static std::string getDefaultLocation(const std::string& serviceName) {
     return defaultLocation;
 };
 
-std::string NativeMiddleware::getServiceEnvVarName(const std::string& serviceName) const {
+static std::string getServiceEnvVarName(const std::string& serviceName) {
     return "SDV_" + StringUtils::toUpper(serviceName) + "_ADDRESS";
 }
 
@@ -51,6 +52,12 @@ std::string NativeMiddleware::getServiceLocation(const std::string& serviceName)
         serviceAddress = getDefaultLocation(serviceName);
     }
     return serviceAddress;
+}
+
+std::shared_ptr<IPubSubClient>
+NativeMiddleware::createPubSubClient(const std::string& clientId) const {
+    std::string brokerLocation = getServiceLocation("mqtt");
+    return IPubSubClient::createInstance(brokerLocation, clientId);
 }
 
 } // namespace velocitas

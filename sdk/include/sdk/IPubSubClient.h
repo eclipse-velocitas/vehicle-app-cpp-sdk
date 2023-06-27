@@ -31,8 +31,8 @@ namespace velocitas {
 class IPubSubClient {
 public:
     static std::shared_ptr<IPubSubClient> createInstance(const std::string& clientId);
-    [[deprecated]] static std::shared_ptr<IPubSubClient>
-    createInstance(const std::string& brokerUri, const std::string& clientId);
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId);
 
     virtual ~IPubSubClient() = default;
 

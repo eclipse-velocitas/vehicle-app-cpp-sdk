@@ -16,6 +16,7 @@
 
 #include "DaprMiddleware.h"
 
+#include "NativeMiddleware.h"
 #include "sdk/Logger.h"
 #include "sdk/Utils.h"
 #include "sdk/dapr/DaprSupport.h"
@@ -75,7 +76,7 @@ std::string DaprMiddleware::getServiceLocation(const std::string& serviceName) c
         throw std::runtime_error(
             fmt::format("{} not set! Cannot connect to Dapr sidecar!", ENV_DAPR_GRPC_PORT));
     }
-    return "grpc:://localhost:" + daprSidecarGrpcPort;
+    return "grpc://localhost:" + daprSidecarGrpcPort;
 };
 
 Middleware::Metadata DaprMiddleware::getMetadata(const std::string& serviceName) const {
@@ -84,6 +85,14 @@ Middleware::Metadata DaprMiddleware::getMetadata(const std::string& serviceName)
         appId = StringUtils::toLower(serviceName);
     }
     return {{DAPR_APP_ID_KEY, appId}};
+}
+
+std::shared_ptr<IPubSubClient>
+DaprMiddleware::createPubSubClient(const std::string& clientId) const {
+    logger().warn("Velocitas' C++ SDK does not yet support Dapr PubSub "
+                  "-> connecting directly to MQTT broker!");
+
+    return NativeMiddleware().createPubSubClient(clientId);
 }
 
 } // namespace velocitas

@@ -20,6 +20,48 @@
 
 using namespace velocitas;
 
+TEST(Utils, getEnvVar_varNotSet_defaultValue) {
+    ::unsetenv("MY_TEST_ENV_VAR");
+    std::string varContent = getEnvVar("MY_TEST_ENV_VAR", "default content");
+    EXPECT_EQ("default content", varContent);
+}
+
+TEST(Utils, getEnvVar_emptyVar_emptyString) {
+    ::setenv("MY_TEST_ENV_VAR", "", /*overwrite=*/true);
+    std::string varContent = getEnvVar("MY_TEST_ENV_VAR", "default content");
+    EXPECT_EQ("", varContent);
+}
+
+TEST(Utils, getEnvVar_nonEmptyVar_varContent) {
+    ::setenv("MY_TEST_ENV_VAR", "some content", /*overwrite=*/true);
+    std::string varContent = getEnvVar("MY_TEST_ENV_VAR", "default content");
+    EXPECT_EQ("some content", varContent);
+}
+
+TEST(StringUtils, toLower_emptyString_emptyString) {
+    EXPECT_TRUE(StringUtils::toLower("").empty());
+}
+
+TEST(StringUtils, toUpper_emptyString_emptyString) {
+    EXPECT_TRUE(StringUtils::toUpper("").empty());
+}
+
+static const std::string
+    MixedAscii(" !\"#$%&'()*+,-./"
+               "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+
+TEST(StringUtils, toLower_asciiString_allUpperAreLower) {
+    EXPECT_EQ(" !\"#$%&'()*+,-./"
+              "0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
+              StringUtils::toLower(MixedAscii));
+}
+
+TEST(StringUtils, toUpper_asciiString_allLowerAreUpper) {
+    EXPECT_EQ(" !\"#$%&'()*+,-./"
+              "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~",
+              StringUtils::toUpper(MixedAscii));
+}
+
 TEST(StringUtils, join_emptyVector_emptyString) {
     std::vector<std::string> v;
     auto                     result = StringUtils::join(v, ",");

@@ -14,24 +14,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_MIDDLEWARE_NATIVEMIDDLEWARE_H
-#define VEHICLE_APP_SDK_MIDDLEWARE_NATIVEMIDDLEWARE_H
-
 #include "sdk/middleware/Middleware.h"
+#include "sdk/middleware/NativeMiddleware.h"
 
-namespace velocitas {
+#include <cstdlib>
+#include <gtest/gtest.h>
 
-class NativeMiddleware : public Middleware {
+using namespace velocitas;
+
+class SetupMiddlewareSingleton : public ::testing::Environment {
 public:
-    static constexpr char const* TYPE_ID = "native";
-
-    NativeMiddleware()
-        : Middleware(TYPE_ID) {}
-
-    std::string getServiceLocation(const std::string& serviceName) const override;
-    std::shared_ptr<IPubSubClient> createPubSubClient(const std::string& clientId) const override;
+    void SetUp() override {
+        ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), NativeMiddleware::TYPE_ID,
+                 /*overwrite=*/true);
+        std::ignore = Middleware::getInstance();
+    }
 };
 
-} // namespace velocitas
-
-#endif // VEHICLE_APP_SDK_MIDDLEWARE_NATIVEMIDDLEWARE_H
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    std::ignore = testing::AddGlobalTestEnvironment(new SetupMiddlewareSingleton);
+    return RUN_ALL_TESTS();
+}

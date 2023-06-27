@@ -23,14 +23,16 @@ namespace velocitas {
 
 class DaprMiddleware : public Middleware {
 public:
-    DaprMiddleware() = default;
+    static constexpr char const* TYPE_ID = "dapr";
 
-    Type getType() const override { return Type::DAPR; }
+    DaprMiddleware()
+        : Middleware(TYPE_ID) {}
 
     void waitUntilReady() override;
 
     std::string getServiceLocation(const std::string& serviceName) const override;
     Metadata    getMetadata(const std::string& serviceName) const override;
+    std::shared_ptr<IPubSubClient> createPubSubClient(const std::string& clientId) const override;
 };
 
 } // namespace velocitas

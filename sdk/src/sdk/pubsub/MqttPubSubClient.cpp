@@ -20,7 +20,7 @@
 #include "sdk/Status.h"
 #include "sdk/ThreadPool.h"
 
-#include "sdk/middleware/NativeMiddleware.h"
+#include "sdk/middleware/Middleware.h"
 
 #include <mqtt/async_client.h>
 #include <unordered_map>
@@ -46,10 +46,8 @@ public:
 
         auto* const brokerUri = getenv("MQTT_BROKER_URI");
         if (brokerUri != nullptr) {
-            logger().warn("You're use deprecated environment variable MQTT_BROKER_URI. Support for "
-                          "this will be removed soon.\n"
-                          "Please switch to current variable {}.",
-                          NativeMiddleware().getServiceEnvVarName("mqtt"));
+            logger().warn("You're using the deprecated environment variable MQTT_BROKER_URI. "
+                          "Support for this will be removed soon.");
             optionsBuilder.servers(
                 std::make_shared<mqtt::string_collection>(std::string{brokerUri}));
         }
@@ -101,13 +99,7 @@ private:
 };
 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& clientId) {
-    if (Config::getMiddleware().getType() == Middleware::Type::DAPR) {
-        logger().warn("Velocitas' C++ SDK does not yet support Dapr PubSub "
-                      "-> connecting directly to MQTT broker!");
-    }
-
-    std::string brokerLocation = NativeMiddleware().getServiceLocation("mqtt");
-    return std::make_shared<MqttPubSubClient>(brokerLocation, clientId);
+    return Config::getMiddleware().createPubSubClient(clientId);
 }
 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,

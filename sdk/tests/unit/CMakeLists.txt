@@ -1,12 +1,16 @@
 set(TARGET_NAME "sdk_utests")
 
 add_executable(${TARGET_NAME}
+    testmain.cpp
     AsyncResult_tests.cpp
     AsyncSubscription_tests.cpp
     DataPoint_tests.cpp
     DataPointBatch_tests.cpp
     Job_tests.cpp
     Logger_tests.cpp
+    Middleware_tests.cpp
+    DaprMiddleware_tests.cpp
+    NativeMiddleware_tests.cpp
     Node_tests.cpp
     ScopedBoolInverter_tests.cpp
     ThreadPool_tests.cpp
@@ -22,13 +26,15 @@ add_dependencies(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME} 
     vehicle-app-sdk
-    gtest_main
     gmock
 )
 
 include(GoogleTest)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../mocks)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+)
 
 if(NOT CMAKE_TOOLCHAIN_FILE)
     gtest_discover_tests(${TARGET_NAME})

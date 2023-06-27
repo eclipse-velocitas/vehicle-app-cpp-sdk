@@ -29,33 +29,25 @@
 
 namespace velocitas {
 
-static constexpr char const* ENV_MIDDLEWARE_TYPE = "SDV_MIDDLEWARE_TYPE";
+// static const std::unordered_map<std::string, Middleware::Type> MIDDLEWARE_NAME_TYPE_MAP = {
+// -    {"", Middleware::Type::DAPR}, // default
+// -    {"dapr", Middleware::Type::DAPR},
+// -    {"native", Middleware::Type::NATIVE},
+// -};
+// -
 
-static const std::unordered_map<std::string, Middleware::Type> MIDDLEWARE_NAME_TYPE_MAP = {
-    {"", Middleware::Type::DAPR}, // default
-    {"dapr", Middleware::Type::DAPR},
-    {"native", Middleware::Type::NATIVE},
-};
-
-static Middleware::Type getMiddlewareType(const std::string& middlewareName) {
-    auto iter = MIDDLEWARE_NAME_TYPE_MAP.find(StringUtils::toLower(middlewareName));
-    if (iter != MIDDLEWARE_NAME_TYPE_MAP.end()) {
-        return iter->second;
-    }
-    return Middleware::Type::UNKNOWN;
-}
+std::string Middleware::getTypeDefiningEnvVarName() { return "SDV_MIDDLEWARE_TYPE"; }
 
 std::unique_ptr<Middleware> Middleware::instantiate() {
-    std::string      middlewareName = getEnvVar(ENV_MIDDLEWARE_TYPE);
-    Middleware::Type middlewareType = getMiddlewareType(middlewareName);
-    switch (middlewareType) {
-    case Type::NATIVE:
-        return std::make_unique<NativeMiddleware>();
-    case Type::DAPR:
+    const std::string middlewareType = StringUtils::toLower(getEnvVar(getTypeDefiningEnvVarName()));
+    if (middlewareType.empty()) {
         return std::make_unique<DaprMiddleware>();
-    default:
-        throw std::runtime_error(fmt::format("Unknown middleware type '{}' -> {}", middlewareName,
-                                             static_cast<int>(middlewareType)));
+    } else if (middlewareType == NativeMiddleware::TYPE_ID) {
+        return std::make_unique<NativeMiddleware>();
+    } else if (middlewareType == DaprMiddleware::TYPE_ID) {
+        return std::make_unique<DaprMiddleware>();
+    } else {
+        throw std::runtime_error(fmt::format("Unknown middleware type '{}'", middlewareType));
     }
 }
 
