@@ -1,6 +1,6 @@
 # Vehicle App C++ SDK
 
-![SDK CI Workflow](https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk/actions/workflows/ci.yml/badge.svg)
+[![SDK CI Workflow](https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk/actions/workflows/ci.yml/badge.svg)]
 [![License: Apache](https://img.shields.io/badge/License-Apache-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 The Vehicle App SDK for C++ allows to create `Vehicle Apps` from the [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/) in the C++ programming language.
