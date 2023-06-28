@@ -102,7 +102,7 @@ protected:
      * @param typeId unique identifier for the type of the concrete middleware
      * implementation
      */
-    Middleware(std::string&& typeId)
+    explicit Middleware(std::string&& typeId)
         : m_typeId(std::move(typeId)) {}
 
 private:

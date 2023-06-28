@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -19,6 +19,7 @@
 
 #include "sdk/DataPointBatch.h"
 #include "sdk/Node.h"
+#include "sdk/middleware/Middleware.h"
 
 #include <string>
 
@@ -43,6 +44,9 @@ public:
 class Service : public Node {
 public:
     using Node::Node;
+
+    std::string          getLocation() const;
+    Middleware::Metadata getMiddlewareMetadata() const;
 };
 
 } // namespace velocitas

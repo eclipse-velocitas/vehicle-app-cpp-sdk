@@ -41,7 +41,7 @@ namespace dapr {
 void waitForSidecar() {
     auto sidecarHttpPort = getEnvVar(ENV_DAPR_HTTP_PORT);
     if (sidecarHttpPort.empty()) {
-        logger().info("dapr: env {} not set. Continuing without sidecar health check ...",
+        logger().warn("dapr: env {} not set. Continuing without sidecar health check ...",
                       ENV_DAPR_HTTP_PORT);
     } else {
         logger().info("dapr: env {} set. Waiting for sidecar at port {} ...", ENV_DAPR_HTTP_PORT,
@@ -57,7 +57,7 @@ void waitForSidecar() {
                 logger().debug("dapr: Health endpoint returned status code: {}, {}",
                                response.status_code, response.text);
             } catch (const std::exception& e) {
-                logger().debug("dapr: Exception occurred during health endpoint: {}", e.what());
+                logger().warn("dapr: Exception occurred requesting health endpoint: {}", e.what());
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }

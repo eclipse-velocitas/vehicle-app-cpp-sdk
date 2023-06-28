@@ -50,6 +50,11 @@ public:
                           "Support for this will be removed soon.");
             optionsBuilder.servers(
                 std::make_shared<mqtt::string_collection>(std::string{brokerUri}));
+            logger().info("Connecting to MQTT broker at '{}' with client-id '{}'", brokerUri,
+                          m_client.get_client_id());
+        } else {
+            logger().info("Connecting to MQTT broker at '{}' with client-id '{}'",
+                          m_client.get_server_uri(), m_client.get_client_id());
         }
 
         m_client.connect(optionsBuilder.finalize())->wait();

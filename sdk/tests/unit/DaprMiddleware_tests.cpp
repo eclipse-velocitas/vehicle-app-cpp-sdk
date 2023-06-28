@@ -35,9 +35,7 @@ TEST_F(Test_DaprMiddleware, getTypeId__typeIdIsDapr) {
     EXPECT_EQ(DaprMiddleware::TYPE_ID, typeId);
 }
 
-// paho_mqtt_cpp throws
-// mqtt::exception with description "MQTT error [-14]: Invalid protocol scheme".
-TEST_F(Test_DaprMiddleware, DISABLED_createPubSubClient__validPointer) {
+TEST_F(Test_DaprMiddleware, createPubSubClient__validPointer) {
     std::shared_ptr<IPubSubClient> pubSubClient;
     EXPECT_NO_THROW(pubSubClient = getCut().createPubSubClient("My Test Id"));
     EXPECT_NE(nullptr, pubSubClient.get());

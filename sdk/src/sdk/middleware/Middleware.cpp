@@ -29,13 +29,6 @@
 
 namespace velocitas {
 
-// static const std::unordered_map<std::string, Middleware::Type> MIDDLEWARE_NAME_TYPE_MAP = {
-// -    {"", Middleware::Type::DAPR}, // default
-// -    {"dapr", Middleware::Type::DAPR},
-// -    {"native", Middleware::Type::NATIVE},
-// -};
-// -
-
 std::string Middleware::getTypeDefiningEnvVarName() { return "SDV_MIDDLEWARE_TYPE"; }
 
 std::unique_ptr<Middleware> Middleware::instantiate() {

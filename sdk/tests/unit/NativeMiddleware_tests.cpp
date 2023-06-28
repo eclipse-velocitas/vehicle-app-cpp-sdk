@@ -35,9 +35,7 @@ TEST_F(Test_NativeMiddleware, getTypeId__typeIdIsNative) {
     EXPECT_EQ(NativeMiddleware::TYPE_ID, typeId);
 }
 
-// paho_mqtt_cpp throws
-// mqtt::exception with description "MQTT error [-14]: Invalid protocol scheme".
-TEST_F(Test_NativeMiddleware, DISABLED_createPubSubClient__validPointer) {
+TEST_F(Test_NativeMiddleware, createPubSubClient__validPointer) {
     std::shared_ptr<IPubSubClient> pubSubClient;
     EXPECT_NO_THROW(pubSubClient = getCut().createPubSubClient("My Test Id"));
     EXPECT_NE(nullptr, pubSubClient.get());

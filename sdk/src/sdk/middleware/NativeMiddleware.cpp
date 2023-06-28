@@ -28,7 +28,7 @@
 namespace velocitas {
 
 static const std::unordered_map<std::string, std::string> DEFAULT_LOCATIONS = {
-    {"mqtt", "mqtt://localhost:1883"},
+    {"mqtt", "tcp://localhost:1883"},
     {"vehicledatabroker", "grpc://localhost:55555"},
 };
 
@@ -50,6 +50,15 @@ std::string NativeMiddleware::getServiceLocation(const std::string& serviceName)
     auto serviceAddress = getEnvVar(envVarName);
     if (serviceAddress.empty()) {
         serviceAddress = getDefaultLocation(serviceName);
+        if (serviceAddress.empty()) {
+            logger().error(
+                "Env variable '{}' defining location of service '{}' not set. Please define!",
+                envVarName, serviceName);
+        } else {
+            logger().warn(
+                "Env variable '{}' defining location of service '{}' not set. Taking default: '{}'",
+                envVarName, serviceName, serviceAddress);
+        }
     }
     return serviceAddress;
 }

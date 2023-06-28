@@ -16,6 +16,7 @@ set(TARGET_NAME "vehicle-app-sdk")
 
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp
+    sdk/Model.cpp
     sdk/Node.cpp
     sdk/QueryBuilder.cpp
     sdk/DataPoint.cpp

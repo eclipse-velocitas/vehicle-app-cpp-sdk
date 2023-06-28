@@ -30,7 +30,7 @@ TEST(Test_Middleware, getTypeDefiningEnvVarName__noneEmptyString) {
 }
 
 TEST(Test_Middleware, getInstantance_envVarGloballySetToNative_TypeIdIsNative) {
-    Middleware& middleware = Middleware::getInstance();
+    const Middleware& middleware = Middleware::getInstance();
     EXPECT_EQ(NativeMiddleware::TYPE_ID, middleware.getTypeId());
 }
 
