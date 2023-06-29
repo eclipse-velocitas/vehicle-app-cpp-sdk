@@ -38,7 +38,7 @@ namespace velocitas {
 
 VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAddress,
                                                  std::string        vdbServiceName) {
-    logger().info("Connecting to data broker service '{}' via {}", vdbServiceName, vdbAddress);
+    logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
     m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
         grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
     Middleware::Metadata metadata = Config::getMiddleware().getMetadata(vdbServiceName);

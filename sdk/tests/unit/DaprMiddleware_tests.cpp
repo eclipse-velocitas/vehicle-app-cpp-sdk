@@ -44,7 +44,7 @@ TEST_F(Test_DaprMiddleware, createPubSubClient__validPointer) {
 TEST_F(Test_DaprMiddleware, getServiceLocation_envDaprGrpcPortSet_contentOfEnvVar) {
     ::setenv("DAPR_GRPC_PORT", "12345", /*overwrite=*/true);
     auto serviceLocation = getCut().getServiceLocation("SomeService");
-    EXPECT_EQ("grpc://localhost:12345", serviceLocation);
+    EXPECT_EQ("localhost:12345", serviceLocation);
 }
 
 TEST_F(Test_DaprMiddleware, getServiceLocation_envDaprGrpcPortNotSet_throwsRuntimeError) {

@@ -76,7 +76,7 @@ std::string DaprMiddleware::getServiceLocation(const std::string& serviceName) c
         throw std::runtime_error(
             fmt::format("{} not set! Cannot connect to Dapr sidecar!", ENV_DAPR_GRPC_PORT));
     }
-    return "grpc://localhost:" + daprSidecarGrpcPort;
+    return "localhost:" + daprSidecarGrpcPort;
 };
 
 Middleware::Metadata DaprMiddleware::getMetadata(const std::string& serviceName) const {

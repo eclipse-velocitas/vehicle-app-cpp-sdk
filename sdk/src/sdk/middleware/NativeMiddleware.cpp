@@ -28,8 +28,8 @@
 namespace velocitas {
 
 static const std::unordered_map<std::string, std::string> DEFAULT_LOCATIONS = {
-    {"mqtt", "tcp://localhost:1883"},
-    {"vehicledatabroker", "grpc://localhost:55555"},
+    {"mqtt", "localhost:1883"},
+    {"vehicledatabroker", "localhost:55555"},
 };
 
 static std::string getDefaultLocation(const std::string& serviceName) {
