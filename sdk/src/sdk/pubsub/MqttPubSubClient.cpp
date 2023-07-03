@@ -42,22 +42,16 @@ public:
     ~MqttPubSubClient() override = default;
 
     void connect() override {
-        auto optionsBuilder = mqtt::connect_options_builder();
+        logger().info("Connecting to MQTT broker at '{}' with client-id '{}'",
+                      m_client.get_server_uri(), m_client.get_client_id());
 
-        auto* const brokerUri = getenv("MQTT_BROKER_URI");
-        if (brokerUri != nullptr) {
-            logger().warn("You're using the deprecated environment variable MQTT_BROKER_URI. "
-                          "Support for this will be removed soon.");
-            optionsBuilder.servers(
-                std::make_shared<mqtt::string_collection>(std::string{brokerUri}));
-            logger().info("Connecting to MQTT broker at '{}' with client-id '{}'", brokerUri,
-                          m_client.get_client_id());
-        } else {
-            logger().info("Connecting to MQTT broker at '{}' with client-id '{}'",
-                          m_client.get_server_uri(), m_client.get_client_id());
+        /* Backward "compatibility warning */
+        if (getenv("MQTT_BROKER_URI") != nullptr) {
+            logger().warn("... ignoring deprecated environment variable MQTT_BROKER_URI -> "
+                          "consider to remove it");
         }
 
-        m_client.connect(optionsBuilder.finalize())->wait();
+        m_client.connect()->wait();
     }
     void disconnect() override { m_client.disconnect()->wait(); }
     bool isConnected() const override { return m_client.is_connected(); }
