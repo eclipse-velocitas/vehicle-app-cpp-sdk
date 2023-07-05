@@ -78,10 +78,10 @@ You can configure the middleware to be used (i.e. either `dapr` or `native`) via
 |            | `SDV_MIDDLEWARE_TYPE`           | `dapr`              | Defines the middleware to be used by the app (either `dapr` or `native`)
 |
 | Dapr       | `SDV_MQTT_ADDRESS`              | `localhost:1883`    | Address of the MQTT broker - needs to be set explicitly as the C++ SDK does not support Dapr PubSub, yet
-|            | `SEATSERVICE_DAPR_APP_ID`       | `seatservice`       | Application id used by Dapr to identifying the application providing the seat service
-|            | `VEHICLEDATABROKER_DAPR_APP_ID` | `vehicledatabroker` | Application id used by Dapr to identifying the application providing the seat service
+|            | `SEATSERVICE_DAPR_APP_ID`       | `seatservice`       | Application id used by Dapr to discover the application providing the seat service
+|            | `VEHICLEDATABROKER_DAPR_APP_ID` | `vehicledatabroker` | Application id used by Dapr to discover the application providing the Kuksa (Vehicle) Data Broker
 |            | (`DAPR_GRPC_PORT`)              | -                   | Usually, `DAPR_GRPC_PORT` and `DAPR_HTTP_PORT` don't need to be configured manually. They are set by `dapr run` when starting the app and its sidecar.
-|            | (`DAPR_HTTP_PORT`)              | -                   | If you need to start your app separately, please make sure these ports are set equally to the app and to its sidecar (see above).
+|            | (`DAPR_HTTP_PORT`)              | -                   | If you need to start your app separately, please make sure these environment variables are available to both the app and its sidecar with identical values (see above).
 |            | 
 | native     | `SDV_MQTT_ADDRESS`              | `localhost:1883`    | Address of the MQTT broker
 |            | `SDV_SEATSERVICE_ADDRESS`       | -                   | Address of the seat service
