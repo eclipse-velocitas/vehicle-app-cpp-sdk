@@ -20,6 +20,7 @@ namespace velocitas::dapr {
  * @brief Wait for the dapr sidecar to become available.
  *
  */
-void waitForSidecar();
+[[deprecated("Don't call - this is handled by middleware internally. Will be removed soon!")]] void
+waitForSidecar();
 
 } // namespace velocitas::dapr

@@ -16,10 +16,10 @@
 
 #include "sdk/VehicleApp.h"
 
-#include "sdk/Config.h"
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/VehicleModelContext.h"
+#include "sdk/middleware/Middleware.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <fmt/core.h>
@@ -41,8 +41,8 @@ VehicleApp::VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
 
 void VehicleApp::run() {
     logger().info("Running App...");
-    Config::getMiddleware().start();
-    Config::getMiddleware().waitUntilReady();
+    Middleware::getInstance().start();
+    Middleware::getInstance().waitUntilReady();
 
     m_pubSubClient->connect();
     onStart();
@@ -59,7 +59,7 @@ void VehicleApp::stop() {
     onStop();
     m_pubSubClient->disconnect();
 
-    Config::getMiddleware().stop();
+    Middleware::getInstance().stop();
 }
 
 AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::string& topic) {

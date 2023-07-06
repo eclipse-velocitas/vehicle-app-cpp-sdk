@@ -16,7 +16,6 @@
 
 #include "sdk/grpc/VehicleDataBrokerClient.h"
 
-#include "sdk/Config.h"
 #include "sdk/DataPointValue.h"
 #include "sdk/Exceptions.h"
 #include "sdk/Job.h"
@@ -25,6 +24,7 @@
 #include "sdk/grpc/AsyncGrpcFacade.h"
 #include "sdk/grpc/BrokerAsyncGrpcFacade.h"
 #include "sdk/grpc/GrpcDataPointValueProvider.h"
+#include "sdk/middleware/Middleware.h"
 
 #include <fmt/core.h>
 #include <grpcpp/channel.h>
@@ -41,7 +41,7 @@ VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAddress,
     logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
     m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
         grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
-    Middleware::Metadata metadata = Config::getMiddleware().getMetadata(vdbServiceName);
+    Middleware::Metadata metadata = Middleware::getInstance().getMetadata(vdbServiceName);
     m_asyncBrokerFacade->setContextModifier([metadata](auto& context) {
         for (auto metadatum : metadata) {
             context.AddMetadata(metadatum.first, metadatum.second);
@@ -50,7 +50,7 @@ VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAddress,
 }
 
 VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbServiceName)
-    : VehicleDataBrokerClient(Config::getMiddleware().getServiceLocation(vdbServiceName),
+    : VehicleDataBrokerClient(Middleware::getInstance().getServiceLocation(vdbServiceName),
                               vdbServiceName) {}
 
 VehicleDataBrokerClient::~VehicleDataBrokerClient() {}

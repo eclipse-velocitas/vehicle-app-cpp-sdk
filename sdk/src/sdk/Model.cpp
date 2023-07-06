@@ -15,16 +15,16 @@
  */
 
 #include "sdk/Model.h"
-#include "sdk/Config.h"
+#include "sdk/middleware/Middleware.h"
 
 namespace velocitas {
 
 std::string Service::getLocation() const {
-    return Config::getMiddleware().getServiceLocation(getName());
+    return Middleware::getInstance().getServiceLocation(getName());
 }
 
 Middleware::Metadata Service::getMiddlewareMetadata() const {
-    return Config::getMiddleware().getMetadata(getName());
+    return Middleware::getInstance().getMetadata(getName());
 }
 
 } // namespace velocitas

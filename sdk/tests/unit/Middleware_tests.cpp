@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "TestBaseUsingEnvVars.h"
 #include <gtest/gtest.h>
 
 #include <cstdlib>
@@ -25,34 +26,36 @@
 
 using namespace velocitas;
 
-TEST(Test_Middleware, getTypeDefiningEnvVarName__noneEmptyString) {
+class Test_Middleware : public TestUsingEnvVars {};
+
+TEST_F(Test_Middleware, getTypeDefiningEnvVarName__noneEmptyString) {
     EXPECT_FALSE(Middleware::getTypeDefiningEnvVarName().empty());
 }
 
-TEST(Test_Middleware, getInstantance_envVarGloballySetToNative_TypeIdIsNative) {
+TEST_F(Test_Middleware, getInstantance_envVarGloballySetToNative_TypeIdIsNative) {
     const Middleware& middleware = Middleware::getInstance();
     EXPECT_EQ(NativeMiddleware::TYPE_ID, middleware.getTypeId());
 }
 
-TEST(Test_Middleware, instantiate_envVarNotSet_typeIdIsDapr) {
+TEST_F(Test_Middleware, instantiate_envVarNotSet_typeIdIsDapr) {
     ::unsetenv(Middleware::getTypeDefiningEnvVarName().c_str());
     auto middleware = Middleware::instantiate();
     EXPECT_EQ(DaprMiddleware::TYPE_ID, middleware->getTypeId());
 }
 
-TEST(Test_Middleware, instantiate_envVarSetToDapr_typeIdIsDapr) {
+TEST_F(Test_Middleware, instantiate_envVarSetToDapr_typeIdIsDapr) {
     ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), DaprMiddleware::TYPE_ID,
              /*overwrite=*/true);
     EXPECT_EQ(DaprMiddleware::TYPE_ID, Middleware::instantiate()->getTypeId());
 }
 
-TEST(Test_Middleware, instantiate_envVarSetToNative_TypeIdIsNative) {
+TEST_F(Test_Middleware, instantiate_envVarSetToNative_TypeIdIsNative) {
     ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), NativeMiddleware::TYPE_ID,
              /*overwrite=*/true);
     EXPECT_EQ(NativeMiddleware::TYPE_ID, Middleware::instantiate()->getTypeId());
 }
 
-TEST(Test_Middleware, instantiate_envVarSetToUndefined_throwRuntimeError) {
+TEST_F(Test_Middleware, instantiate_envVarSetToUndefined_throwRuntimeError) {
     ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), "something undefined",
              /*overwrite=*/true);
     EXPECT_THROW(Middleware::instantiate(), std::runtime_error);

@@ -30,7 +30,22 @@ namespace velocitas {
  */
 class IPubSubClient {
 public:
+    /**
+     * @brief Create an instance of a pub/sub client according to the defined middleware
+     * configuration
+     *
+     * @param clientId used to identify the client at the pub/sub server
+     * @return std::shared_ptr<IPubSubClient> reference to the created pub/sub client
+     */
     static std::shared_ptr<IPubSubClient> createInstance(const std::string& clientId);
+
+    /**
+     * @brief Create a new instance of a MQTT client connecting to a broker at the specified address
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
     static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
                                                          const std::string& clientId);
 

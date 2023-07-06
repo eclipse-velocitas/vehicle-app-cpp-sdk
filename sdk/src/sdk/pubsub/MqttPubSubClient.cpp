@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/Config.h"
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/Status.h"
@@ -98,7 +97,7 @@ private:
 };
 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& clientId) {
-    return Config::getMiddleware().createPubSubClient(clientId);
+    return Middleware::getInstance().createPubSubClient(clientId);
 }
 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,

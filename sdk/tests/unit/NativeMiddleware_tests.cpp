@@ -16,13 +16,12 @@
 
 #include "sdk/middleware/NativeMiddleware.h"
 
+#include "TestBaseUsingEnvVars.h"
 #include <gtest/gtest.h>
-
-#include <cstdlib>
 
 using namespace velocitas;
 
-class Test_NativeMiddleware : public ::testing::Test {
+class Test_NativeMiddleware : public TestUsingEnvVars {
 protected:
     Middleware& getCut() { return m_cut; }
 
@@ -47,7 +46,7 @@ TEST_F(Test_NativeMiddleware, getServiceLocation_envVarNotSet_emptyString) {
 }
 
 TEST_F(Test_NativeMiddleware, getServiceLocation_envVarSet_contentOfEnvVar) {
-    ::setenv("SDV_SOMESERVICE_ADDRESS", "some-service-address", /*overwrite=*/true);
+    setEnvVar("SDV_SOMESERVICE_ADDRESS", "some-service-address");
     auto serviceLocation = getCut().getServiceLocation("SomeService");
     EXPECT_EQ("some-service-address", serviceLocation);
 }

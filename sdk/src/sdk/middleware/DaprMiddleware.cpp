@@ -31,12 +31,12 @@
 
 namespace velocitas {
 
-static constexpr char const* ENV_DAPR_GRPC_PORT = "DAPR_GRPC_PORT";
-static constexpr char const* ENV_DAPR_HTTP_PORT = "DAPR_HTTP_PORT";
+namespace {
 
-static constexpr char const* DAPR_APP_ID_KEY = "dapr-app-id";
+constexpr char const* ENV_DAPR_GRPC_PORT = "DAPR_GRPC_PORT";
+constexpr char const* ENV_DAPR_HTTP_PORT = "DAPR_HTTP_PORT";
 
-namespace dapr {
+constexpr char const* DAPR_APP_ID_KEY = "dapr-app-id";
 
 void waitForSidecar() {
     auto sidecarHttpPort = getEnvVar(ENV_DAPR_HTTP_PORT);
@@ -64,9 +64,13 @@ void waitForSidecar() {
     }
 }
 
+} // anonymous namespace
+
+namespace dapr {
+void waitForSidecar() { velocitas::waitForSidecar(); }
 } // namespace dapr
 
-void DaprMiddleware::waitUntilReady() { dapr::waitForSidecar(); }
+void DaprMiddleware::waitUntilReady() { waitForSidecar(); }
 
 std::string DaprMiddleware::getServiceLocation(const std::string& serviceName) const {
     std::ignore = serviceName;

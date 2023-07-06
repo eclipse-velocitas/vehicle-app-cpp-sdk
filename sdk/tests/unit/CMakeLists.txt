@@ -18,6 +18,7 @@ add_executable(${TARGET_NAME}
     VehicleDataBrokerClient_tests.cpp
     QueryBuilder_tests.cpp
     #PubSub_tests.cpp
+    TestBaseUsingEnvVars.cpp
 )
 
 add_dependencies(${TARGET_NAME} 

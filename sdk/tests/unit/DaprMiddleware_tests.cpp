@@ -16,13 +16,12 @@
 
 #include "sdk/middleware/DaprMiddleware.h"
 
+#include "TestBaseUsingEnvVars.h"
 #include <gtest/gtest.h>
-
-#include <cstdlib>
 
 using namespace velocitas;
 
-class Test_DaprMiddleware : public ::testing::Test {
+class Test_DaprMiddleware : public TestUsingEnvVars {
 protected:
     Middleware& getCut() { return m_cut; }
 
@@ -42,25 +41,25 @@ TEST_F(Test_DaprMiddleware, createPubSubClient__validPointer) {
 }
 
 TEST_F(Test_DaprMiddleware, getServiceLocation_envDaprGrpcPortSet_contentOfEnvVar) {
-    ::setenv("DAPR_GRPC_PORT", "12345", /*overwrite=*/true);
+    setEnvVar("DAPR_GRPC_PORT", "12345");
     auto serviceLocation = getCut().getServiceLocation("SomeService");
     EXPECT_EQ("localhost:12345", serviceLocation);
 }
 
 TEST_F(Test_DaprMiddleware, getServiceLocation_envDaprGrpcPortNotSet_throwsRuntimeError) {
-    ::unsetenv("DAPR_GRPC_PORT");
+    unsetEnvVar("DAPR_GRPC_PORT");
     EXPECT_THROW(getCut().getServiceLocation("UnknownService"), std::runtime_error);
 }
 
 TEST_F(Test_DaprMiddleware, getMetadata_envVarWithApppIdSet_metadataWithContentOfEnvVar) {
-    ::setenv("SOMESERVICE_DAPR_APP_ID", "some-explicit-app-id", /*overwrite=*/true);
+    setEnvVar("SOMESERVICE_DAPR_APP_ID", "some-explicit-app-id");
     Middleware::Metadata metadata         = getCut().getMetadata("SomeService");
     Middleware::Metadata expectedMetadata = {{"dapr-app-id", "some-explicit-app-id"}};
     EXPECT_EQ(expectedMetadata, metadata);
 }
 
 TEST_F(Test_DaprMiddleware, getMetadata_envVarWithApppIdNotSet_metadataWithDefaultAppId) {
-    ::unsetenv("SOMESERVICE_DAPR_APP_ID");
+    unsetEnvVar("SOMESERVICE_DAPR_APP_ID");
     Middleware::Metadata metadata         = getCut().getMetadata("SomeService");
     Middleware::Metadata expectedMetadata = {{"dapr-app-id", "someservice"}};
     EXPECT_EQ(expectedMetadata, metadata);

@@ -48,17 +48,19 @@ static std::string getServiceEnvVarName(const std::string& serviceName) {
 std::string NativeMiddleware::getServiceLocation(const std::string& serviceName) const {
     auto envVarName     = getServiceEnvVarName(serviceName);
     auto serviceAddress = getEnvVar(envVarName);
-    if (serviceAddress.empty()) {
-        serviceAddress = getDefaultLocation(serviceName);
-        if (serviceAddress.empty()) {
-            logger().error(
-                "Env variable '{}' defining location of service '{}' not set. Please define!",
-                envVarName, serviceName);
-        } else {
-            logger().warn(
-                "Env variable '{}' defining location of service '{}' not set. Taking default: '{}'",
-                envVarName, serviceName, serviceAddress);
-        }
+    if (!serviceAddress.empty()) {
+        return serviceAddress;
+    }
+
+    serviceAddress = getDefaultLocation(serviceName);
+    if (!serviceAddress.empty()) {
+        logger().warn(
+            "Env variable '{}' defining location of service '{}' not set. Taking default: '{}'",
+            envVarName, serviceName, serviceAddress);
+    } else {
+        logger().error(
+            "Env variable '{}' defining location of service '{}' not set. Please define!",
+            envVarName, serviceName);
     }
     return serviceAddress;
 }
