@@ -17,8 +17,6 @@
 #include "TestBaseUsingEnvVars.h"
 #include <gtest/gtest.h>
 
-#include <cstdlib>
-
 #define private public
 #include "sdk/middleware/DaprMiddleware.h"
 #include "sdk/middleware/Middleware.h"
@@ -38,25 +36,22 @@ TEST_F(Test_Middleware, getInstantance_envVarGloballySetToNative_TypeIdIsNative)
 }
 
 TEST_F(Test_Middleware, instantiate_envVarNotSet_typeIdIsDapr) {
-    ::unsetenv(Middleware::getTypeDefiningEnvVarName().c_str());
+    unsetEnvVar(Middleware::getTypeDefiningEnvVarName());
     auto middleware = Middleware::instantiate();
     EXPECT_EQ(DaprMiddleware::TYPE_ID, middleware->getTypeId());
 }
 
 TEST_F(Test_Middleware, instantiate_envVarSetToDapr_typeIdIsDapr) {
-    ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), DaprMiddleware::TYPE_ID,
-             /*overwrite=*/true);
+    setEnvVar(Middleware::getTypeDefiningEnvVarName(), DaprMiddleware::TYPE_ID);
     EXPECT_EQ(DaprMiddleware::TYPE_ID, Middleware::instantiate()->getTypeId());
 }
 
 TEST_F(Test_Middleware, instantiate_envVarSetToNative_TypeIdIsNative) {
-    ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), NativeMiddleware::TYPE_ID,
-             /*overwrite=*/true);
+    setEnvVar(Middleware::getTypeDefiningEnvVarName(), NativeMiddleware::TYPE_ID);
     EXPECT_EQ(NativeMiddleware::TYPE_ID, Middleware::instantiate()->getTypeId());
 }
 
 TEST_F(Test_Middleware, instantiate_envVarSetToUndefined_throwRuntimeError) {
-    ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), "something undefined",
-             /*overwrite=*/true);
+    setEnvVar(Middleware::getTypeDefiningEnvVarName(), "something undefined");
     EXPECT_THROW(Middleware::instantiate(), std::runtime_error);
 }

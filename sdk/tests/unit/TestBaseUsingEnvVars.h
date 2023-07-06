@@ -25,6 +25,12 @@
 
 namespace velocitas {
 
+/**
+ * @brief Base class for test cases where you need to set or unset environment variables
+ *
+ * It provides a setEnvVar and a unsetEnvVar function to be used for this by your test case.
+ * After the test case is finished the original state of the changed variables is restored. *
+ */
 class TestUsingEnvVars : public ::testing::Test {
 public:
     ~TestUsingEnvVars() = default;
@@ -32,10 +38,25 @@ public:
 protected:
     TestUsingEnvVars() = default;
 
-    // Tears down the test fixture.
+    /**
+     * @brief Restores the state of the set and unset variables as it was before executing the test
+     * case
+     */
     virtual void TearDown() override;
 
+    /**
+     * @brief Set the an environment variable to the specified value
+     *
+     * @param varName  Name of the variable to be set
+     * @param content  Value to be set
+     */
     void setEnvVar(const std::string& varName, const std::string& content);
+
+    /**
+     * @brief Unset a possibly existing environment variable
+     *
+     * @param varName  Name of the variable to be unset
+     */
     void unsetEnvVar(const std::string& varName);
 
 private:

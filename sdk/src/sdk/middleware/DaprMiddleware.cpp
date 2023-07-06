@@ -41,26 +41,28 @@ constexpr char const* DAPR_APP_ID_KEY = "dapr-app-id";
 void waitForSidecar() {
     auto sidecarHttpPort = getEnvVar(ENV_DAPR_HTTP_PORT);
     if (sidecarHttpPort.empty()) {
-        logger().warn("dapr: env {} not set. Continuing without sidecar health check ...",
-                      ENV_DAPR_HTTP_PORT);
-    } else {
-        logger().info("dapr: env {} set. Waiting for sidecar at port {} ...", ENV_DAPR_HTTP_PORT,
-                      sidecarHttpPort);
-        for (auto success = false; !success;) {
-            try {
-                constexpr auto STATUS_NO_CONTENT{204};
-                logger().info("dapr: Requesting side car health endpoint...");
+        logger().error("dapr: env {} not set. Cannot check presence of sidecar!",
+                       ENV_DAPR_HTTP_PORT);
+        throw std::runtime_error(
+            fmt::format("env {} not set! Cannot check presence of sidecar!", ENV_DAPR_HTTP_PORT));
+    }
 
-                const auto response = cpr::Get(
-                    cpr::Url(fmt::format("http://localhost:{}/v1.0/healthz", sidecarHttpPort)));
-                success = response.status_code == STATUS_NO_CONTENT;
-                logger().debug("dapr: Health endpoint returned status code: {}, {}",
-                               response.status_code, response.text);
-            } catch (const std::exception& e) {
-                logger().warn("dapr: Exception occurred requesting health endpoint: {}", e.what());
-            }
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+    logger().info("dapr: env {} set. Waiting for sidecar at port {} ...", ENV_DAPR_HTTP_PORT,
+                  sidecarHttpPort);
+    for (auto success = false; !success;) {
+        try {
+            constexpr auto STATUS_NO_CONTENT{204};
+            logger().info("dapr: Requesting side car health endpoint...");
+
+            const auto response = cpr::Get(
+                cpr::Url(fmt::format("http://localhost:{}/v1.0/healthz", sidecarHttpPort)));
+            success = response.status_code == STATUS_NO_CONTENT;
+            logger().debug("dapr: Health endpoint returned status code: {}, {}",
+                           response.status_code, response.text);
+        } catch (const std::exception& e) {
+            logger().warn("dapr: Exception occurred requesting health endpoint: {}", e.what());
         }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
