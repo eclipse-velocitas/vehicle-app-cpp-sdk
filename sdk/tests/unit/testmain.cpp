@@ -25,7 +25,7 @@ using namespace velocitas;
 class SetupMiddlewareSingleton : public ::testing::Environment {
 public:
     void SetUp() override {
-        ::setenv(Middleware::getTypeDefiningEnvVarName().c_str(), NativeMiddleware::TYPE_ID,
+        ::setenv(Middleware::TYPE_DEFINING_ENV_VAR_NAME, NativeMiddleware::TYPE_ID,
                  /*overwrite=*/true);
         std::ignore = Middleware::getInstance();
     }

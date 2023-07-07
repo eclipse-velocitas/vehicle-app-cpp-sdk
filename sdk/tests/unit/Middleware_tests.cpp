@@ -26,32 +26,28 @@ using namespace velocitas;
 
 class Test_Middleware : public TestUsingEnvVars {};
 
-TEST_F(Test_Middleware, getTypeDefiningEnvVarName__noneEmptyString) {
-    EXPECT_FALSE(Middleware::getTypeDefiningEnvVarName().empty());
-}
-
-TEST_F(Test_Middleware, getInstantance_envVarGloballySetToNative_TypeIdIsNative) {
+TEST_F(Test_Middleware, getInstance_envVarGloballySetToNative_typeIdIsNative) {
     const Middleware& middleware = Middleware::getInstance();
     EXPECT_EQ(NativeMiddleware::TYPE_ID, middleware.getTypeId());
 }
 
-TEST_F(Test_Middleware, instantiate_envVarNotSet_typeIdIsDapr) {
-    unsetEnvVar(Middleware::getTypeDefiningEnvVarName());
+TEST_F(Test_Middleware, instantiate_envVarNotSet_typeIdDefaultsToDapr) {
+    unsetEnvVar(Middleware::TYPE_DEFINING_ENV_VAR_NAME);
     auto middleware = Middleware::instantiate();
     EXPECT_EQ(DaprMiddleware::TYPE_ID, middleware->getTypeId());
 }
 
 TEST_F(Test_Middleware, instantiate_envVarSetToDapr_typeIdIsDapr) {
-    setEnvVar(Middleware::getTypeDefiningEnvVarName(), DaprMiddleware::TYPE_ID);
+    setEnvVar(Middleware::TYPE_DEFINING_ENV_VAR_NAME, DaprMiddleware::TYPE_ID);
     EXPECT_EQ(DaprMiddleware::TYPE_ID, Middleware::instantiate()->getTypeId());
 }
 
-TEST_F(Test_Middleware, instantiate_envVarSetToNative_TypeIdIsNative) {
-    setEnvVar(Middleware::getTypeDefiningEnvVarName(), NativeMiddleware::TYPE_ID);
+TEST_F(Test_Middleware, instantiate_envVarSetToNative_typeIdIsNative) {
+    setEnvVar(Middleware::TYPE_DEFINING_ENV_VAR_NAME, NativeMiddleware::TYPE_ID);
     EXPECT_EQ(NativeMiddleware::TYPE_ID, Middleware::instantiate()->getTypeId());
 }
 
 TEST_F(Test_Middleware, instantiate_envVarSetToUndefined_throwRuntimeError) {
-    setEnvVar(Middleware::getTypeDefiningEnvVarName(), "something undefined");
+    setEnvVar(Middleware::TYPE_DEFINING_ENV_VAR_NAME, "something undefined");
     EXPECT_THROW(Middleware::instantiate(), std::runtime_error);
 }

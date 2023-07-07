@@ -40,7 +40,8 @@ public:
     static std::shared_ptr<IPubSubClient> createInstance(const std::string& clientId);
 
     /**
-     * @brief Create a new instance of a MQTT client connecting to a broker at the specified address
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address
      *
      * @param brokerUri address of the MQTT broker to connect to
      * @param clientId used to identify the client at the MQTT broker

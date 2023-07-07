@@ -53,14 +53,14 @@ TEST_F(Test_DaprMiddleware, getServiceLocation_envDaprGrpcPortNotSet_throwsRunti
 
 TEST_F(Test_DaprMiddleware, getMetadata_envVarWithApppIdSet_metadataWithContentOfEnvVar) {
     setEnvVar("SOMESERVICE_DAPR_APP_ID", "some-explicit-app-id");
-    Middleware::Metadata metadata         = getCut().getMetadata("SomeService");
-    Middleware::Metadata expectedMetadata = {{"dapr-app-id", "some-explicit-app-id"}};
+    const Middleware::Metadata metadata         = getCut().getMetadata("SomeService");
+    const Middleware::Metadata expectedMetadata = {{"dapr-app-id", "some-explicit-app-id"}};
     EXPECT_EQ(expectedMetadata, metadata);
 }
 
 TEST_F(Test_DaprMiddleware, getMetadata_envVarWithApppIdNotSet_metadataWithDefaultAppId) {
     unsetEnvVar("SOMESERVICE_DAPR_APP_ID");
-    Middleware::Metadata metadata         = getCut().getMetadata("SomeService");
-    Middleware::Metadata expectedMetadata = {{"dapr-app-id", "someservice"}};
+    const Middleware::Metadata metadata         = getCut().getMetadata("SomeService");
+    const Middleware::Metadata expectedMetadata = {{"dapr-app-id", "someservice"}};
     EXPECT_EQ(expectedMetadata, metadata);
 }

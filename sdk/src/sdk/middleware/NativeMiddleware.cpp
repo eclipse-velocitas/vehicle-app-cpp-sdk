@@ -21,6 +21,8 @@
 #include "sdk/Utils.h"
 #include "sdk/dapr/DaprSupport.h"
 
+#include "fmt/core.h"
+
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -57,12 +59,14 @@ std::string NativeMiddleware::getServiceLocation(const std::string& serviceName)
         logger().warn(
             "Env variable '{}' defining location of service '{}' not set. Taking default: '{}'",
             envVarName, serviceName, serviceAddress);
-    } else {
-        logger().error(
-            "Env variable '{}' defining location of service '{}' not set. Please define!",
-            envVarName, serviceName);
+        return serviceAddress;
     }
-    return serviceAddress;
+
+    const std::string errorMsg{
+        fmt::format("Env variable '{}' defining location of service '{}' not set. Please define!",
+                    envVarName, serviceName)};
+    logger().error(errorMsg);
+    throw std::runtime_error(errorMsg);
 }
 
 std::shared_ptr<IPubSubClient>

@@ -21,7 +21,7 @@
 
 namespace velocitas {
 
-void TestUsingEnvVars::checkToStoreVariableState(const std::string& varName) {
+void TestUsingEnvVars::preserveEnvVarState(const std::string& varName) {
     if (m_envVarsToRestore.count(varName) > 0 || m_envVarsToUnset.count(varName) > 0) {
         return;
     }
@@ -35,12 +35,12 @@ void TestUsingEnvVars::checkToStoreVariableState(const std::string& varName) {
 }
 
 void TestUsingEnvVars::setEnvVar(const std::string& varName, const std::string& content) {
-    checkToStoreVariableState(varName);
+    preserveEnvVarState(varName);
     ::setenv(varName.c_str(), content.c_str(), /*replace=*/true);
 }
 
 void TestUsingEnvVars::unsetEnvVar(const std::string& varName) {
-    checkToStoreVariableState(varName);
+    preserveEnvVarState(varName);
     ::unsetenv(varName.c_str());
 }
 

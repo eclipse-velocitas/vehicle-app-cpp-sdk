@@ -25,14 +25,11 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 
 namespace velocitas {
 
-std::string Middleware::getTypeDefiningEnvVarName() { return "SDV_MIDDLEWARE_TYPE"; }
-
 std::unique_ptr<Middleware> Middleware::instantiate() {
-    const std::string middlewareType = StringUtils::toLower(getEnvVar(getTypeDefiningEnvVarName()));
+    const std::string middlewareType = StringUtils::toLower(getEnvVar(TYPE_DEFINING_ENV_VAR_NAME));
     if (middlewareType.empty()) {
         return std::make_unique<DaprMiddleware>();
     } else if (middlewareType == NativeMiddleware::TYPE_ID) {

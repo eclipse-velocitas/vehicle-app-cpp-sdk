@@ -31,6 +31,12 @@ class IPubSubClient;
 class Middleware {
 public:
     /**
+     * @brief Defines the name of the environment variable used to determine the middleware type to
+     * be used.
+     */
+    static constexpr char const* TYPE_DEFINING_ENV_VAR_NAME = "SDV_MIDDLEWARE_TYPE";
+
+    /**
      * @brief Returns a reference to a singelton instance of a concrete middleware class
      *
      * @return Middleware&
@@ -39,8 +45,6 @@ public:
         static std::unique_ptr<Middleware> singleton = instantiate();
         return *singleton;
     }
-
-    static std::string getTypeDefiningEnvVarName();
 
     /**
      * @brief Get the type identifier of the concrete middleware implementation
@@ -67,6 +71,7 @@ public:
      *
      * @param serviceName Name of the service to get the loaction description for
      * @return std::string representing the location description
+     * @throws std::runtime_error if the service location cannot be determined
      */
     virtual std::string getServiceLocation(const std::string& serviceName) const = 0;
 

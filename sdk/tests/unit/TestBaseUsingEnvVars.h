@@ -60,7 +60,7 @@ protected:
     void unsetEnvVar(const std::string& varName);
 
 private:
-    void checkToStoreVariableState(const std::string& varName);
+    void preserveEnvVarState(const std::string& varName);
 
     std::unordered_map<std::string, std::string> m_envVarsToRestore;
     std::unordered_set<std::string>              m_envVarsToUnset;

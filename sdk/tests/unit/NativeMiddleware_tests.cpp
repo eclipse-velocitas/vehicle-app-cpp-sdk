@@ -40,9 +40,8 @@ TEST_F(Test_NativeMiddleware, createPubSubClient__validPointer) {
     EXPECT_NE(nullptr, pubSubClient.get());
 }
 
-TEST_F(Test_NativeMiddleware, getServiceLocation_envVarNotSet_emptyString) {
-    auto serviceLocation = getCut().getServiceLocation("UnknownService");
-    EXPECT_EQ("", serviceLocation);
+TEST_F(Test_NativeMiddleware, getServiceLocation_envVarNotSet_throwsRuntimeError) {
+    EXPECT_THROW(getCut().getServiceLocation("UnknownService"), std::runtime_error);
 }
 
 TEST_F(Test_NativeMiddleware, getServiceLocation_envVarSet_contentOfEnvVar) {

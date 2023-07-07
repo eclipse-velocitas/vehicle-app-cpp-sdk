@@ -38,7 +38,7 @@ std::string getEnvVar(const std::string& varName, const std::string& defaultValu
 class StringUtils final {
 public:
     /**
-     * @brief Convert the passed string to lowercase
+     * @brief Return the passed string converted to lowercase
      *
      * @param str string to be converted
      * @return std::string having all uppercase letters contained in the passed string converted to
@@ -47,7 +47,7 @@ public:
     static std::string toLower(const std::string& str);
 
     /**
-     * @brief Convert the passed string to uppercase
+     * @brief Return the passed string converted to uppercase
      *
      * @param str string to be converted
      * @return std::string having all lowercase letters contained in the passed string converted to
