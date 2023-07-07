@@ -42,7 +42,7 @@ protected:
      * @brief Restores the state of the set and unset variables as it was before executing the test
      * case
      */
-    virtual void TearDown() override;
+    void TearDown() override;
 
     /**
      * @brief Set the an environment variable to the specified value
