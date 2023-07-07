@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,6 +18,8 @@
 #include "sdk/Logger.h"
 #include "sdk/Status.h"
 #include "sdk/ThreadPool.h"
+
+#include "sdk/middleware/Middleware.h"
 
 #include <mqtt/async_client.h>
 #include <unordered_map>
@@ -39,15 +41,16 @@ public:
     ~MqttPubSubClient() override = default;
 
     void connect() override {
-        auto* const brokerUri      = getenv("MQTT_BROKER_URI");
-        auto        optionsBuilder = mqtt::connect_options_builder();
+        logger().info("Connecting to MQTT broker at '{}' with client-id '{}'",
+                      m_client.get_server_uri(), m_client.get_client_id());
 
-        if (brokerUri != nullptr) {
-            optionsBuilder.servers(
-                std::make_shared<mqtt::string_collection>(std::string{brokerUri}));
+        /* Backward "compatibility warning */
+        if (getenv("MQTT_BROKER_URI") != nullptr) {
+            logger().warn("... ignoring deprecated environment variable MQTT_BROKER_URI -> "
+                          "consider to remove it");
         }
 
-        m_client.connect(optionsBuilder.finalize())->wait();
+        m_client.connect()->wait();
     }
     void disconnect() override { m_client.disconnect()->wait(); }
     bool isConnected() const override { return m_client.is_connected(); }
@@ -92,6 +95,10 @@ private:
     mqtt::async_client m_client;
     TopicMap_t         m_subscriberMap;
 };
+
+std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& clientId) {
+    return Middleware::getInstance().createPubSubClient(clientId);
+}
 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,
                                                              const std::string& clientId) {

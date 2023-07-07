@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -20,6 +20,7 @@
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace velocitas {
@@ -33,8 +34,8 @@ class BrokerAsyncGrpcFacade;
  */
 class VehicleDataBrokerClient : public IVehicleDataBrokerClient {
 public:
-    explicit VehicleDataBrokerClient(const std::string& vdbAddress, std::string vdbAppId);
-    explicit VehicleDataBrokerClient(const std::string& vdbAppId);
+    explicit VehicleDataBrokerClient(const std::string& vdbAddress, std::string vdbServiceName);
+    explicit VehicleDataBrokerClient(const std::string& vdbserviceName);
 
     ~VehicleDataBrokerClient() override;
 
@@ -52,11 +53,9 @@ public:
     AsyncSubscriptionPtr_t<DataPointReply> subscribe(const std::string& query) override;
 
 private:
-    static std::string getVdbEndpointAddress();
-
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
-    std::string                            m_vdbAppId;
 };
+
 } // namespace velocitas
 
 #endif // VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H

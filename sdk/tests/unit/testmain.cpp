@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -14,13 +14,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/grpc/VehicleDataBrokerClient.h"
+#include "sdk/middleware/Middleware.h"
+#include "sdk/middleware/NativeMiddleware.h"
 
+#include <cstdlib>
 #include <gtest/gtest.h>
 
 using namespace velocitas;
 
-TEST(Test_VehicleDataBrokerClient, getDatapoints_noConnection_throwsAsyncException) {
-    auto client = VehicleDataBrokerClient("vehicledatabroker");
-    EXPECT_THROW(client.getDatapoints({})->await(), AsyncException);
+class SetupMiddlewareSingleton : public ::testing::Environment {
+public:
+    void SetUp() override {
+        ::setenv(Middleware::TYPE_DEFINING_ENV_VAR_NAME, NativeMiddleware::TYPE_ID,
+                 /*overwrite=*/true);
+        std::ignore = Middleware::getInstance();
+    }
+};
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    std::ignore = testing::AddGlobalTestEnvironment(new SetupMiddlewareSingleton);
+    return RUN_ALL_TESTS();
 }

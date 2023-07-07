@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -77,7 +77,7 @@ public:
      *
      * @return std::shared_ptr<IVehicleDataBrokerClient>
      */
-    static std::shared_ptr<IVehicleDataBrokerClient> createInstance(const std::string& vdbAppId);
+    static std::shared_ptr<IVehicleDataBrokerClient> createInstance(const std::string& serviceName);
 
 protected:
     IVehicleDataBrokerClient() = default;

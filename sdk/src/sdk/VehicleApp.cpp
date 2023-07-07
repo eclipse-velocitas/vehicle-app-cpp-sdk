@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -19,7 +19,7 @@
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/VehicleModelContext.h"
-#include "sdk/dapr/DaprSupport.h"
+#include "sdk/middleware/Middleware.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <fmt/core.h>
@@ -40,12 +40,11 @@ VehicleApp::VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
 }
 
 void VehicleApp::run() {
-    m_pubSubClient->connect();
-
     logger().info("Running App...");
+    Middleware::getInstance().start();
+    Middleware::getInstance().waitUntilReady();
 
-    dapr::waitForSidecar();
-
+    m_pubSubClient->connect();
     onStart();
 
     // TODO: Fix busy waiting
@@ -55,10 +54,12 @@ void VehicleApp::run() {
 }
 
 void VehicleApp::stop() {
-    onStop();
-
-    m_pubSubClient->disconnect();
     logger().info("Stopping App...");
+
+    onStop();
+    m_pubSubClient->disconnect();
+
+    Middleware::getInstance().stop();
 }
 
 AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::string& topic) {

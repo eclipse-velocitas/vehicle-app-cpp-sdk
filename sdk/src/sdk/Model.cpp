@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -14,13 +14,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/grpc/VehicleDataBrokerClient.h"
+#include "sdk/Model.h"
+#include "sdk/middleware/Middleware.h"
 
-#include <gtest/gtest.h>
+namespace velocitas {
 
-using namespace velocitas;
-
-TEST(Test_VehicleDataBrokerClient, getDatapoints_noConnection_throwsAsyncException) {
-    auto client = VehicleDataBrokerClient("vehicledatabroker");
-    EXPECT_THROW(client.getDatapoints({})->await(), AsyncException);
+std::string Service::getLocation() const {
+    return Middleware::getInstance().getServiceLocation(getName());
 }
+
+Middleware::Metadata Service::getMiddlewareMetadata() const {
+    return Middleware::getInstance().getMetadata(getName());
+}
+
+} // namespace velocitas

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -30,25 +30,45 @@ namespace example {
 class SetDataPointsApp : public velocitas::VehicleApp {
 public:
     SetDataPointsApp()
-        : VehicleApp(
-              velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
-              velocitas::IPubSubClient::createInstance("localhost:1883", "SetDataPointsApp")) {}
+        : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
+                     velocitas::IPubSubClient::createInstance("SetDataPointsApp")) {}
 
     void onStart() override {
-        velocitas::logger().info("Setting data points!");
+        // set a single data point
+        try {
+            velocitas::logger().info("Setting single data point ...");
+
+            Vehicle.Speed.set(100.0F)->await();
+
+            velocitas::logger().info("Setting single data point successfully done.");
+        } catch (velocitas::AsyncException& e) {
+            velocitas::logger().error("Error on setting single data point: {}", e.what());
+        }
 
         // set multiple data points at the same time
-        Vehicle.setMany()
-            .add(Vehicle.Cabin.Seat.Row1.Pos1.Position, 1000)
-            .add(Vehicle.Cabin.Seat.Row1.Pos2.Position, 1000)
-            .apply()
-            ->await();
+        try {
+            velocitas::logger().info("Setting batch of data points ...");
 
-        // set a single data point
-        Vehicle.Speed.set(100.0F)->await();
+            auto result = Vehicle.setMany()
+                              .add(Vehicle.Cabin.Seat.Row1.Pos1.Position, 1000)
+                              .add(Vehicle.Cabin.Seat.Row1.Pos2.Position, 1000)
+                              .apply()
+                              ->await();
 
-        // get a single data point
-        Vehicle.Cabin.Seat.Row1.Pos1.Position.get()->await();
+            if (result.empty()) {
+                velocitas::logger().info("Setting batch of data points successfully done.");
+            } else {
+                velocitas::logger().error("Some data points of batch could not be set:");
+                for (auto datapointError : result) {
+                    velocitas::logger().error("    '{}' -> {}", datapointError.first,
+                                              datapointError.second);
+                }
+            }
+        } catch (velocitas::AsyncException& e) {
+            velocitas::logger().error("Error on setting batch of data points: {}", e.what());
+        }
+
+        velocitas::logger().info("Done. (Press Ctrl+C to terminate the app.)");
     }
 
 private:

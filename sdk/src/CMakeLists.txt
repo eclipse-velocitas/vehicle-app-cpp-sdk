@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Robert Bosch GmbH
+# Copyright (c) 2022-2023 Robert Bosch GmbH
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -15,10 +15,8 @@
 set(TARGET_NAME "vehicle-app-sdk")
 
 add_library(${TARGET_NAME}
-    sdk/vdb/DataPointBatch.cpp
-
     sdk/VehicleApp.cpp
-    sdk/pubsub/MqttPubSubClient.cpp
+    sdk/Model.cpp
     sdk/Node.cpp
     sdk/QueryBuilder.cpp
     sdk/DataPoint.cpp
@@ -28,12 +26,18 @@ add_library(${TARGET_NAME}
     sdk/Utils.cpp
     sdk/Logger.cpp
 
-    sdk/dapr/DaprSupport.cpp
     sdk/grpc/GrpcClient.cpp
     sdk/grpc/AsyncGrpcFacade.cpp
     sdk/grpc/BrokerAsyncGrpcFacade.cpp
     sdk/grpc/GrpcDataPointValueProvider.cpp
     sdk/grpc/VehicleDataBrokerClient.cpp
+
+    sdk/middleware/Middleware.cpp
+    sdk/middleware/DaprMiddleware.cpp
+    sdk/middleware/NativeMiddleware.cpp
+
+    sdk/pubsub/MqttPubSubClient.cpp
+    sdk/vdb/DataPointBatch.cpp
 )
 
 include_directories(

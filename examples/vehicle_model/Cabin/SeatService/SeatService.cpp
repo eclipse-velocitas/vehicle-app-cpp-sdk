@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Robert Bosch GmbH
+ * Copyright (c) 2022-2023 Robert Bosch GmbH
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -81,11 +81,15 @@ Status toInternalStatus(grpc::Status status) {
 }
 
 SeatService::SeatService(Model* parent)
-    : Service("VehicleService", parent) {
+    : Service("SeatService", parent) {
     m_asyncGrpcFacade = std::make_shared<SeatServiceAsyncGrpcFacade>(
-        grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
-    m_asyncGrpcFacade->setContextModifier(
-        [this](auto& context) { context.AddMetadata("dapr-app-id", getName()); });
+        grpc::CreateChannel(getLocation(), grpc::InsecureChannelCredentials()));
+    Middleware::Metadata metadata = getMiddlewareMetadata();
+    m_asyncGrpcFacade->setContextModifier([metadata](auto& context) {
+        for (auto metadatum : metadata) {
+            context.AddMetadata(metadatum.first, metadatum.second);
+        }
+    });
 }
 
 AsyncResultPtr_t<VoidResult> SeatService::move(const SeatService::Seat& seat) {
