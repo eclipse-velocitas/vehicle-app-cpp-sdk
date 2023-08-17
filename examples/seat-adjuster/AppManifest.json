@@ -1,26 +1,32 @@
-[
-    {
-        "name": "seatadjuster",
-        "vehicleModel": {
-            "src": "https://github.com/COVESA/vehicle_signal_specification/releases/download/v3.0/vss_rel_3.0.json",
-            "datapoints": [
-                {
-                    "path": "Vehicle.Cabin.Seat.Row1.Pos1.Position",
-                    "required": "true",
-                    "access": "read"
-                },
-                {
-                    "path": "Vehicle.Speed",
-                    "required": "true",
-                    "access": "read"
+{
+    "name": "seatadjuster",
+    "interfaces": [
+        {
+            "type": "vehicle-signal-interface",
+            "config": {
+                "src": "https://github.com/COVESA/vehicle_signal_specification/releases/download/v3.0/vss_rel_3.0.json",
+                "datapoints": {
+                    "required": [
+                        {
+                            "path": "Vehicle.Cabin.Seat.Row1.Pos1.Position",
+                            "access": "read"
+                        },
+                        {
+                            "path": "Vehicle.Speed",
+                            "access": "read"
+                        }
+                    ]
                 }
-            ]
+            }
         },
-        "runtime": [
-            "grpc://sdv.databroker.v1.Broker/GetDatapoints",
-            "grpc://sdv.databroker.v1.Broker/Subscribe",
-            "grpc://sdv.edge.comfort.seats.v1.Seats/MoveComponent",
-            "mqtt"
-        ]
-    }
-]
+        {
+            "type": "pubsub",
+            "config": {
+                "reads": [ "seatadjuster/setPosition/request" ],
+                "writes": [
+                    "seatadjuster/setPosition/response", "seatadjuster/currentPosition"
+                ]
+            }
+        }
+    ]
+}
