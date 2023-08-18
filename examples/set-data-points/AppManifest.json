@@ -1,4 +1,5 @@
 {
+    "manifestVersion": "v3",
     "name": "set-data-points",
     "interfaces": [
         {

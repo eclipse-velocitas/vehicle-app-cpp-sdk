@@ -1,4 +1,5 @@
 {
+    "manifestVersion": "v3",
     "name": "seatadjuster",
     "interfaces": [
         {
@@ -24,7 +25,8 @@
             "config": {
                 "reads": [ "seatadjuster/setPosition/request" ],
                 "writes": [
-                    "seatadjuster/setPosition/response", "seatadjuster/currentPosition"
+                    "seatadjuster/setPosition/response", 
+                    "seatadjuster/currentPosition"
                 ]
             }
         }
