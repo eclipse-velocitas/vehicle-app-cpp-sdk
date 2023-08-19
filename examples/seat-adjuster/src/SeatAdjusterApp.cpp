@@ -52,28 +52,11 @@ void SeatAdjusterApp::onStart() {
         ->onError(
             [this](auto&& status) { onErrorDatapoint(std::forward<decltype(status)>(status)); });
 
-    // TODO: Do we need some kind of functionality to ensure that the Model
-    // in the VDB is actually the same as the one we are using? i.e. does it
-    // have the data points we are expecting???
-    // m_vehicleModel->verify();
-
     subscribeToTopic(TOPIC_REQUEST)
         ->onItem([this](auto&& item) {
             onSetPositionRequestReceived(std::forward<decltype(item)>(item));
         })
         ->onError([this](auto&& status) { onErrorTopic(std::forward<decltype(status)>(status)); });
-}
-
-void SeatAdjusterApp::onSeatMovementRequested(const velocitas::VoidResult& status, int requestId,
-                                              float requestedPosition) {
-    velocitas::logger().info("Seat movement request processed...");
-
-    nlohmann::json respData(
-        {{JSON_FIELD_REQUEST_ID, requestId},
-         {JSON_FIELD_RESULT,
-          {{JSON_FIELD_MESSAGE, fmt::format("Called MoveComponent {}", requestedPosition)},
-           {JSON_FIELD_STATUS, STATUS_OK}}}});
-    publishToTopic(TOPIC_RESPONSE, respData.dump());
 }
 
 void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
@@ -93,46 +76,41 @@ void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
     const auto desiredSeatPosition = jsonData[JSON_FIELD_POSITION].get<int>();
     const auto requestId           = jsonData[JSON_FIELD_REQUEST_ID].get<int>();
 
-    const auto vehicleSpeed = m_vehicleModel->Speed.get()->await().value();
+    nlohmann::json respData({{JSON_FIELD_REQUEST_ID, requestId}, {JSON_FIELD_RESULT, {}}});
+    const auto     vehicleSpeed = m_vehicleModel->Speed.get()->await().value();
     if (vehicleSpeed == 0) {
         velocitas::vehicle::cabin::SeatService::SeatLocation location{1, 1};
-        m_vehicleModel->Cabin.SeatService
-            .moveComponent(location, velocitas::vehicle::cabin::SeatService::Component::Base,
-                           desiredSeatPosition)
-            ->onResult([this, requestId, desiredSeatPosition](auto&& result) {
-                onSeatMovementRequested(std::forward<decltype(result)>(result), requestId,
-                                        desiredSeatPosition);
-            })
-            ->onError([this](auto&& status) { onError(std::forward<decltype(status)>(status)); });
+        m_vehicleModel->Cabin.Seat.Row1.Pos1.Position.set(desiredSeatPosition)->await();
+
+        respData[JSON_FIELD_RESULT][JSON_FIELD_STATUS] = STATUS_OK;
+        respData[JSON_FIELD_RESULT][JSON_FIELD_MESSAGE] =
+            fmt::format("Set Seat position to: {}", desiredSeatPosition);
     } else {
         const auto errorMsg = fmt::format(
             "Not allowed to move seat because vehicle speed is {} and not 0", vehicleSpeed);
         velocitas::logger().info(errorMsg);
 
-        nlohmann::json respData(
-            {{JSON_FIELD_REQUEST_ID, requestId},
-             {JSON_FIELD_RESULT,
-              {{JSON_FIELD_STATUS, STATUS_FAIL}, {JSON_FIELD_MESSAGE, errorMsg}}}});
-        publishToTopic(TOPIC_RESPONSE, respData.dump());
+        respData[JSON_FIELD_RESULT][JSON_FIELD_STATUS]  = STATUS_FAIL;
+        respData[JSON_FIELD_RESULT][JSON_FIELD_MESSAGE] = errorMsg;
     }
+
+    publishToTopic(TOPIC_RESPONSE, respData.dump());
 }
 
 void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointReply& dataPoints) {
-    const auto seatPositionValue =
-        dataPoints.get(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position)->value();
-
+    nlohmann::json jsonResponse;
     try {
-        nlohmann::json jsonResponse({JSON_FIELD_POSITION, seatPositionValue});
-
-        publishToTopic(TOPIC_CURRENT_POSITION, jsonResponse.dump());
+        const auto seatPositionValue =
+            dataPoints.get(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position)->value();
+        jsonResponse[JSON_FIELD_POSITION] = seatPositionValue;
     } catch (std::exception& exception) {
         velocitas::logger().error("Unable to get Current Seat Position, Exception: {}",
                                   exception.what());
-        nlohmann::json jsonResponse(
-            {{JSON_FIELD_STATUS, STATUS_FAIL}, {JSON_FIELD_MESSAGE, exception.what()}});
-
-        publishToTopic(TOPIC_CURRENT_POSITION, jsonResponse.dump());
+        jsonResponse[JSON_FIELD_STATUS]  = STATUS_FAIL;
+        jsonResponse[JSON_FIELD_MESSAGE] = exception.what();
     }
+
+    publishToTopic(TOPIC_CURRENT_POSITION, jsonResponse.dump());
 }
 
 void SeatAdjusterApp::onError(const velocitas::Status& status) {

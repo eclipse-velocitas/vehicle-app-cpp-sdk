@@ -113,7 +113,7 @@ fi
 # Enable Conan revision handling to enable pinning googleapis recipe revision (see conanfile.py)
 export CONAN_REVISIONS_ENABLED=1
 
-conan install \
+conan install --update \
     -pr:h ../.conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" ..
