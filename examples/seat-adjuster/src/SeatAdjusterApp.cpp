@@ -79,7 +79,6 @@ void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
     nlohmann::json respData({{JSON_FIELD_REQUEST_ID, requestId}, {JSON_FIELD_RESULT, {}}});
     const auto     vehicleSpeed = m_vehicleModel->Speed.get()->await().value();
     if (vehicleSpeed == 0) {
-        velocitas::vehicle::cabin::SeatService::SeatLocation location{1, 1};
         m_vehicleModel->Cabin.Seat.Row1.Pos1.Position.set(desiredSeatPosition)->await();
 
         respData[JSON_FIELD_RESULT][JSON_FIELD_STATUS] = STATUS_OK;
