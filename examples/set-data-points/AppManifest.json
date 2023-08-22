@@ -1,29 +1,28 @@
-[
-    {
-        "name": "set-data-points",
-        "vehicleModel": {
-            "src": "https://github.com/COVESA/vehicle_signal_specification/releases/download/v3.0/vss_rel_3.0.json",
-            "datapoints": [
-                {
-                    "path": "Vehicle.Cabin.Seat.Row1.Pos1.Position",
-                    "required": "true",
-                    "access": "write"
-                },
-                {
-                    "path": "Vehicle.Cabin.Seat.Row1.Pos2.Position",
-                    "required": "true",
-                    "access": "write"
-                },
-                {
-                    "path": "Vehicle.Speed",
-                    "required": "true",
-                    "access": "write"
+{
+    "manifestVersion": "v3",
+    "name": "set-data-points",
+    "interfaces": [
+        {
+            "type": "vehicle-signal-interface",
+            "config": {
+                "src": "https://github.com/COVESA/vehicle_signal_specification/releases/download/v3.0/vss_rel_3.0.json",
+                "datapoints": {
+                    "required": [
+                        {
+                            "path": "Vehicle.Cabin.Seat.Row1.Pos1.Position",
+                            "access": "write"
+                        },
+                        {
+                            "path": "Vehicle.Cabin.Seat.Row1.Pos2.Position",
+                            "access": "write"
+                        },
+                        {
+                            "path": "Vehicle.Speed",
+                            "access": "write"
+                        }
+                    ]
                 }
-            ]
-        },
-        "runtime": [
-            "grpc://sdv.databroker.v1.Broker/GetDatapoints",
-            "grpc://sdv.databroker.v1.Broker/SetDatapoints"
-        ]
-    }
-]
+            }
+        }
+    ]
+}
