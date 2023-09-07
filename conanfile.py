@@ -43,13 +43,6 @@ class VehicleAppCppSdkConan(ConanFile):
     generators = "cmake"
     author = "Robert Bosch GmbH"
 
-    scm = {
-        "type": "git",  # Use "type": "svn", if local repo is managed using SVN
-        "subfolder": "vehicle-app-sdk",
-        "url": "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk",
-        "revision": "main"
-    }
-
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
