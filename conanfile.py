@@ -56,7 +56,7 @@ class VehicleAppCppSdkConan(ConanFile):
     default_options = {"shared": False, "fPIC": True}
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "build.sh", "build/conanbuildinfo.cmake", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*"
+    exports_sources = "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*"
 
     def config_options(self):
         if self.settings.os == "Linux":
@@ -76,7 +76,7 @@ class VehicleAppCppSdkConan(ConanFile):
             "build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
         subprocess.call(
-            f"cd ../.. && ./build.sh {option} --no-examples", shell=True)
+            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples", shell=True)
 
     def package(self):
         subprocess.call("pwd", shell=True)
