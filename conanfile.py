@@ -19,7 +19,6 @@ import subprocess
 
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
-    version = "prep-rel-0.4.0"
     license = "Apache-2.0"
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
@@ -50,6 +49,10 @@ class VehicleAppCppSdkConan(ConanFile):
 
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*"
+    
+    def set_version(self):
+        git = tools.Git(folder=".")
+        self.version = git.get_tag() if git.get_tag() is not None else git.get_branch()
 
     def config_options(self):
         if self.settings.os == "Linux":
