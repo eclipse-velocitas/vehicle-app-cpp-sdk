@@ -47,18 +47,18 @@ class VehicleAppCppSdkConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
-    
+
     exports = "version.txt"
 
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
-    
+
     def set_version(self):
         try:
             git = tools.Git(folder=".")
             tag = git.get_tag()
             if tag is not None:
-                version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}$")
+                version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
                 if version_tag_pattern.match(tag):
                     tag = tag[1:] # cut off initial v if a semver tag
 
