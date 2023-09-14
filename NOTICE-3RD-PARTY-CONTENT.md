@@ -13,7 +13,7 @@
 |distlib|0.3.7|Python Software Foundation License|
 |distro|1.8.0|Apache 2.0|
 |fasteners|0.18|Apache 2.0|
-|filelock|3.12.3|The Unlicense (Unlicense)|
+|filelock|3.12.4|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
 |identify|2.5.28|MIT|
 |idna|3.4|BSD|
@@ -35,7 +35,6 @@
 |six|1.16.0|MIT|
 |toml|0.10.2|MIT|
 |tqdm|4.66.1|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
-|typing-extensions|4.7.1|Python Software Foundation License|
 |urllib3|1.26.16|MIT|
 |virtualenv|20.24.5|MIT|
 ## Workflows
