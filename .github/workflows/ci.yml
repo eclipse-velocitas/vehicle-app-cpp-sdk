@@ -30,14 +30,27 @@ on:
 jobs:
   conan-package:
     runs-on: ubuntu-22.04
-    name: "Build, Test and Lint"
+    name: "Check Conan package"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: install prerequisites
+        run: |
+          sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
+          pip3 install -r requirements.txt
+
       - name: Export conan package
         run: |
           conan export .
+
+      - name: Check if conan package is installed
+        run: |
+          RECIPE_EXISTS=$(conan search vehicle-app-sdk | grep "Existing package recipes:")
+
+          if [ "$RECIPE_EXISTS" == "" ]; then
+            exit -1
+          fi
 
 
   build-and-publish:

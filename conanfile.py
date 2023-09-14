@@ -56,6 +56,8 @@ class VehicleAppCppSdkConan(ConanFile):
         try:
             git = tools.Git(folder=".")
             version = git.get_tag() if git.get_tag() is not None else git.get_branch()
+            if version == "HEAD (no branch)":
+                version = git.get_commit()
             open("./version.txt", mode="w", encoding="utf-8").write(version)
             self.version = version
         except:
