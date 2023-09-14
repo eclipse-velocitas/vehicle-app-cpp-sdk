@@ -33,4 +33,5 @@ COPY . /sdk
 RUN --mount=type=cache,target=/root/.conan
 
 RUN cd /sdk && \
-    ./install_dependencies.sh -r --build-all-deps
+    ./install_dependencies.sh -r --build-all-deps && \
+    cd / && rm -rf /sdk
