@@ -65,3 +65,6 @@ conan_imports_manifest.txt
 
 # conan home
 .conan_home
+
+# auto-generated SDK version
+version.txt
