@@ -103,8 +103,8 @@ void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointReply& dat
             dataPoints.get(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position)->value();
         jsonResponse[JSON_FIELD_POSITION] = seatPositionValue;
     } catch (std::exception& exception) {
-        velocitas::logger().error("Unable to get Current Seat Position, Exception: {}",
-                                  exception.what());
+        velocitas::logger().warn("Unable to get Current Seat Position, Exception: {}",
+                                 exception.what());
         jsonResponse[JSON_FIELD_STATUS]  = STATUS_FAIL;
         jsonResponse[JSON_FIELD_MESSAGE] = exception.what();
     }

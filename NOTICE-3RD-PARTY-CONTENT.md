@@ -13,9 +13,9 @@
 |distlib|0.3.7|Python Software Foundation License|
 |distro|1.8.0|Apache 2.0|
 |fasteners|0.18|Apache 2.0|
-|filelock|3.12.2|The Unlicense (Unlicense)|
+|filelock|3.12.4|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.5.27|MIT|
+|identify|2.5.28|MIT|
 |idna|3.4|BSD|
 |Jinja2|3.1.2|New BSD|
 |lxml|4.9.3|New BSD|
@@ -36,7 +36,7 @@
 |toml|0.10.2|MIT|
 |tqdm|4.66.1|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
 |urllib3|1.26.16|MIT|
-|virtualenv|20.24.3|MIT|
+|virtualenv|20.24.5|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
