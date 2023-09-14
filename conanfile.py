@@ -16,6 +16,7 @@ from conans import ConanFile, tools
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 import subprocess
 import os
+import re
 
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
@@ -55,7 +56,13 @@ class VehicleAppCppSdkConan(ConanFile):
     def set_version(self):
         try:
             git = tools.Git(folder=".")
-            version = git.get_tag() if git.get_tag() is not None else git.get_branch()
+            tag = git.get_tag()
+            if tag is not None:
+                version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}$")
+                if version_tag_pattern.match(tag):
+                    tag = tag[1:] # cut off initial v if a semver tag
+
+            version = tag if tag is not None else git.get_branch()
             if version == "HEAD (no branch)":
                 version = git.get_commit()
             open("./version.txt", mode="w", encoding="utf-8").write(version)
