@@ -53,13 +53,18 @@ class VehicleAppCppSdkConan(ConanFile):
     exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
     
     def set_version(self):
-        if os.path.isfile("./version.txt"):
-            self.version = open("./version.txt", encoding="utf-8").read().strip()
-        else:
+        try:
             git = tools.Git(folder=".")
             version = git.get_tag() if git.get_tag() is not None else git.get_branch()
             open("./version.txt", mode="w", encoding="utf-8").write(version)
             self.version = version
+        except:
+            print("Not a git repository, reading version from static file...")
+            if os.path.isfile("./version.txt"):
+                self.version = open("./version.txt", encoding="utf-8").read().strip()
+            else:
+                raise FileNotFoundError("Missing version.txt!")
+                
 
     def config_options(self):
         if self.settings.os == "Linux":
