@@ -50,7 +50,7 @@ class VehicleAppCppSdkConan(ConanFile):
     exports = "version.txt"
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
+    exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
     
     def set_version(self):
         if os.path.isfile("./version.txt"):
