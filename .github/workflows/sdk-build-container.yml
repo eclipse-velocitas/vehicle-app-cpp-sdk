@@ -60,6 +60,7 @@ jobs:
         run: |
           pip install conan==1.60.2
           conan export .
+          cat ./version.txt
 
       - name: "Build image"
         id: image_build
@@ -70,3 +71,4 @@ jobs:
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          context: .
