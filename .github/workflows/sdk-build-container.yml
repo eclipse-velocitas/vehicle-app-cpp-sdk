@@ -65,7 +65,7 @@ jobs:
         id: get-tag
         shell: bash
         run: |
-          BASE=${{ steps.github-repository-name-case-adjusted.outputs.lowercase }}/app-builder
+          BASE=ghcr.io/${{ steps.github-repository-name-case-adjusted.outputs.lowercase }}/app-builder
           TAGS=$BASE:${{ github.sha }}
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             TAGS="${TAGS},$BASE:latest"
@@ -76,7 +76,7 @@ jobs:
         id: container_output
         shell: bash
         run: |
-          if [ ${{ github.event }} = "push" ]; then
+          if [ ${{ github.event_name }} = "push" ]; then
             echo "type=registry" >> $GITHUB_OUTPUT
           else
             echo "type=oci,dest=./container.tar" >> $GITHUB_OUTPUT
