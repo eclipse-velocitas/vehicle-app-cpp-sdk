@@ -94,7 +94,7 @@ class VehicleAppCppSdkConan(ConanFile):
             "build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
         subprocess.call(
-            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples", shell=True)
+            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
 
     def package(self):
         subprocess.call("pwd", shell=True)

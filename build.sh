@@ -28,7 +28,8 @@ Arguments:
 -d, --debug                      Builds the target(s) in debug mode.
 -r, --release                    Builds the target(s) in release mode.
 -t <name>, --target <name>       Builds only the target <name> instead of all targets. 
--no-examples                     Disables the build of the SDK examples. 
+-no-examples                     Disables the build of the SDK examples.
+-no-tests                        Disables the build of the SDK tests.
 -s, --static                     Links all dependencies statically. 
 -x, --cross <arch>               Cross compiles for the specified architecture.
 -h, --help                       Shows this help.
@@ -41,6 +42,7 @@ HOST_ARCH=${BUILD_ARCH}
 BUILD_TARGET=all
 STATIC_BUILD=OFF
 SDK_BUILD_EXAMPLES=ON
+SDK_BUILD_TESTS=ON
 
 POSITIONAL_ARGS=()
 
@@ -65,6 +67,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-examples)
       SDK_BUILD_EXAMPLES=OFF
+      shift
+      ;;
+    --no-tests)
+      SDK_BUILD_TESTS=OFF
       shift
       ;;
     -x|--cross)

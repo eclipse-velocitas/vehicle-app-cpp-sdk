@@ -56,12 +56,6 @@ jobs:
           images: |
             ghcr.io/${{ github.repository }}
 
-      - name: Generate version.txt
-        run: |
-          pip install conan==1.60.2
-          conan export .
-          cat ./version.txt
-
       - name: "Build image"
         id: image_build
         uses: docker/build-push-action@v3.2.0
