@@ -65,11 +65,11 @@ jobs:
         id: get-tag
         shell: bash
         run: |
-          TAGS=${{ github.sha }}
+          BASE=${{ steps.github-repository-name-case-adjusted.outputs.lowercase }}/app-builder
+          TAGS=$BASE:${{ github.sha }}
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            TAGS="${TAGS},latest"
+            TAGS="${TAGS},$BASE:latest"
           fi
-          echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - name: Set container output type
@@ -86,9 +86,7 @@ jobs:
         id: image_build
         uses: docker/build-push-action@v3.2.0
         with:
-          imageName: ghcr.io/${{ steps.github-repository-name-case-adjusted.outputs.lowercase }}/app-builder
-          imageTag: ${{ steps.get-tag.outputs.tags }}
-          push: true
+          tags: ${{ steps.get-tag.outputs.tags }}
           file: sdk/Dockerfile
           platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
