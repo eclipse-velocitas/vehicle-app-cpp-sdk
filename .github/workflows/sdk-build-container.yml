@@ -76,7 +76,7 @@ jobs:
         id: container_output
         shell: bash
         run: |
-          if [ ${{ github.event }} = "push" ]; then
+          if [ ${{ github.event_name }} = "push" ]; then
             echo "type=registry" >> $GITHUB_OUTPUT
           else
             echo "type=oci,dest=./container.tar" >> $GITHUB_OUTPUT
