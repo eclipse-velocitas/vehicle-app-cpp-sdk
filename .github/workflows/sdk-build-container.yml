@@ -65,7 +65,7 @@ jobs:
         id: get-tag
         shell: bash
         run: |
-          BASE=${{ steps.github-repository-name-case-adjusted.outputs.lowercase }}/app-builder
+          BASE=ghcr.io/${{ steps.github-repository-name-case-adjusted.outputs.lowercase }}/app-builder
           TAGS=$BASE:${{ github.sha }}
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             TAGS="${TAGS},$BASE:latest"

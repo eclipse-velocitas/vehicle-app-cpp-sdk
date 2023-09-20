@@ -35,9 +35,9 @@ jobs:
           timeoutSeconds: 5400
           intervalSeconds: 120
 
-  initialize-matrix:
+  retag-images:
     runs-on: ubuntu-latest
-    name: Setting up build matrix
+    name: Re-Tag images
     needs: [wait-for-images]
 
     steps:
