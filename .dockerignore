@@ -1,6 +1,5 @@
 .conan_home
 .devcontainer
-.git
 .github
 .vscode
 **/build

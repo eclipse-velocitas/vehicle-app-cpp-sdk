@@ -14,7 +14,7 @@
 
 # syntax = docker/dockerfile:1.3
 
-FROM alpine:3.16.0
+FROM alpine:3.18.3
 
 RUN apk update && \
     apk add ninja && \
@@ -26,6 +26,9 @@ RUN apk update && \
     apk add linux-headers && \ 
     apk add perl && \
     apk add bash && \
+    apk add git && \
+    apk add nodejs && \
+    apk add npm && \
     pip3 install "conan==1.60.2"
 
 COPY . /sdk
@@ -35,3 +38,8 @@ RUN --mount=type=cache,target=/root/.conan
 RUN cd /sdk && \
     ./install_dependencies.sh -r --build-all-deps && \
     cd / && rm -rf /sdk
+
+# install CLI
+RUN git clone https://github.com/eclipse-velocitas/cli.git && \ 
+    cd cli && \
+    npm i && npm run build && npx oclif manifest && npm i -g .
