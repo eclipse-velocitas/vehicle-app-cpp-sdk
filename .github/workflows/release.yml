@@ -32,7 +32,7 @@ jobs:
         with:
           checkName: Building image
           token: ${{ secrets.GITHUB_TOKEN }}
-          timeoutSeconds: 5400
+          timeoutSeconds: 270000
           intervalSeconds: 120
 
   retag-images:
