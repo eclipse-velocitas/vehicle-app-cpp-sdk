@@ -44,7 +44,7 @@
 |actions/setup-java|v1.4.4|MIT License|
 |actions/upload-artifact|v3|MIT License|
 |ASzc/change-string-case-action|v5|ISC License|
-|docker/build-push-action|v3.2.0|Apache License 2.0|
+|docker/build-push-action|v5|Apache License 2.0|
 |docker/login-action|v2|Apache License 2.0|
 |docker/metadata-action|v4|Apache License 2.0|
 |docker/setup-buildx-action|v2|Apache License 2.0|
