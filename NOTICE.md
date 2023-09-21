@@ -64,4 +64,4 @@ they are given here (manually added) for time being:
 |paho-mqtt-cpp|1.2.0|EPL 1.0 AND EDL 1.0|
 |protobuf|3.21.9|Google License|
 |re2|20220601|BSD-3-Clause|
-|zlib|1.2.13|zlib/libpng license|
+|zlib|1.3|zlib/libpng license|
