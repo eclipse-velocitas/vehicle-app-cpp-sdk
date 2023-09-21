@@ -38,7 +38,8 @@ class VehicleAppCppSdkConan(ConanFile):
         ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
         ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
         ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
-        ("protobuf/3.21.9@#515ceb0a1653cf84363d9968b812d6be")
+        ("protobuf/3.21.9@#515ceb0a1653cf84363d9968b812d6be"),
+        ("zlib/1.3")
     ]
     generators = "cmake"
     author = "Robert Bosch GmbH"
