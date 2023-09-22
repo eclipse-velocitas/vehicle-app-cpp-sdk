@@ -14,7 +14,7 @@
 
 # syntax = docker/dockerfile:1.3
 
-FROM alpine:3.18.3
+FROM alpine:3.16.0
 
 RUN apk update && \
     apk add ninja && \
