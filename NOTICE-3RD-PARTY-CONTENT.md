@@ -25,7 +25,7 @@
 |patch-ng|1.17.4|MIT|
 |platformdirs|4.0.0|MIT|
 |pluginbase|1.0.1|BSD|
-|pre-commit|2.20.0|MIT|
+|pre-commit|3.5.0|MIT|
 |pygments|2.17.2|Simplified BSD|
 |PyJWT|2.8.0|MIT|
 |python-dateutil|2.8.2|Apache 2.0<br/>BSD|
