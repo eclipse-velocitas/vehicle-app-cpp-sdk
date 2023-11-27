@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Robert Bosch GmbH and Microsoft Corporation
+# Copyright (c) 2022-2023 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -21,11 +21,11 @@ spec:
   type: pubsub.mqtt
   version: v1
   metadata:
-  - name: url
-    value: "mqtt://localhost:1883"
-  - name: qos
-    value: 1
-  - name: retain
-    value: "false"
-  - name: cleanSession
-    value: "false"
+    - name: url
+      value: "mqtt://localhost:1883"
+    - name: qos
+      value: 1
+    - name: retain
+      value: "false"
+    - name: cleanSession
+      value: "false"

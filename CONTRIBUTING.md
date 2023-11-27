@@ -61,7 +61,7 @@ In this project, [conan](https://conan.io) is used to manage the C++ dependencie
 Please make sure any file you newly create contains a proper license header like this:
 
 ```python
-# Copyright (c) 2022 Robert Bosch GmbH
+# Copyright (c) 2022 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
