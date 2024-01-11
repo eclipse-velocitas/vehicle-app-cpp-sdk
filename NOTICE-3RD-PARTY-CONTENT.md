@@ -4,39 +4,38 @@
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
 |bottle|0.12.25|MIT|
-|certifi|2023.7.22|Mozilla Public License 2.0|
+|certifi|2023.11.17|Mozilla Public License 2.0|
 |cfgv|3.4.0|MIT|
-|charset-normalizer|3.2.0|MIT|
+|charset-normalizer|3.3.2|MIT|
 |colorama|0.4.6|BSD|
 |conan|1.60.2|MIT|
 |cpplint|1.6.1|New BSD|
-|distlib|0.3.7|Python Software Foundation License|
+|distlib|0.3.8|Python Software Foundation License|
 |distro|1.8.0|Apache 2.0|
 |fasteners|0.19|Apache 2.0|
-|filelock|3.12.4|The Unlicense (Unlicense)|
+|filelock|3.13.1|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.5.29|MIT|
-|idna|3.4|BSD|
-|Jinja2|3.1.2|New BSD|
-|lxml|4.9.3|New BSD|
+|identify|2.5.33|MIT|
+|idna|3.6|BSD|
+|Jinja2|3.1.3|New BSD|
+|lxml|5.1.0|New BSD|
 |MarkupSafe|2.1.3|New BSD|
 |node-semver|0.6.1|MIT|
 |nodeenv|1.8.0|BSD|
 |patch-ng|1.17.4|MIT|
-|platformdirs|3.10.0|MIT|
+|platformdirs|4.1.0|MIT|
 |pluginbase|1.0.1|BSD|
-|pre-commit|2.20.0|MIT|
-|Pygments|2.16.1|Simplified BSD|
+|pre-commit|3.5.0|MIT|
+|pygments|2.17.2|Simplified BSD|
 |PyJWT|2.8.0|MIT|
 |python-dateutil|2.8.2|Apache 2.0<br/>BSD|
 |PyYAML|6.0.1|MIT|
 |requests|2.31.0|Apache 2.0|
 |setuptools|58.1.0|MIT|
 |six|1.16.0|MIT|
-|toml|0.10.2|MIT|
 |tqdm|4.66.1|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
-|urllib3|1.26.16|MIT|
-|virtualenv|20.24.5|MIT|
+|urllib3|1.26.18|MIT|
+|virtualenv|20.25.0|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|

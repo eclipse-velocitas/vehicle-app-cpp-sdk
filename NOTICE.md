@@ -14,7 +14,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Contributors
 
-* Robert Bosch GmbH - initial API and implementation
+* Robert Bosch GmbH
 
 ## Third-party Content
 
