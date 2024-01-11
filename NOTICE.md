@@ -15,7 +15,6 @@ SPDX-License-Identifier: Apache-2.0
 ## Contributors
 
 * Robert Bosch GmbH
-* Microsoft Corporation
 
 ## Third-party Content
 

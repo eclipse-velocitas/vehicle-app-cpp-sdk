@@ -17,7 +17,7 @@
 |gcovr|5.2|BSD|
 |identify|2.5.33|MIT|
 |idna|3.6|BSD|
-|Jinja2|3.1.2|New BSD|
+|Jinja2|3.1.3|New BSD|
 |lxml|5.1.0|New BSD|
 |MarkupSafe|2.1.3|New BSD|
 |node-semver|0.6.1|MIT|
