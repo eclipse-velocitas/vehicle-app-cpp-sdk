@@ -27,7 +27,7 @@ function print_help() {
 Installs the Conan dependencies of the Vehicle App AND the Vehicle App SDK
 into the local Conan cache. Has to be re-executed whenever any conanfile.txt
 or conanfile.py is updated. By default, dependencies are installed in release
-mode. 
+mode.
 
 Arguments:
 -d, --debug         Installs all dependencies in debug mode.
@@ -113,7 +113,7 @@ fi
 # Enable Conan revision handling to enable pinning googleapis recipe revision (see conanfile.py)
 export CONAN_REVISIONS_ENABLED=1
 
-conan install --update \
+conan install \
     -pr:h .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \

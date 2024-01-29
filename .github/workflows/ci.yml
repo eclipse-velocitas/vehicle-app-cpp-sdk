@@ -33,7 +33,7 @@ jobs:
     name: "Check Conan package"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: install prerequisites
         run: |
@@ -52,16 +52,15 @@ jobs:
             exit -1
           fi
 
-
   build-and-publish:
     runs-on: ubuntu-22.04
     name: "Build, Test and Lint"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Clone vehicle_model repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: eclipse-velocitas/vehicle-model-cpp
           path: "./app/vehicle_model"
