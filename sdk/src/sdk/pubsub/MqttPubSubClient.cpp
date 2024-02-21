@@ -21,6 +21,7 @@
 
 #include "sdk/middleware/Middleware.h"
 
+#include "mqtt/connect_options.h"
 #include <mqtt/async_client.h>
 #include <mqtt/connect_options.h>
 #include <unordered_map>

@@ -12,6 +12,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from conan import ConanFile
+from conan.tools.layout import basic_layout
+from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy
+import subprocess
 import os
 import re
 import subprocess
@@ -54,7 +59,7 @@ class VehicleAppCppSdkConan(ConanFile):
         ("zlib/1.3.1"),
         ("zstd/1.5.5"),
     ]
-    generators = "cmake"
+    generators = "CMakeToolchain","CMakeDeps"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
@@ -69,18 +74,24 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def set_version(self):
         try:
-            git = tools.Git(folder=".")
-            tag = git.get_tag()
-            if tag is not None:
+            tag = subprocess.run(["git", "tag", "--points-at", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+            version=""
+            if tag:
                 version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
                 if version_tag_pattern.match(tag):
                     tag = tag[1:] # cut off initial v if a semver tag
+                version = tag
 
-            version = tag if tag is not None else git.get_branch()
-            if version == "HEAD (no branch)":
-                version = git.get_commit()
-            self.version = version.replace("/", "_")
-            open("./version.txt", mode="w", encoding="utf-8").write(self.version)
+            # if no tag, use branch name or commit hash
+            if not version:
+                version = subprocess.run(["git", "symbolic-ref", "-q", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+            if not version:
+                version = subprocess.run(["git", "rev-parse", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+
+            # / is not allowed in conan version
+            version = version.replace("/", ".")
+            open("./version.txt", mode="w", encoding="utf-8").write(version)
+            self.version = version
         except:
             print("Not a git repository, reading version from static file...")
             if os.path.isfile("./version.txt"):
@@ -94,7 +105,10 @@ class VehicleAppCppSdkConan(ConanFile):
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self, src_folder="sdk")
+        basic_layout(self, src_folder="sdk")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         #tc = CMakeToolchain(self)
@@ -107,7 +121,7 @@ class VehicleAppCppSdkConan(ConanFile):
             "build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
         subprocess.call(
-            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
+            f"cd .. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
 
     def package(self):
         self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)

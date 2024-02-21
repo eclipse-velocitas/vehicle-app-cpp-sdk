@@ -13,7 +13,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set(TARGET_NAME "vehicle-app-sdk")
-
+find_package(fmt REQUIRED)
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp
     sdk/Model.cpp
@@ -43,22 +43,26 @@ add_library(${TARGET_NAME}
     sdk/vdb/grpc/sdv_databroker_v1/BrokerClient.cpp
     sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.cpp
 )
-
 include_directories(
     ${CMAKE_BINARY_DIR}/gens
     ../include
     .
 )
 
+    # find_package(cpr)
+    # find_package(fmt)
+    # find_package(gRPC)
+    # find_package(grpc-proto)
+    # find_package(nlohmann_json)
+    # find_package(PahoMqttCpp)
+    # find_package(eclipse-paho-mqtt-c)
+    # find_package(protobuf)
+    # find_package(ZLIB)
+
 add_dependencies(${TARGET_NAME}
     vehicle-app-sdk-generated-grpc
 )
 
 target_link_libraries(${TARGET_NAME}
-    CONAN_PKG::grpc
-    CONAN_PKG::cpr
-    CONAN_PKG::fmt
-    CONAN_PKG::paho-mqtt-cpp
-    CONAN_PKG::nlohmann_json
     vehicle-app-sdk-generated-grpc
 )

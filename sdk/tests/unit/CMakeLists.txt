@@ -39,6 +39,7 @@ add_executable(${TARGET_NAME}
 
 add_dependencies(${TARGET_NAME}
     vehicle-app-sdk
+    ${CONANDEPS_LEGACY}
 )
 
 target_link_libraries(${TARGET_NAME}

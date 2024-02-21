@@ -1,4 +1,3 @@
-# This file is maintained by velocitas CLI, do not modify manually. Change settings in .velocitas.json
 # Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
@@ -31,54 +30,56 @@ on:
 jobs:
   conan-package:
     runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
-    name: Check Conan package
-    strategy:
-      matrix:
-        host: ["linux_x86_64"]
-      fail-fast: false
-
-
+    name: "Check Conan package"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Fix dubious ownership
-        run: |
-          git config --global --add safe.directory $( pwd )
 
       - name: install prerequisites
         run: |
           sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
           pip3 install -r requirements.txt
 
-      - name: Create conan package
+      - name: Export conan package
         run: |
-          conan create --build=missing -pr:b ./.conan/profiles/linux_x86_64_release -pr:h ./.conan/profiles/${{ matrix.host }}_release . ci/testing
+          conan export .
+
+      - name: Check if conan package is installed
+        run: |
+          RECIPE_EXISTS=$(conan list vehicle-app-sdk | grep "ERROR")
+
+          if [[ -n $RECIPE_EXISTS ]]; then
+            exit -1
+          fi
 
   build-and-publish:
     runs-on: ubuntu-22.04
     name: "Build, Test and Lint"
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fix dubious ownership
-        run: |
-          git config --global --add safe.directory $( pwd )
+      - name: Clone vehicle_model repository
+        uses: actions/checkout@v4
+        with:
+          repository: eclipse-velocitas/vehicle-model-cpp
+          path: "./app/vehicle_model"
 
       - name: install prerequisites
         run: |
           sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
           pip3 install -r requirements.txt
+
+      - name: Set up GCC
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 11
 
       - name: Install dependencies
         run: ./install_dependencies.sh -r
 
       - name: build
-        run: ./build.sh -r --cov
+        run: ./build.sh -r
 
       - name: unittests
         run: build/bin/sdk_utests
@@ -108,4 +109,4 @@ jobs:
       #    path: code-coverage-results.md
 
       - name: Run Linters
-        uses: pre-commit/action@v3.0.1
+        uses: pre-commit/action@v3.0.0
