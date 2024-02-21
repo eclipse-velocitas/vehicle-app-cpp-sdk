@@ -60,9 +60,10 @@ public:
      * @param password password to get access to the MQTT broker
      * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
      */
-    static std::shared_ptr<IPubSubClient>
-    IPubSubClient::createInstance(const std::string& brokerUri, const std::string& clientId,
-                                  const std::string& username, const std::string& password);
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId,
+                                                         const std::string& username,
+                                                         const std::string& password);
 
     /**
      * @brief Create a new instance of an MQTT client connecting to a broker at the specified
@@ -73,9 +74,9 @@ public:
      * @param token used to get access to the MQTT broker
      * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
      */
-    static std::shared_ptr<IPubSubClient>
-    IPubSubClient::createInstance(const std::string& brokerUri, const std::string& clientId,
-                                  const std::string& token);
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId,
+                                                         const std::string& token);
 
     /**
      * @brief Create a new instance of an MQTT client connecting to a broker at the specified
@@ -89,11 +90,11 @@ public:
      * @param privateKeyPath The file containing the client's private key.
      * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
      */
-    static std::shared_ptr<IPubSubClient>
-    IPubSubClient::createInstance(const std::string& brokerUri, const std::string& clientId,
-                                  const std::string& trustStorePath,
-                                  const std::string& keyStorePath,
-                                  const std::string& privateKeyPath);
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId,
+                                                         const std::string& trustStorePath,
+                                                         const std::string& keyStorePath,
+                                                         const std::string& privateKeyPath);
 
     virtual ~IPubSubClient() = default;
 
