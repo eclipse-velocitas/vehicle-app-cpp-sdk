@@ -21,6 +21,7 @@
 
 #include "sdk/middleware/Middleware.h"
 
+#include "mqtt/connect_options.h"
 #include <mqtt/async_client.h>
 #include <unordered_map>
 
@@ -35,9 +36,41 @@ public:
     MqttPubSubClient& operator=(MqttPubSubClient&&)      = delete;
 
     MqttPubSubClient(const std::string& brokerUri, const std::string& clientId)
-        : m_client{brokerUri, clientId} {
+        : m_client{brokerUri, clientId}
+        , m_connectOptions{} {
         m_client.set_callback(*this);
     }
+
+    MqttPubSubClient(const std::string& brokerUri, const std::string& clientId,
+                     const std::string& username, const std::string& password)
+        : m_client{brokerUri, clientId}
+        , m_connectOptions{username, password} {
+        m_client.set_callback(*this);
+    }
+
+    MqttPubSubClient(const std::string& brokerUri, const std::string& clientId,
+                     const std::string& token)
+        : m_client{brokerUri, clientId} {
+        m_client.set_callback(*this);
+        m_connectOptions = mqtt::connect_options_builder().user_name(token).finalize();
+    }
+
+    MqttPubSubClient(const std::string& brokerUri, const std::string& clientId,
+                     const std::string& trustStorePath, const std::string& keyStorePath,
+                     const std::string& privateKeyPath)
+        : m_client{brokerUri, clientId} {
+        m_client.set_callback(*this);
+        auto sslopts = mqtt::ssl_options_builder()
+                           .trust_store(trustStorePath)
+                           .key_store(keyStorePath)
+                           .private_key(privateKeyPath)
+                           .error_handler([](const std::string& msg) {
+                               std::cerr << "SSL Error: " << msg << std::endl;
+                           })
+                           .finalize();
+        m_connectOptions = mqtt::connect_options_builder().ssl(std::move(sslopts)).finalize();
+    }
+
     ~MqttPubSubClient() override = default;
 
     void connect() override {
@@ -50,10 +83,10 @@ public:
                           "consider to remove it");
         }
 
-        m_client.connect()->wait();
+        m_client.connect(m_connectOptions)->wait();
     }
-    void disconnect() override { m_client.disconnect()->wait(); }
-    bool isConnected() const override { return m_client.is_connected(); }
+    void               disconnect() override { m_client.disconnect()->wait(); }
+    [[nodiscard]] bool isConnected() const override { return m_client.is_connected(); }
 
     void publishOnTopic(const std::string& topic, const std::string& data) override {
         logger().debug(R"(Publish on topic "{}": "{}")", topic, data);
@@ -92,8 +125,9 @@ private:
     using TopicMap_t =
         std::unordered_multimap<std::string, std::shared_ptr<AsyncSubscription<std::string>>>;
 
-    mqtt::async_client m_client;
-    TopicMap_t         m_subscriberMap;
+    mqtt::async_client    m_client;
+    mqtt::connect_options m_connectOptions;
+    TopicMap_t            m_subscriberMap;
 };
 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& clientId) {
@@ -103,6 +137,27 @@ std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& 
 std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,
                                                              const std::string& clientId) {
     return std::make_shared<MqttPubSubClient>(brokerUri, clientId);
+}
+
+std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,
+                                                             const std::string& clientId,
+                                                             const std::string& username,
+                                                             const std::string& password) {
+    return std::make_shared<MqttPubSubClient>(brokerUri, clientId, username, password);
+}
+std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,
+                                                             const std::string& clientId,
+                                                             const std::string& token) {
+    return std::make_shared<MqttPubSubClient>(brokerUri, clientId, token);
+}
+
+std::shared_ptr<IPubSubClient> IPubSubClient::createInstance(const std::string& brokerUri,
+                                                             const std::string& clientId,
+                                                             const std::string& trustStorePath,
+                                                             const std::string& keyStorePath,
+                                                             const std::string& privateKeyPath) {
+    return std::make_shared<MqttPubSubClient>(brokerUri, clientId, trustStorePath, keyStorePath,
+                                              privateKeyPath);
 }
 
 } // namespace velocitas

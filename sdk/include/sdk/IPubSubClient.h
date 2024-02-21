@@ -50,6 +50,51 @@ public:
     static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
                                                          const std::string& clientId);
 
+    /**
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address using the provided credentials
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @param username username to get access to the MQTT broker
+     * @param password password to get access to the MQTT broker
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
+    static std::shared_ptr<IPubSubClient>
+    IPubSubClient::createInstance(const std::string& brokerUri, const std::string& clientId,
+                                  const std::string& username, const std::string& password);
+
+    /**
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address using the provided credentials
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @param token used to get access to the MQTT broker
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
+    static std::shared_ptr<IPubSubClient>
+    IPubSubClient::createInstance(const std::string& brokerUri, const std::string& clientId,
+                                  const std::string& token);
+
+    /**
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address using the provided credentials
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @param trustStorePath The file containing the public digital certificates trusted by the
+     * client.
+     * @param keyStorePath The file containing the public certificate chain of the client.
+     * @param privateKeyPath The file containing the client's private key.
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
+    static std::shared_ptr<IPubSubClient>
+    IPubSubClient::createInstance(const std::string& brokerUri, const std::string& clientId,
+                                  const std::string& trustStorePath,
+                                  const std::string& keyStorePath,
+                                  const std::string& privateKeyPath);
+
     virtual ~IPubSubClient() = default;
 
     /**
