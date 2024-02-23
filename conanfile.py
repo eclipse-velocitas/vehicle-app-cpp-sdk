@@ -69,7 +69,7 @@ class VehicleAppCppSdkConan(ConanFile):
                 version = git.run("symbolic-ref -q --short HEAD")
             if version is "":
                 version = git.run("rev-parse --short HEAD")
-            version.replace("/", ".")
+            version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(version)
             self.version = version
         except:
