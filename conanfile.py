@@ -14,6 +14,7 @@
 
 from conan import ConanFile
 from conan.tools.scm import Git
+from conan.tools.cmake import cmake_layout
 import subprocess
 import os
 import re
