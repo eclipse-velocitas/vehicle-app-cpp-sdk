@@ -103,9 +103,9 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package(self):
         subprocess.call("pwd", shell=True)
-        self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
-        self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
+        copy(self, "*.h", src="../sdk/include", dst="include", keep_path=True)
+        copy(self, "*.h", src="../build/gens", dst="include", keep_path=True)
+        copy(self, "*.a", src="../build/lib", dst="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.includedirs = ["include"]
