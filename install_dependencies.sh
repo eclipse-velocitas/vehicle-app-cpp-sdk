@@ -114,8 +114,7 @@ fi
 export CONAN_REVISIONS_ENABLED=1
 
 conan install \
-    -pr:h .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
+    -pr:a .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \
-    -of ./build \
-    -if ./build .
+    -of ./build .
