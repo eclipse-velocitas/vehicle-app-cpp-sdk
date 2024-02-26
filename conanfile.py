@@ -69,8 +69,9 @@ class VehicleAppCppSdkConan(ConanFile):
             if not version:
                 version = subprocess.run(["git", "symbolic-ref", "-q", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
             if not version:
-                subprocess.run(["git", "rev-parse", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+                version = subprocess.run(["git", "rev-parse", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
 
+            # / is not allowed in conan version
             version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(version)
             self.version = version
