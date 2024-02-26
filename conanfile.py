@@ -67,10 +67,11 @@ class VehicleAppCppSdkConan(ConanFile):
                     tag = tag[1:] # cut off initial v if a semver tag
                 version = tag
 
+            # if no tag, use branch name or commit hash
             if version is "":
-                version = git.run("symbolic-ref -q --short HEAD")
-            if version is "":
-                version = git.run("rev-parse --short HEAD")
+                version = git.run("symbolic-ref -q --short HEAD || git rev-parse --short HEAD")
+
+            print("Version: " + version)
             version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(version)
             self.version = version
