@@ -118,7 +118,3 @@ conan install \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \
     -of ./build .
-
-conan lock create \
-    -pr:a .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
-    conanfile.py
