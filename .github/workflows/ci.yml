@@ -46,9 +46,9 @@ jobs:
 
       - name: Check if conan package is installed
         run: |
-          RECIPE_EXISTS=$(conan search vehicle-app-sdk | grep "Existing package recipes:")
+          RECIPE_EXISTS=$(conan list vehicle-app-sdk | grep "ERROR")
 
-          if [ "$RECIPE_EXISTS" == "" ]; then
+          if [ "$RECIPE_EXISTS" != "" ]; then
             exit -1
           fi
 

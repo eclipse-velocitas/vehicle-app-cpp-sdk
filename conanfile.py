@@ -13,7 +13,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from conan import ConanFile
-from conan.tools.scm import Git
 from conan.tools.cmake import cmake_layout
 from conan.tools.files import copy
 import subprocess
@@ -58,20 +57,20 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def set_version(self):
         try:
-            git = Git(self)
-            tag = git.run("tag --points-at HEAD")
+            tag = subprocess.run(["git", "tag", "--points-at", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
             version=""
-            if tag is not "":
+            if tag:
                 version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
                 if version_tag_pattern.match(tag):
                     tag = tag[1:] # cut off initial v if a semver tag
                 version = tag
 
             # if no tag, use branch name or commit hash
-            if version is "":
-                version = git.run("symbolic-ref -q --short HEAD || git rev-parse --short HEAD")
+            if not version:
+                version = subprocess.run(["git", "symbolic-ref", "-q", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+            if not version:
+                subprocess.run(["git", "rev-parse", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
 
-            print("Version: " + version)
             version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(version)
             self.version = version
