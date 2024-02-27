@@ -12,8 +12,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from conans import ConanFile, tools
-from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
+from conan import ConanFile
+from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy
 import subprocess
 import os
 import re
@@ -27,21 +28,21 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
-        ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
-        ("cpr/1.10.1@#18f864679b6ca979b7abb6e1a767f581"),
+       # ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
+        ("cpr/1.10.1"),
         ("fmt/9.1.0"),
-        ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
-        ("grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce"),
-        ("grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d"),
-        ("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
+       # ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
+        ("grpc/1.54.3"),
+        ("grpc-proto/cci.20220627"),
+        #("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
         ("nlohmann_json/3.11.2"),
-        ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
-        ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
-        ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
-        ("protobuf/3.21.9@#515ceb0a1653cf84363d9968b812d6be"),
+       # ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
+        ("paho-mqtt-c/1.3.9"),
+        ("paho-mqtt-cpp/1.2.0"),
+        ("protobuf/3.21.12"),
         ("zlib/1.3")
     ]
-    generators = "cmake"
+    generators = "CMakeToolchain","CMakeDeps"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
@@ -56,16 +57,22 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def set_version(self):
         try:
-            git = tools.Git(folder=".")
-            tag = git.get_tag()
-            if tag is not None:
+            tag = subprocess.run(["git", "tag", "--points-at", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+            version=""
+            if tag:
                 version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
                 if version_tag_pattern.match(tag):
                     tag = tag[1:] # cut off initial v if a semver tag
+                version = tag
 
-            version = tag if tag is not None else git.get_branch()
-            if version == "HEAD (no branch)":
-                version = git.get_commit()
+            # if no tag, use branch name or commit hash
+            if not version:
+                version = subprocess.run(["git", "symbolic-ref", "-q", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+            if not version:
+                version = subprocess.run(["git", "rev-parse", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+
+            # / is not allowed in conan version
+            version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(version)
             self.version = version
         except:
@@ -74,7 +81,7 @@ class VehicleAppCppSdkConan(ConanFile):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
             else:
                 raise FileNotFoundError("Missing version.txt!")
-                
+
 
     def config_options(self):
         if self.settings.os == "Linux":
@@ -98,9 +105,9 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package(self):
         subprocess.call("pwd", shell=True)
-        self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
-        self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
+        copy(self, "*.h", src="../sdk/include", dst="include", keep_path=True)
+        copy(self, "*.h", src="../build/gens", dst="include", keep_path=True)
+        copy(self, "*.a", src="../build/lib", dst="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.includedirs = ["include"]
@@ -115,6 +122,5 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
-        self.tool_requires("protobuf/3.21.9")
-        self.tool_requires("grpc/1.50.1")
-
+        self.tool_requires("protobuf/3.21.12")
+        self.tool_requires("grpc/1.54.3")

@@ -35,11 +35,12 @@ add_executable(${TARGET_NAME}
     TestBaseUsingEnvVars.cpp
 )
 
-add_dependencies(${TARGET_NAME} 
+add_dependencies(${TARGET_NAME}
     vehicle-app-sdk
+    ${CONANDEPS_LEGACY}
 )
 
-target_link_libraries(${TARGET_NAME} 
+target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
     gmock
 )

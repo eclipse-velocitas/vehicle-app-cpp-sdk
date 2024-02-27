@@ -1,0 +1,15 @@
+{
+    "packages": [
+        {
+            "name": "devenv-runtimes",
+            "version": "v2.2.6"
+        }
+    ],
+    "variables": {
+        "language": "cpp",
+        "repoType": "sdk",
+        "githubRepoId": "eclipse-velocitas/vehicle-app-cpp-sdk",
+        "vehicleAppPort": -1
+    },
+    "cliVersion": "v0.6.3"
+}

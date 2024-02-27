@@ -39,7 +39,6 @@ add_library(${TARGET_NAME}
     sdk/pubsub/MqttPubSubClient.cpp
     sdk/vdb/DataPointBatch.cpp
 )
-
 include_directories(
     ${CMAKE_BINARY_DIR}/gens
     ../include
@@ -48,13 +47,15 @@ include_directories(
 
 add_dependencies(${TARGET_NAME}
     vehicle-app-sdk-generated-grpc
+    ${CONANDEPS_LEGACY}
 )
 
 target_link_libraries(${TARGET_NAME}
-    CONAN_PKG::grpc
-    CONAN_PKG::cpr
-    CONAN_PKG::fmt
-    CONAN_PKG::paho-mqtt-cpp
-    CONAN_PKG::nlohmann_json
+    grpc::grpc
+    cpr::cpr
+    fmt::fmt
+    PahoMqttCpp::paho-mqttpp3-static
+    nlohmann_json::nlohmann_json
     vehicle-app-sdk-generated-grpc
+    ${CONANDEPS_LEGACY}
 )
