@@ -29,20 +29,20 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
        # ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
-       # ("cpr/1.10.1@#18f864679b6ca979b7abb6e1a767f581"),
-       # ("fmt/9.1.0"),
+        ("cpr/1.10.1"),
+        ("fmt/9.1.0"),
        # ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
         ("grpc/1.54.3"),
-       # ("grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d"),
+        ("grpc-proto/cci.20220627"),
         #("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
-       # ("nlohmann_json/3.11.2"),
+        ("nlohmann_json/3.11.2"),
        # ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
-       # ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
-       # ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
-        #("protobuf/3.21.9@#515ceb0a1653cf84363d9968b812d6be"),
-        #("zlib/1.3")
+        ("paho-mqtt-c/1.3.9"),
+        ("paho-mqtt-cpp/1.2.0"),
+        ("protobuf/3.21.12"),
+        ("zlib/1.3")
     ]
-    generators = "CMakeToolchain"
+    generators = "CMakeToolchain","CMakeDeps"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
@@ -122,5 +122,5 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
-        #self.tool_requires("protobuf/3.21.9")
+        self.tool_requires("protobuf/3.21.12")
         self.tool_requires("grpc/1.54.3")

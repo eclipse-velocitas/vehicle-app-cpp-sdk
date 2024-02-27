@@ -48,7 +48,7 @@ jobs:
         run: |
           RECIPE_EXISTS=$(conan list vehicle-app-sdk | grep "ERROR")
 
-          if [ "$RECIPE_EXISTS" != "" ]; then
+          if [[ -n $RECIPE_EXISTS ]]; then
             exit -1
           fi
 

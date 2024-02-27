@@ -14,12 +14,13 @@
 
 file(GLOB_RECURSE PROTO_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.proto)
 
-find_program(_gRPC_PROTOBUF_PROTOC_EXECUTABLE protoc REQUIRED 
+find_package(Protobuf REQUIRED)
+find_program(_gRPC_PROTOBUF_PROTOC_EXECUTABLE protoc REQUIRED
     PATHS ${BUILD_TOOLS_PATH}
-    NO_DEFAULT_PATH)
-find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin REQUIRED 
+    )
+find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin REQUIRED
     PATHS ${BUILD_TOOLS_PATH}
-    NO_DEFAULT_PATH)
+    )
 
 set(_gRPC_PROTO_GENS_DIR ${CMAKE_BINARY_DIR}/gens)
 set(_gRPC_PROTO_SRCS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -80,7 +81,8 @@ foreach(FILE ${PROTO_FILES})
     list(APPEND PROTO_HDRS ${OUTPUT_FILE_PATH_PB_HDR})
 endforeach()
 
-include_directories(${CMAKE_BINARY_DIR}/gens)
+include_directories(${CMAKE_BINARY_DIR}/gens
+    ${Protobuf_INCLUDE_DIRS})
 
 set(TARGET_NAME "vehicle-app-sdk-generated-grpc")
 
@@ -89,5 +91,5 @@ add_library(${TARGET_NAME} STATIC
 )
 
 target_link_libraries(${TARGET_NAME}
-    CONAN_PKG::grpc
+    grpc::grpc
 )

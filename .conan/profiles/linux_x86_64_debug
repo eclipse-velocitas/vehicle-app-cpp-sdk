@@ -1,6 +1,6 @@
 [settings]
 os=Linux
-arch=x86_64
+arch={{detect_api.detect_arch()}}
 compiler=gcc
 compiler.version=11
 compiler.libcxx=libstdc++11

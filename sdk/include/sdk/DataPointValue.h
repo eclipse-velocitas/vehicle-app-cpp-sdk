@@ -19,7 +19,7 @@
 
 #include "sdk/Exceptions.h"
 
-#include <fmt/core.h>
+#include "fmt/core.h"
 
 #include <cassert>
 #include <cstdint>

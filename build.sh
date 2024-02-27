@@ -27,10 +27,10 @@ Builds the targets of the project in different flavors.
 Arguments:
 -d, --debug                      Builds the target(s) in debug mode.
 -r, --release                    Builds the target(s) in release mode.
--t <name>, --target <name>       Builds only the target <name> instead of all targets. 
+-t <name>, --target <name>       Builds only the target <name> instead of all targets.
 -no-examples                     Disables the build of the SDK examples.
 -no-tests                        Disables the build of the SDK tests.
--s, --static                     Links all dependencies statically. 
+-s, --static                     Links all dependencies statically.
 -x, --cross <arch>               Cross compiles for the specified architecture.
 -h, --help                       Shows this help.
 "
@@ -116,7 +116,7 @@ mkdir -p build && cd build
 # is generated and holds these paths. This allows us to always use the protoc and grpc cpp plugin
 # of the build system.
 BUILD_TOOLS_PATH=""
-CONAN_BUILD_TOOLS_PATHS=$(sed '/^PATH=/!d;s/PATH=//g;s/,/\n/g' ./conanbuildinfo.txt | tr -d '[]'\" )
+source ./build/Release/generators/conanbuild.sh
 while read -r p; do
   if [[ ! -z "${p// }" ]]; then
     BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"
@@ -140,7 +140,8 @@ cmake --no-warn-unused-cli \
   -B../build \
   -G Ninja \
   -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-  -DBUILD_TOOLS_PATH:STRING="${BUILD_TOOLS_PATH}" \
+  -DBUILD_TOOLS_PATH:STRING="$PATH" \
+  -DPATH="$PATH" \
   ${XCOMPILE_TOOLCHAIN_FILE} ..
-cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} -- 
+cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} --
 cd ..
