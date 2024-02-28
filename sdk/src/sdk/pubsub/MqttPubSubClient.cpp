@@ -21,8 +21,8 @@
 
 #include "sdk/middleware/Middleware.h"
 
-#include "mqtt/connect_options.h"
 #include <mqtt/async_client.h>
+#include <mqtt/connect_options.h>
 #include <unordered_map>
 
 namespace velocitas {
@@ -65,7 +65,7 @@ public:
                            .key_store(keyStorePath)
                            .private_key(privateKeyPath)
                            .error_handler([](const std::string& msg) {
-                               std::cerr << "SSL Error: " << msg << std::endl;
+                               logger().error("SSL Error: {}", msg);
                            })
                            .finalize();
         m_connectOptions = mqtt::connect_options_builder().ssl(std::move(sslopts)).finalize();

@@ -35,7 +35,7 @@
 |six|1.16.0|MIT|
 |tqdm|4.66.2|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
 |urllib3|1.26.18|MIT|
-|virtualenv|20.25.0|MIT|
+|virtualenv|20.25.1|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
