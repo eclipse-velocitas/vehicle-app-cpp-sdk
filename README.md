@@ -30,11 +30,11 @@ Before a build can be started, all dependencies required by the SDK need to be i
 ```
 
 ### Proxy Issues
-If you are working behind a corporate proxy, the `install_dependcies.sh` (which is also called during devcontainer build!) might probably fail 
+If you are working behind a corporate proxy, the `install_dependcies.sh` (which is also called during devcontainer build!) might probably fail
 downloading 3rd party packages via https with a TLS/SSL certificate validation error (we actually saw this issue in the build of gRPC trying to
-download the opencensus-proto package from storage.googleapis.com). 
+download the opencensus-proto package from storage.googleapis.com).
 
-Please have a look at our ["working behind proxy" tutorial](https://eclipse.dev/velocitas/docs/tutorials/quickstart/behind_proxy/) 
+Please have a look at our ["working behind proxy" tutorial](https://eclipse.dev/velocitas/docs/tutorials/quickstart/behind_proxy/)
 to get hints how to possibly overcome this.
 
 ### Building the SDK
@@ -55,7 +55,7 @@ With the runtime running in the background, you can run the app.
 Open the `Run Task` view in VSCode and select `Local - VehicleApp (Dapr run)`.
 
 ### With debugging
-You can simply launch the example in the Debugging Tab. Make sure the `Example - <example of your choice>` is selected at the top. After the selection is done, you can also simply hit `F5`, to start the debugging session. 
+You can simply launch the example in the Debugging Tab. Make sure the `Example - <example of your choice>` is selected at the top. After the selection is done, you can also simply hit `F5`, to start the debugging session.
 
 *Note: This launch task will also make sure to re-build the app if it has been modified!*
 
@@ -82,10 +82,21 @@ You can configure the middleware to be used (i.e. either `dapr` or `native`) via
 |            | `VEHICLEDATABROKER_DAPR_APP_ID` | `vehicledatabroker` | Application id used by Dapr to discover the application providing the Kuksa (Vehicle) Data Broker
 |            | (`DAPR_GRPC_PORT`)              | -                   | Usually, `DAPR_GRPC_PORT` and `DAPR_HTTP_PORT` don't need to be configured manually. They are set by `dapr run` when starting the app and its sidecar.
 |            | (`DAPR_HTTP_PORT`)              | -                   | If you need to start your app separately, please make sure these environment variables are equally available to both the app and its sidecar with identical values (see above).
-|            | 
+|            |
 | native     | `SDV_MQTT_ADDRESS`              | `localhost:1883`    | Address of the MQTT broker
 |            | `SDV_SEATSERVICE_ADDRESS`       | -                   | Address of the seat service
 |            | `SDV_VEHICLEDATABROKER_ADDRESS` | `localhost:55555`   | Address of the Kuksa (Vehicle) Data Broker
+
+### Using MQTT Broker with authentication
+
+If you have configured a MQTT Broker which requires authentication, you can also configure your app to properly connect to the broker. Currently the SDK supports authentication via credentials (username and password), tokens (depends on the broker) and certificates. In order to enable this feature you need to use the native middleware (set `SDV_MIDDLEWARE_TYPE` to `native`). To configure the authentication, you have to provide the details directly in the constructor of the app, see the example for username and password below:
+
+```cpp
+SampleApp::SampleApp()
+    : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
+                 velocitas::IPubSubClient::createInstance("localhost:1883", "SampleApp",
+                                                          "username", "password")) {}
+```
 
 ## Documentation
 * [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/)

@@ -3,13 +3,7 @@
 {
 	"name": "Vehicle App C++ SDK",
 	"build": {
-		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick an Debian / Ubuntu OS version: debian-11, debian-10, ubuntu-22.04, ubuntu-20.04, ubuntu-18.04
-		// Use Debian 11, Ubuntu 18.04 or Ubuntu 22.04 on local arm64/Apple Silicon
-		"args": {
-			"VARIANT": "ubuntu-22.04",
-			"WORKSPACE_ROOT": "${containerWorkspaceFolder}"
-		}
+		"dockerfile": "Dockerfile"
 	},
 	"runArgs": [
 		"--init",
@@ -18,9 +12,8 @@
 		"--security-opt",
 		"seccomp=unconfined"
 	],
-	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	"containerEnv": {
+		"GITHUB_API_TOKEN": "${localEnv:GITHUB_API_TOKEN}"
 	},
 	"customizations": {
 		"vscode": {
@@ -30,6 +23,9 @@
 					"editor.defaultFormatter": "xaver.clang-format"
 				},
 				"editor.formatOnSave": true,
+				"json.format.keepLines": true,
+				"cmake.configureOnEdit": false,
+				"cmake.configureOnOpen": false,
 				"clang-tidy.fixOnSave": true,
 				"clang-tidy.lintOnSave": true,
 				"clang-tidy.blacklist": [
@@ -41,21 +37,113 @@
 				"clang-tidy.compilerArgs": [
 					"-std=c++17"
 				],
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"terminal.integrated.profiles.linux": {
+					"zsh": {
+						"path": "/usr/bin/zsh"
+					}
+				},
 				"vsmqtt.brokerProfiles": [
 					{
-						"name": "k3d",
+						"name": "mosquitto (local)",
+						"host": "localhost",
+						"port": 1883,
+						"clientId": "vsmqtt_client"
+					},
+					{
+						"name": "mosquitto (k3d)",
 						"host": "localhost",
 						"port": 31883,
 						"clientId": "vsmqtt_client"
 					},
 					{
-						"name": "local",
+						"name": "mosquitto (kanto)",
 						"host": "localhost",
 						"port": 1883,
 						"clientId": "vsmqtt_client"
 					}
 				],
-				"json.format.keepLines": true
+				"files.associations": {
+					"array": "cpp",
+					"atomic": "cpp",
+					"bit": "cpp",
+					"*.tcc": "cpp",
+					"cctype": "cpp",
+					"chrono": "cpp",
+					"clocale": "cpp",
+					"cmath": "cpp",
+					"compare": "cpp",
+					"concepts": "cpp",
+					"condition_variable": "cpp",
+					"csignal": "cpp",
+					"cstdint": "cpp",
+					"cstdio": "cpp",
+					"cstdlib": "cpp",
+					"cstring": "cpp",
+					"ctime": "cpp",
+					"cwchar": "cpp",
+					"cwctype": "cpp",
+					"deque": "cpp",
+					"list": "cpp",
+					"map": "cpp",
+					"unordered_map": "cpp",
+					"vector": "cpp",
+					"exception": "cpp",
+					"functional": "cpp",
+					"initializer_list": "cpp",
+					"iosfwd": "cpp",
+					"iostream": "cpp",
+					"istream": "cpp",
+					"limits": "cpp",
+					"memory": "cpp",
+					"mutex": "cpp",
+					"new": "cpp",
+					"numbers": "cpp",
+					"ostream": "cpp",
+					"ratio": "cpp",
+					"semaphore": "cpp",
+					"stdexcept": "cpp",
+					"stop_token": "cpp",
+					"streambuf": "cpp",
+					"string": "cpp",
+					"string_view": "cpp",
+					"system_error": "cpp",
+					"thread": "cpp",
+					"tuple": "cpp",
+					"type_traits": "cpp",
+					"typeinfo": "cpp",
+					"utility": "cpp",
+					"any": "cpp",
+					"bitset": "cpp",
+					"cinttypes": "cpp",
+					"codecvt": "cpp",
+					"cstdarg": "cpp",
+					"cstddef": "cpp",
+					"forward_list": "cpp",
+					"set": "cpp",
+					"unordered_set": "cpp",
+					"algorithm": "cpp",
+					"iterator": "cpp",
+					"memory_resource": "cpp",
+					"numeric": "cpp",
+					"optional": "cpp",
+					"random": "cpp",
+					"fstream": "cpp",
+					"future": "cpp",
+					"iomanip": "cpp",
+					"ranges": "cpp",
+					"sstream": "cpp",
+					"valarray": "cpp",
+					"variant": "cpp",
+					"*.inc": "cpp",
+					"regex": "cpp",
+					"shared_mutex": "cpp",
+					"hash_map": "cpp",
+					"cfenv": "cpp",
+					"complex": "cpp",
+					"scoped_allocator": "cpp",
+					"typeindex": "cpp"
+				}
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
@@ -67,7 +155,7 @@
 				"bierner.markdown-mermaid",
 				"cschlosser.doxdocgen",
 				"xaver.clang-format",
-				"notskm.clang-tidy",
+				"cs128.cs128-clang-tidy",
 				"matepek.vscode-catch2-test-adapter",
 				"sanaajani.taskrunnercode",
 				"augustocdias.tasks-shell-input"
