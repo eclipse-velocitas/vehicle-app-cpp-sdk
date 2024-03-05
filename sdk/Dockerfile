@@ -23,13 +23,13 @@ RUN apk update && \
     apk add python3 && \
     apk add py3-pip && \
     apk add build-base && \
-    apk add linux-headers && \ 
+    apk add linux-headers && \
     apk add perl && \
     apk add bash && \
     apk add git && \
     apk add nodejs && \
     apk add npm && \
-    pip3 install "conan==1.60.2"
+    pip3 install "conan==1.63.0"
 
 COPY . /sdk
 
@@ -40,6 +40,6 @@ RUN cd /sdk && \
     cd / && rm -rf /sdk
 
 # install CLI
-RUN git clone https://github.com/eclipse-velocitas/cli.git && \ 
+RUN git clone https://github.com/eclipse-velocitas/cli.git && \
     cd cli && \
     npm i && npm run build && npx oclif manifest && npm i -g .
