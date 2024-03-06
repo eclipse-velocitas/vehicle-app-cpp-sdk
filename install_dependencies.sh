@@ -100,7 +100,7 @@ if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   toolchain=/usr/bin/${HOST_ARCH}-alpine-linux-musl-gcc
   target_host=${HOST_ARCH}-alpine-linux-musl
   cc_compiler=gcc
-  cxx_compiler=gcc
+  cxx_compiler=g++
 
   export CONAN_CMAKE_FIND_ROOT_PATH=$toolchain
   export CONAN_CMAKE_SYSROOT=$toolchain
