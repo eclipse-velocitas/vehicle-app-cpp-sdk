@@ -32,7 +32,7 @@ RUN apk update && \
     apk add npm
 RUN python3 -m venv /venv && . /venv/bin/activate && pip3 install "conan==1.63.0"
 
-RUN apk add gcc-aarch64-none-elf binutils-x86_64
+RUN apk add gcc-aarch64-none-elf
 
 COPY . /sdk
 
