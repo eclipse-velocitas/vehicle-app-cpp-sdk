@@ -84,7 +84,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "Conan version      "`conan --version`
+echo "Conan version      "`/venv/bin/conan --version`
 echo "Build variant      ${BUILD_VARIANT}"
 echo "Build arch         ${BUILD_ARCH}"
 echo "Host arch          ${HOST_ARCH}"
@@ -113,7 +113,7 @@ fi
 # Enable Conan revision handling to enable pinning googleapis recipe revision (see conanfile.py)
 export CONAN_REVISIONS_ENABLED=1
 
-conan install --update \
+/venv/bin/conan install --update \
     -pr:h .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \

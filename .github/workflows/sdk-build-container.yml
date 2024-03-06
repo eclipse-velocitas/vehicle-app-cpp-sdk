@@ -13,9 +13,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Create App Builder image
-concurrency:
-  group: sdk-app-builder-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: sdk-app-builder-${{ github.ref }}
+#   cancel-in-progress: true
 
 on:
   workflow_dispatch:

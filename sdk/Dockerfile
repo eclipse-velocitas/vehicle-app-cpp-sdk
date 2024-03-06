@@ -14,8 +14,9 @@
 
 # syntax = docker/dockerfile:1.3
 
-FROM alpine:3.16.0
-
+FROM --platform=$BUILDPLATFORM alpine:3.19
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 RUN apk update && \
     apk add ninja && \
     apk add cmake && \
@@ -28,15 +29,17 @@ RUN apk update && \
     apk add bash && \
     apk add git && \
     apk add nodejs && \
-    apk add npm && \
-    pip3 install "conan==1.63.0"
+    apk add npm
+RUN python3 -m venv /venv && . /venv/bin/activate && pip3 install "conan==1.63.0"
+
+RUN apk add gcc-aarch64-none-elf binutils-x86_64
 
 COPY . /sdk
 
 RUN --mount=type=cache,target=/root/.conan
 
 RUN cd /sdk && \
-    ./install_dependencies.sh -r --build-all-deps && \
+    ./install_dependencies.sh -r -x $TARGETPLATFORM && \
     cd / && rm -rf /sdk
 
 # install CLI
