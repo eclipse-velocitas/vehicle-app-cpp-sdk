@@ -97,10 +97,10 @@ XCOMPILE_PROFILE=""
 if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   echo "Setting up cross compilation toolchain..."
 
-  toolchain=/usr/bin/${HOST_ARCH}-linux-gnu
-  target_host=${HOST_ARCH}-linux-gnu
+  toolchain=/usr/bin/${HOST_ARCH}-alpine-linux-musl-gcc
+  target_host=${HOST_ARCH}-alpine-linux-musl-gcc
   cc_compiler=gcc
-  cxx_compiler=g++
+  cxx_compiler=gcc
 
   export CONAN_CMAKE_FIND_ROOT_PATH=$toolchain
   export CONAN_CMAKE_SYSROOT=$toolchain
