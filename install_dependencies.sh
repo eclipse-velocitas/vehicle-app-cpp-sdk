@@ -98,7 +98,7 @@ if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   echo "Setting up cross compilation toolchain..."
 
   toolchain=/usr/bin/${HOST_ARCH}-alpine-linux-musl-gcc
-  target_host=${HOST_ARCH}-alpine-linux-musl-gcc
+  target_host=${HOST_ARCH}-alpine-linux-musl
   cc_compiler=gcc
   cxx_compiler=gcc
 
