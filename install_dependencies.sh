@@ -84,7 +84,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "Conan version      "`/venv/bin/conan --version`
+echo "Conan version      "`conan --version`
 echo "Build variant      ${BUILD_VARIANT}"
 echo "Build arch         ${BUILD_ARCH}"
 echo "Host arch          ${HOST_ARCH}"
@@ -97,15 +97,15 @@ XCOMPILE_PROFILE=""
 if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   echo "Setting up cross compilation toolchain..."
 
-  toolchain=/usr/bin/${HOST_ARCH}-none-elf
-  target_host=${HOST_ARCH}-none-elf
+  toolchain=/usr/bin/${BUILD_ARCH}-linux-gnu
+  target_host=${BUILD_ARCH}-linux-musl
   cc_compiler=gcc
-  cxx_compiler=g++
+  cxx_compiler=gcc
 
-  export CONAN_CMAKE_FIND_ROOT_PATH=$toolchain
-  export CONAN_CMAKE_SYSROOT=$toolchain
-  export CC=$target_host-$cc_compiler
-  export CXX=$target_host-$cxx_compiler
+  # export CONAN_CMAKE_FIND_ROOT_PATH=$toolchain
+  # export CONAN_CMAKE_SYSROOT=$toolchain
+   export CC=$target_host-$cc_compiler
+   export CXX=$target_host-$cxx_compiler
 
   XCOMPILE_PROFILE="-pr:b .conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
 fi
@@ -113,7 +113,7 @@ fi
 # Enable Conan revision handling to enable pinning googleapis recipe revision (see conanfile.py)
 export CONAN_REVISIONS_ENABLED=1
 
-/venv/bin/conan install --update \
+conan install --update \
     -pr:h .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \
