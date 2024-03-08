@@ -14,7 +14,9 @@
 
 # syntax = docker/dockerfile:1.3
 
-FROM alpine:3.16.0
+FROM --platform=$TARGETPLATFORM alpine:3.16.0
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 RUN apk update && \
     apk add ninja && \
@@ -23,7 +25,7 @@ RUN apk update && \
     apk add python3 && \
     apk add py3-pip && \
     apk add build-base && \
-    apk add linux-headers && \ 
+    apk add linux-headers && \
     apk add perl && \
     apk add bash && \
     apk add git && \
@@ -36,10 +38,10 @@ COPY . /sdk
 RUN --mount=type=cache,target=/root/.conan
 
 RUN cd /sdk && \
-    ./install_dependencies.sh -r --build-all-deps && \
+    ./install_dependencies.sh -r --build-all-deps -x $TARGETPLATFORM && \
     cd / && rm -rf /sdk
 
 # install CLI
-RUN git clone https://github.com/eclipse-velocitas/cli.git && \ 
+RUN git clone https://github.com/eclipse-velocitas/cli.git && \
     cd cli && \
     npm i && npm run build && npx oclif manifest && npm i -g .

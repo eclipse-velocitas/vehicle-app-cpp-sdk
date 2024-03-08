@@ -116,6 +116,6 @@ export CONAN_REVISIONS_ENABLED=1
 conan install \
     -pr:h .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
-    --build "${WHICH_DEPS_TO_BUILD}" \
+    --build=cpr --build=libcurl --build=m4 --build=openssl \
     -of ./build \
     -if ./build .
