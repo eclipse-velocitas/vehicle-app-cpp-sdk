@@ -17,7 +17,7 @@
 # Builds the targets of the project in different flavors.
 #
 
-set -e
+source ./.scripts/common.sh
 
 function print_help() {
   echo "Build targets of the project
@@ -74,7 +74,13 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -x|--cross)
-      HOST_ARCH="$2"
+      HOST_ARCH=$( get_valid_cross_compile_architecture "$2" )
+
+      if [ "$?" -eq 1 ]; then
+        echo "Invalid cross-compile architecture '$2'!"
+        exit 1
+      fi
+
       shift
       shift
       ;;

@@ -58,7 +58,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -x|--cross)
-      HOST_ARCH=$( get_valid_cross_compile_architecute "$2" )
+      HOST_ARCH=$( get_valid_cross_compile_architecture "$2" )
 
       if [ "$?" -eq 1 ]; then
         echo "Invalid cross-compile architecture '$2'!"
