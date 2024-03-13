@@ -42,10 +42,6 @@
 |actions/checkout|v4|MIT License|
 |actions/setup-java|v1.4.4|MIT License|
 |actions/upload-artifact|v4|MIT License|
-|ASzc/change-string-case-action|v5|ISC License|
-|docker/login-action|v2|Apache License 2.0|
-|docker/setup-buildx-action|v2|Apache License 2.0|
 |egor-tensin/setup-gcc|v1|MIT License|
-|fountainhead/action-wait-for-check|v1.1.0|MIT License|
 |irongut/CodeCoverageSummary|v1.3.0|MIT License|
 |pre-commit/action|v3.0.0|MIT License|
