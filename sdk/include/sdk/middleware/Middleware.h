@@ -51,7 +51,7 @@ public:
      *
      * @return std::string type of the middleware
      */
-    std::string getTypeId() const { return m_typeId; }
+    [[nodiscard]] std::string getTypeId() const { return m_typeId; }
 
     /**
      * @brief Triggers the start of the middleware
@@ -73,7 +73,7 @@ public:
      * @return std::string representing the location description
      * @throws std::runtime_error if the service location cannot be determined
      */
-    virtual std::string getServiceLocation(const std::string& serviceName) const = 0;
+    [[nodiscard]] virtual std::string getServiceLocation(const std::string& serviceName) const = 0;
 
     /**
      * @brief Generic type for middleware specific metadata     *
@@ -86,7 +86,7 @@ public:
      * @param serviceName Name of the service to communicate with
      * @return Metadata
      */
-    virtual Metadata getMetadata(const std::string& serviceName) const {
+    [[nodiscard]] virtual Metadata getMetadata(const std::string& serviceName) const {
         std::ignore = serviceName;
         return Metadata{};
     }
@@ -97,7 +97,7 @@ public:
      * @param clientId
      * @return std::shared_ptr<IPubSubClient>
      */
-    virtual std::shared_ptr<IPubSubClient>
+    [[nodiscard]] virtual std::shared_ptr<IPubSubClient>
     createPubSubClient(const std::string& clientId) const = 0;
 
 protected:

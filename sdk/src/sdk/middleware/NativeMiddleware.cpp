@@ -38,7 +38,7 @@ static std::string getDefaultLocation(const std::string& serviceName) {
     std::string defaultLocation;
     auto        iter = DEFAULT_LOCATIONS.find(StringUtils::toLower(serviceName));
     if (iter != DEFAULT_LOCATIONS.end()) {
-        defaultLocation = iter->second;
+        defaultLocation = SimpleUrlParse(iter->second).getNetLocation();
     }
     return defaultLocation;
 };
@@ -49,16 +49,16 @@ static std::string getServiceEnvVarName(const std::string& serviceName) {
 
 std::string NativeMiddleware::getServiceLocation(const std::string& serviceName) const {
     auto envVarName     = getServiceEnvVarName(serviceName);
-    auto serviceAddress = getEnvVar(envVarName);
+    auto serviceAddress = SimpleUrlParse(getEnvVar(envVarName)).getNetLocation();
     if (!serviceAddress.empty()) {
         return serviceAddress;
     }
 
     serviceAddress = getDefaultLocation(serviceName);
     if (!serviceAddress.empty()) {
-        logger().warn(
-            "Env variable '{}' defining location of service '{}' not set. Taking default: '{}'",
-            envVarName, serviceName, serviceAddress);
+        logger().warn("Env variable '{}' defining location of service '{}' not properly set. "
+                      "Taking default: '{}'",
+                      envVarName, serviceName, serviceAddress);
         return serviceAddress;
     }
 

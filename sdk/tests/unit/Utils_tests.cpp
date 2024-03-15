@@ -27,13 +27,13 @@ TEST(Utils, getEnvVar_varNotSet_defaultValue) {
 }
 
 TEST(Utils, getEnvVar_emptyVar_emptyString) {
-    ::setenv("MY_TEST_ENV_VAR", "", /*overwrite=*/true);
+    ::setenv("MY_TEST_ENV_VAR", "", /*overwrite=*/1);
     std::string varContent = getEnvVar("MY_TEST_ENV_VAR", "default content");
     EXPECT_EQ("", varContent);
 }
 
 TEST(Utils, getEnvVar_nonEmptyVar_varContent) {
-    ::setenv("MY_TEST_ENV_VAR", "some content", /*overwrite=*/true);
+    ::setenv("MY_TEST_ENV_VAR", "some content", /*overwrite=*/1);
     std::string varContent = getEnvVar("MY_TEST_ENV_VAR", "default content");
     EXPECT_EQ("some content", varContent);
 }
@@ -78,4 +78,46 @@ TEST(StringUtils, join_vectorWithMultipleElements_elementsJoinedWithSeparator) {
     std::vector<std::string> v      = {"foo", "bar", "baz"};
     auto                     result = StringUtils::join(v, ",");
     EXPECT_EQ(result, "foo,bar,baz");
+}
+
+TEST(SimpleUrlParse, emptyString) {
+    SimpleUrlParse cut("");
+    EXPECT_EQ("", cut.getScheme());
+    EXPECT_EQ("", cut.getNetLocation());
+}
+
+TEST(SimpleUrlParse, noScheme_noSlashes_hostname_noPort_noPath) {
+    SimpleUrlParse cut("localhost");
+    EXPECT_EQ("", cut.getScheme());
+    EXPECT_EQ("localhost", cut.getNetLocation());
+}
+
+TEST(SimpleUrlParse, noScheme_noSlashes_ipAddress_noPort_noPath) {
+    SimpleUrlParse cut("1.2.3.4");
+    EXPECT_EQ("", cut.getScheme());
+    EXPECT_EQ("1.2.3.4", cut.getNetLocation());
+}
+
+TEST(SimpleUrlParse, ctor_noScheme_slashes_hostname_port_noPath) {
+    SimpleUrlParse cut("//localhost:42");
+    EXPECT_EQ("", cut.getScheme());
+    EXPECT_EQ("localhost:42", cut.getNetLocation());
+}
+
+TEST(SimpleUrlParse, ctor_noScheme_slashes_user_password_hostname_port_noPath) {
+    SimpleUrlParse cut("//username:password@localhost:42");
+    EXPECT_EQ("", cut.getScheme());
+    EXPECT_EQ("username:password@localhost:42", cut.getNetLocation());
+}
+
+TEST(SimpleUrlParse, ctor_someScheme_slashes_user_password_hostname_port_emptyPath) {
+    SimpleUrlParse cut("WhatEver://username:password@localhost:42/");
+    EXPECT_EQ("whatever", cut.getScheme());
+    EXPECT_EQ("username:password@localhost:42", cut.getNetLocation());
+}
+
+TEST(SimpleUrlParse, ctor_someScheme_slashes_ipAddress_noPort_pathAndQuery) {
+    SimpleUrlParse cut("SomeScheme://1.2.3.4/somePath?query");
+    EXPECT_EQ("somescheme", cut.getScheme());
+    EXPECT_EQ("1.2.3.4", cut.getNetLocation());
 }
