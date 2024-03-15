@@ -44,10 +44,21 @@ TEST_F(Test_NativeMiddleware, getServiceLocation_envVarNotSet_throwsRuntimeError
     EXPECT_THROW(getCut().getServiceLocation("UnknownService"), std::runtime_error);
 }
 
-TEST_F(Test_NativeMiddleware, getServiceLocation_envVarSet_contentOfEnvVar) {
+TEST_F(Test_NativeMiddleware, getServiceLocation_envVarNotSetButDefaultKnown_default) {
+    auto serviceLocation = getCut().getServiceLocation("mqtt");
+    EXPECT_EQ("localhost:1883", serviceLocation);
+}
+
+TEST_F(Test_NativeMiddleware, getServiceLocation_envVarSetWithPureAddress_contentOfEnvVar) {
     setEnvVar("SDV_SOMESERVICE_ADDRESS", "some-service-address");
     auto serviceLocation = getCut().getServiceLocation("SomeService");
     EXPECT_EQ("some-service-address", serviceLocation);
+}
+
+TEST_F(Test_NativeMiddleware, getServiceLocation_envVarSetWithUrl_contentOfUrlsNetLocation) {
+    setEnvVar("SDV_SOMESERVICE_ADDRESS", "scheme://some-host:port/path");
+    auto serviceLocation = getCut().getServiceLocation("SomeService");
+    EXPECT_EQ("some-host:port", serviceLocation);
 }
 
 TEST_F(Test_NativeMiddleware, getMetadata__emptyMap) {

@@ -79,6 +79,51 @@ private:
     StringUtils() = delete;
 };
 
+/**
+ * @brief Provides a simplified URL parser.
+ *
+ * It is able to parse just URL starting with a "://" behind the scheme
+ * specifier, e.g. "http://somehost:1234/somePath", but not URLs like
+ * "mailto:receipient@somewhere.io".
+ * As an advantage it can handle "URLs" without leading scheme, like
+ * "//127.0.0.1:42" or "localhost:123".
+ * Currently it just provides access to the scheme and the network location
+ * ("login") part of the URL.
+ * Other elements to be added as needed ...
+ */
+class SimpleUrlParse {
+public:
+    /**
+     * @brief Construct a new Simple Url Parse object
+     *
+     * @param url to be parsed
+     */
+    explicit SimpleUrlParse(const std::string& url);
+
+    /**
+     * @brief Get the scheme of the parsed URL
+     *
+     * @return std::string Parsed scheme which can be the empty string if the
+     *         URL does not contain a scheme
+     */
+    [[nodiscard]] std::string getScheme() const { return m_scheme; }
+
+    /**
+     * @brief Get the network location part of the parsed URL
+     *
+     * This is the part between the leading double slashes and the first slash after,
+     * e.g. URL = "http://username:password@hostname:portnumber/path"
+     * --> netLocation = "username:password@hostname:portnumber"
+     *
+     * @return std::string
+     */
+    [[nodiscard]] std::string getNetLocation() const { return m_netLocation; }
+
+private:
+    std::string m_scheme;
+    std::string m_netLocation;
+};
+
 } // namespace velocitas
 
 #endif // VEHICLE_APP_SDK_UTILS_H

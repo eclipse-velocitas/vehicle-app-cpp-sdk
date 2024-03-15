@@ -54,4 +54,31 @@ std::string StringUtils::join(const std::vector<std::string>& stringVector,
     return oss.str();
 }
 
+namespace {
+constexpr std::string_view SCHEME_PART_START           = "//";
+constexpr std::string_view SIMPLIFIED_SCHEME_SEPARATOR = "://";
+} // namespace
+
+SimpleUrlParse::SimpleUrlParse(const std::string& url) {
+    auto schemeLen = url.find(SIMPLIFIED_SCHEME_SEPARATOR);
+    if (schemeLen != std::string::npos) {
+        m_scheme = StringUtils::toLower(url.substr(0, schemeLen));
+    } else {
+        schemeLen = 0;
+    }
+
+    auto startOfSchemePart = url.find(SCHEME_PART_START, schemeLen);
+    if (startOfSchemePart != std::string::npos) {
+        startOfSchemePart += SCHEME_PART_START.length();
+    } else {
+        startOfSchemePart = 0;
+    }
+
+    auto netLocationLen = url.find("/", startOfSchemePart);
+    if (netLocationLen != std::string::npos) {
+        netLocationLen -= startOfSchemePart;
+    }
+    m_netLocation = url.substr(startOfSchemePart, netLocationLen);
+}
+
 } // namespace velocitas
