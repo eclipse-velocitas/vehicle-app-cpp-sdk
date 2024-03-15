@@ -55,8 +55,8 @@ std::string StringUtils::join(const std::vector<std::string>& stringVector,
 }
 
 namespace {
-const std::string SCHEME_PART_START           = "//";
-const std::string SIMPLIFIED_SCHEME_SEPARATOR = "://";
+constexpr std::string_view SCHEME_PART_START           = "//";
+constexpr std::string_view SIMPLIFIED_SCHEME_SEPARATOR = "://";
 } // namespace
 
 SimpleUrlParse::SimpleUrlParse(const std::string& url) {

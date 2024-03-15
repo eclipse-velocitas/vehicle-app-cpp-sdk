@@ -98,7 +98,7 @@ public:
      *
      * @param url to be parsed
      */
-    SimpleUrlParse(const std::string& url);
+    explicit SimpleUrlParse(const std::string& url);
 
     /**
      * @brief Get the scheme of the parsed URL
