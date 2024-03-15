@@ -74,8 +74,11 @@ SimpleUrlParse::SimpleUrlParse(const std::string& url) {
         startOfSchemePart = 0;
     }
 
-    auto netLocationLen = url.find("/", startOfSchemePart) - startOfSchemePart;
-    m_netLocation       = url.substr(startOfSchemePart, netLocationLen);
+    auto netLocationLen = url.find("/", startOfSchemePart);
+    if (netLocationLen != std::string::npos) {
+        netLocationLen -= startOfSchemePart;
+    }
+    m_netLocation = url.substr(startOfSchemePart, netLocationLen);
 }
 
 } // namespace velocitas
