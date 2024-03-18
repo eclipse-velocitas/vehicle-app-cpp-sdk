@@ -1,5 +1,5 @@
 gcovr==5.2
-conan==1.60.2
+conan==1.63.0
 
 pre-commit==3.5.0
 cpplint==1.6.1
