@@ -13,7 +13,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from conans import ConanFile, tools
-from conan.tools.cmake import cmake_layout
+from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
 import subprocess
 import os
 import re
@@ -47,20 +47,23 @@ class VehicleAppCppSdkConan(ConanFile):
         ("paho-mqtt-c/1.3.9"),
         ("paho-mqtt-cpp/1.2.0"),
         ("zlib/1.3"),
-
     ]
     generators = "cmake"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {"shared": [True, False], "examples": [True, False]}
+    default_options = {"shared": False, "examples": False}
 
     exports = "version.txt"
 
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
+
+    options = {"shared": [True, False]}
+    
+    default_options = {"shared": True}
 
     def set_version(self):
         try:
@@ -91,23 +94,17 @@ class VehicleAppCppSdkConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="sdk")
 
-    def generate(self):
-        #tc = CMakeToolchain(self)
-        # tc.generate()
-        # commented out since we rely on our build script to set up cmake
-        pass
-
     def build(self):
-        build_type = self.settings.get_safe(
-            "build_type", default="Release").lower()
-        option = "-r" if build_type == "release" else "-d"
-        subprocess.call(
-            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
+        cmake = CMake(self)
+        cmake.configure(variables={
+            "STATIC_BUILD:BOOL":not self.options["shared"],
+            "SDK_BUILD_EXAMPLES:BOOL":self.options["examples"]
+        })
+        cmake.build()
 
     def package(self):
-        self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
-        self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.includedirs = ["include"]
