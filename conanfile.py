@@ -20,6 +20,7 @@ from conan.tools.cmake import cmake_layout
 from conans import ConanFile, tools
 
 
+
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
     license = "Apache-2.0"
@@ -67,8 +68,8 @@ class VehicleAppCppSdkConan(ConanFile):
             version = tag if tag is not None else git.get_branch()
             if version == "HEAD (no branch)":
                 version = git.get_commit()
-            open("./version.txt", mode="w", encoding="utf-8").write(version)
-            self.version = version
+            self.version = version.replace("/", "_")
+            open("./version.txt", mode="w", encoding="utf-8").write(self.version)
         except:
             print("Not a git repository, reading version from static file...")
             if os.path.isfile("./version.txt"):

@@ -13,10 +13,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import re
-import subprocess
-
 from conan.tools.cmake import CMake
+from conan.tools.build import can_run
 from conans import ConanFile
 
 
@@ -38,4 +36,6 @@ class VehicleAppSdkTest(ConanFile):
         cmake.build()
 
     def test(self):
-        pass
+        cmd = os.path.join(self.build_folder, "test_package") 
+        if can_run(self):
+            self.run(f"SDV_MIDDLEWARE_TYPE=native {cmd}", env="conanrun")
