@@ -117,6 +117,7 @@ mkdir -p build && cd build
 # of the build system.
 BUILD_TOOLS_PATH=""
 source ./build/Release/generators/conanbuild.sh
+source ./build/Release/generators/conanrun.sh
 while read -r p; do
   if [[ ! -z "${p// }" ]]; then
     BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"

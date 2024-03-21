@@ -13,6 +13,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from conan import ConanFile
+from conan.tools.layout import basic_layout
 from conan.tools.cmake import cmake_layout
 from conan.tools.files import copy
 import subprocess
@@ -30,7 +31,7 @@ class VehicleAppCppSdkConan(ConanFile):
     requires = [
        # ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
         ("cpr/1.10.1"),
-        ("fmt/9.1.0"),
+        ("fmt/10.2.1"),
        # ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
         ("grpc/1.54.3"),
         ("grpc-proto/cci.20220627"),
@@ -88,7 +89,10 @@ class VehicleAppCppSdkConan(ConanFile):
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self, src_folder="sdk")
+        basic_layout(self, src_folder="sdk")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         #tc = CMakeToolchain(self)
@@ -101,7 +105,7 @@ class VehicleAppCppSdkConan(ConanFile):
             "build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
         subprocess.call(
-            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
+            f"cd .. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
 
     def package(self):
         subprocess.call("pwd", shell=True)
@@ -123,4 +127,5 @@ class VehicleAppCppSdkConan(ConanFile):
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
         self.tool_requires("protobuf/3.21.12")
+        self.tool_requires("fmt/10.2.1")
         self.tool_requires("grpc/1.54.3")

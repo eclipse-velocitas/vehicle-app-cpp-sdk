@@ -4,6 +4,8 @@
         "conan": {}
     },
     "include": [
-        "/workspaces/vehicle-app-cpp-sdk/build/build/Release/generators/CMakePresets.json"
+        "/workspaces/vehicle-app-cpp-sdk/build/build/Release/generators/CMakePresets.json",
+        "/workspaces/vehicle-app-cpp-sdk/build/build-release/conan/CMakePresets.json",
+        "/workspaces/vehicle-app-cpp-sdk/build-debug/conan/CMakePresets.json"
     ]
 }

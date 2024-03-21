@@ -15,6 +15,9 @@
 file(GLOB_RECURSE PROTO_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.proto)
 
 find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(grpc-proto REQUIRED)
+
 find_program(_gRPC_PROTOBUF_PROTOC_EXECUTABLE protoc REQUIRED
     PATHS ${BUILD_TOOLS_PATH}
     )
@@ -81,8 +84,10 @@ foreach(FILE ${PROTO_FILES})
     list(APPEND PROTO_HDRS ${OUTPUT_FILE_PATH_PB_HDR})
 endforeach()
 
-include_directories(${CMAKE_BINARY_DIR}/gens
-    ${Protobuf_INCLUDE_DIRS})
+include_directories(
+    ${CMAKE_BINARY_DIR}/gens
+    ${protobuf_INCLUDE_DIR}
+)
 
 set(TARGET_NAME "vehicle-app-sdk-generated-grpc")
 
@@ -92,4 +97,5 @@ add_library(${TARGET_NAME} STATIC
 
 target_link_libraries(${TARGET_NAME}
     grpc::grpc
+    grpc-proto::grpc-proto
 )

@@ -13,7 +13,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set(TARGET_NAME "vehicle-app-sdk")
-
+find_package(fmt REQUIRED)
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp
     sdk/Model.cpp
@@ -45,17 +45,20 @@ include_directories(
     .
 )
 
+    # find_package(cpr)
+    # find_package(fmt)
+    # find_package(gRPC)
+    # find_package(grpc-proto)
+    # find_package(nlohmann_json)
+    # find_package(PahoMqttCpp)
+    # find_package(eclipse-paho-mqtt-c)
+    # find_package(protobuf)
+    # find_package(ZLIB)
+
 add_dependencies(${TARGET_NAME}
     vehicle-app-sdk-generated-grpc
-    ${CONANDEPS_LEGACY}
 )
 
 target_link_libraries(${TARGET_NAME}
-    grpc::grpc
-    cpr::cpr
-    fmt::fmt
-    PahoMqttCpp::paho-mqttpp3-static
-    nlohmann_json::nlohmann_json
     vehicle-app-sdk-generated-grpc
-    ${CONANDEPS_LEGACY}
 )
