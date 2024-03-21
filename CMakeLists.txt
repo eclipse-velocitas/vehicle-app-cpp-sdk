@@ -14,11 +14,13 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(SDK_STANDALONE      ON CACHE BOOL "Build the SDK in standalone mode.")
-set(SDK_BUILD_TESTS     ON CACHE BOOL "Build the SDK tests.")
-set(SDK_BUILD_EXAMPLES  ON CACHE BOOL "Build the SDK examples.")
+# set the project name
+project(VehicleAppCppSdk CXX)
 
-set(STATIC_BUILD        OFF CACHE BOOL "Build all targets with external dependencies linked in statically.")
+set(SDK_BUILD_TESTS       ON  CACHE BOOL "Build the SDK tests.")
+set(SDK_BUILD_EXAMPLES    ON  CACHE BOOL "Build the SDK examples.")
+set(SDK_GENERATE_COVERAGE ON  CACHE BOOL "Generate coverage reports.")
+set(STATIC_BUILD          OFF CACHE BOOL "Build all targets with external dependencies linked in statically.")
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -26,36 +28,27 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include
 )
 
-if(SDK_STANDALONE)
-    # set the project name
-    project(VehicleAppCppSdk CXX)
+set(CMAKE_CXX_FLAGS   ${CMAKE_CXX_FLAGS}" -g -O0")
 
-    if(STATIC_BUILD)
-        set(BUILD_SHARED_LIBS OFF)
-        set(CMAKE_EXE_LINKER_FLAGS "-static")
-    endif()
+if (SDK_GENERATE_COVERAGE)
+    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS}" --coverage")
+endif()
 
-    set(BUILD_EXAMPLES CACHE BOOL true)
-    set(BUILD_TESTS CACHE BOOL true)
 
-    find_program(CCACHE_FOUND ccache)
+if(STATIC_BUILD)
+    set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
-    if(CCACHE_FOUND)
-        message("Found ccache installation")
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    endif()
+set(BUILD_EXAMPLES CACHE BOOL true)
+set(BUILD_TESTS CACHE BOOL true)
 
-    # use conan for dependency management
-    set(CONAN_BUILD_INFO_FILE ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+find_program(CCACHE_FOUND ccache)
 
-    if(NOT EXISTS ${CONAN_BUILD_INFO_FILE})
-        message(FATAL_ERROR "Conan build info file missing. Did you run install_dependencies.sh first?")
-        return()
-    else()
-        include(${CONAN_BUILD_INFO_FILE})
-        conan_basic_setup(TARGETS)
-    endif()
-endif(SDK_STANDALONE)
+if(CCACHE_FOUND)
+    message("Found ccache installation")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif()
 
 if(SDK_BUILD_TESTS)
     enable_testing()

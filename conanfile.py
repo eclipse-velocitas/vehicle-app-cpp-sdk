@@ -13,14 +13,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from conans import ConanFile, tools
-from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
-import subprocess
+from conan.tools.cmake import cmake_layout, CMake
 import os
 import re
-import subprocess
-
-from conan.tools.cmake import cmake_layout
-from conans import ConanFile, tools
 
 
 
@@ -44,26 +39,22 @@ class VehicleAppCppSdkConan(ConanFile):
         ("libcurl/8.1.2"),
         ("nlohmann_json/3.11.2"),
         ("openssl/1.1.1u"),
-        ("paho-mqtt-c/1.3.9"),
+        ("paho-mqtt-c/1.3.13"),
         ("paho-mqtt-cpp/1.2.0"),
         ("zlib/1.3"),
     ]
-    generators = "cmake"
+    generators = "CMakeToolchain", "CMakeDeps"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "examples": [True, False]}
-    default_options = {"shared": False, "examples": False}
+    options = {"shared": [True, False], "examples": [True, False], "generateCoverage": [True, False]}
+    default_options = {"shared": False, "examples": True, "generateCoverage": False}
 
     exports = "version.txt"
 
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
-
-    options = {"shared": [True, False]}
-    
-    default_options = {"shared": True}
 
     def set_version(self):
         try:
@@ -88,17 +79,18 @@ class VehicleAppCppSdkConan(ConanFile):
                 
 
     def config_options(self):
-        if self.settings.os == "Linux":
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self, src_folder="sdk")
+        cmake_layout(self)
 
     def build(self):
         cmake = CMake(self)
         cmake.configure(variables={
-            "STATIC_BUILD:BOOL":not self.options["shared"],
-            "SDK_BUILD_EXAMPLES:BOOL":self.options["examples"]
+            "STATIC_BUILD:BOOL": "ON" if not self.options.shared else "OFF",
+            "SDK_BUILD_EXAMPLES:BOOL": "ON" if self.options.examples else "OFF",
+            "SDK_GENERATE_COVERAGE:BOOL": "ON" if self.options.generateCoverage else "OFF"
         })
         cmake.build()
 

@@ -5,3 +5,9 @@ compiler=gcc
 compiler.version=11
 compiler.libcxx=libstdc++11
 build_type=Release
+
+[env]
+CONAN_CMAKE_FIND_ROOT_PATH=/usr/bin/aarch64-linux-gnu
+CONAN_CMAKE_SYSROOT=/usr/bin/aarch64-linux-gnu
+CC=/usr/bin/aarch64-linux-gnu-gcc
+CXX=/usr/bin/aarch64-linux-gnu-g++

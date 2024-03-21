@@ -15,6 +15,7 @@ The Vehicle App SDK for C++ allows to create `Vehicle Apps` from the [Velocitas 
     * 📁 `include` - the headers which need to be included by users of the SDK
     * 📁 `src` - contains the source code for the SDK from which the SDK library is built
     * 📁 `test` - contains the unit test code for the SDK
+* 📁 `test_package` - test package for Conan package tests/verification
 
 ## Prerequisites
 
