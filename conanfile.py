@@ -12,11 +12,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from conans import ConanFile, tools
-from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
-import subprocess
 import os
 import re
+import subprocess
+
+from conan.tools.cmake import cmake_layout
+from conans import ConanFile, tools
+
+
 
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
@@ -28,7 +31,7 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
         ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
-        ("cpr/1.10.1@#18f864679b6ca979b7abb6e1a767f581"),
+        ("cpr/1.10.5"),
         ("fmt/9.1.0"),
         ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
         ("grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce"),
@@ -38,7 +41,6 @@ class VehicleAppCppSdkConan(ConanFile):
         ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
         ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
         ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
-        ("protobuf/3.21.9@#515ceb0a1653cf84363d9968b812d6be"),
         ("zlib/1.3")
     ]
     generators = "cmake"
@@ -66,8 +68,8 @@ class VehicleAppCppSdkConan(ConanFile):
             version = tag if tag is not None else git.get_branch()
             if version == "HEAD (no branch)":
                 version = git.get_commit()
-            open("./version.txt", mode="w", encoding="utf-8").write(version)
-            self.version = version
+            self.version = version.replace("/", "_")
+            open("./version.txt", mode="w", encoding="utf-8").write(self.version)
         except:
             print("Not a git repository, reading version from static file...")
             if os.path.isfile("./version.txt"):
@@ -97,7 +99,6 @@ class VehicleAppCppSdkConan(ConanFile):
             f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
 
     def package(self):
-        subprocess.call("pwd", shell=True)
         self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
         self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
         self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
@@ -115,6 +116,4 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
-        self.tool_requires("protobuf/3.21.9")
         self.tool_requires("grpc/1.50.1")
-

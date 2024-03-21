@@ -30,34 +30,43 @@ on:
 jobs:
   conan-package:
     runs-on: ubuntu-22.04
-    name: "Check Conan package"
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.2
+    name: Check Conan package
+    strategy:
+      matrix:
+        host: ["linux_x86_64"]
+      fail-fast: false
+
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Fix dubious ownership
+        run: |
+          git config --global --add safe.directory $( pwd )
 
       - name: install prerequisites
         run: |
           sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
           pip3 install -r requirements.txt
 
-      - name: Export conan package
+      - name: Create conan package
         run: |
-          conan export .
-
-      - name: Check if conan package is installed
-        run: |
-          RECIPE_EXISTS=$(conan search vehicle-app-sdk | grep "Existing package recipes:")
-
-          if [ "$RECIPE_EXISTS" == "" ]; then
-            exit -1
-          fi
+          conan create --build=missing -pr:b ./.conan/profiles/linux_x86_64_release -pr:h ./.conan/profiles/${{ matrix.host }}_release . ci/testing
 
   build-and-publish:
     runs-on: ubuntu-22.04
     name: "Build, Test and Lint"
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.2
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Fix dubious ownership
+        run: |
+          git config --global --add safe.directory $( pwd )
 
       - name: Clone vehicle_model repository
         uses: actions/checkout@v4
@@ -70,16 +79,11 @@ jobs:
           sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
           pip3 install -r requirements.txt
 
-      - name: Set up GCC
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: 11
-
       - name: Install dependencies
         run: ./install_dependencies.sh -r
 
       - name: build
-        run: ./build.sh -r
+        run: ./build.sh -r --cov
 
       - name: unittests
         run: build/bin/sdk_utests
