@@ -42,6 +42,5 @@
 |actions/checkout|v4|MIT License|
 |actions/setup-java|v4|MIT License|
 |actions/upload-artifact|v4|MIT License|
-|devcontainers/ci|v0.3|MIT License|
 |irongut/CodeCoverageSummary|v1.3.0|MIT License|
 |pre-commit/action|v3.0.0|MIT License|
