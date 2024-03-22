@@ -2,15 +2,15 @@
     "packages": [
         {
             "repo": "https://github.com/eclipse-velocitas/devenv-runtimes.git",
-            "version": "remove_k3d_and_dapr"
+            "version": "v3.0.0"
         },
         {
             "repo": "https://github.com/eclipse-velocitas/devenv-devcontainer-setup.git",
-            "version": "remove_k3d_and_dapr"
+            "version": "v2.0.0"
         },
         {
             "repo": "https://github.com/eclipse-velocitas/devenv-github-templates.git",
-            "version": "v1.0.3"
+            "version": "v1.0.4"
         }
     ],
     "components": [
