@@ -68,3 +68,4 @@ conan_imports_manifest.txt
 
 # auto-generated SDK version
 version.txt
+logs

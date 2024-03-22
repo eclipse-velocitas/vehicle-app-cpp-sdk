@@ -19,7 +19,6 @@
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/Utils.h"
-#include "sdk/dapr/DaprSupport.h"
 
 #include "fmt/core.h"
 

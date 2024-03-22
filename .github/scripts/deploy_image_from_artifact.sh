@@ -13,37 +13,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$BASH_SOURCE")" >/dev/null 2>&1 ; pwd -P )/../.." )
-APP_NAME=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].Name | tr -d '"')
-APP_PORT=$(cat $ROOT_DIRECTORY/AppManifest.json | jq .[].Port | tr -d '"')
-APP_REGISTRY="k3d-registry.localhost:12345"
+set -e
 
-jq -c '.[]' $ROOT_DIRECTORY/AppManifest.json | while read i; do
-    name=$(jq -r '.Name' <<< "$i")
+ROOT_DIRECTORY=$( realpath "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../.." )
+APP_ARTIFACT_NAME=$(cat $ROOT_DIRECTORY/${{ appManifestPath }} | jq -r .name | tr -d '"')
+APP_NAME_LOWERCASE=$(echo $APP_ARTIFACT_NAME | tr '[:upper:]' '[:lower:]')
+APP_REGISTRY="localhost:12345"
 
-    local_tag="$APP_REGISTRY/$name:local"
-    echo "Local URL: $local_tag"
+local_tag="$APP_REGISTRY/$APP_NAME_LOWERCASE:local"
+echo "Local URL: $local_tag"
 
-    docker load -i "$APP_NAME.tar" | sed -n 's/^Loaded image ID: sha256:\([0-9a-f]*\).*/\1/p' | xargs -i docker tag {} $local_tag
-    docker push $local_tag
-done
+docker load -i "$APP_ARTIFACT_NAME.tar" | sed -n 's/^Loaded image: \([0-9a-f]*\).*/\1/p' | xargs -i docker tag {} $local_tag
+docker push $local_tag
 
-helm install vapp-chart $ROOT_DIRECTORY/deploy/VehicleApp/helm \
-    --values $ROOT_DIRECTORY/deploy/VehicleApp/helm/values.yaml \
-    --set imageVehicleApp.repository="$APP_REGISTRY/$APP_NAME" \
-    --set imageVehicleApp.name=$APP_NAME \
-    --set imageVehicleApp.daprAppid=$APP_NAME \
-    --set imageVehicleApp.daprPort=$APP_PORT \
-    --wait --timeout 60s --debug
-
-kubectl get svc --all-namespaces
-kubectl get pods
-
-jq -c '.[]' $ROOT_DIRECTORY/AppManifest.json | while read i; do
-    name=$(jq -r '.Name' <<< "$i")
-    podname=$(kubectl get pods -o name | grep $name)
-    kubectl describe $podname
-    kubectl logs $podname --all-containers
-done
-
-sleep 5s
+cd $ROOT_DIRECTORY
+velocitas exec deployment-kanto deploy-vehicleapp

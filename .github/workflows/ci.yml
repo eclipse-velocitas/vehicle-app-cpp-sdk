@@ -30,7 +30,7 @@ on:
 jobs:
   conan-package:
     runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.2
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
     name: Check Conan package
     strategy:
       matrix:
@@ -58,7 +58,7 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-22.04
     name: "Build, Test and Lint"
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.2
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
 
     steps:
       - name: Checkout repository
@@ -67,12 +67,6 @@ jobs:
       - name: Fix dubious ownership
         run: |
           git config --global --add safe.directory $( pwd )
-
-      - name: Clone vehicle_model repository
-        uses: actions/checkout@v4
-        with:
-          repository: eclipse-velocitas/vehicle-model-cpp
-          path: "./app/vehicle_model"
 
       - name: install prerequisites
         run: |

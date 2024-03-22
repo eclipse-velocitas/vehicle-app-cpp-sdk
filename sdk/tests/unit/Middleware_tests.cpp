@@ -18,7 +18,6 @@
 #include <gtest/gtest.h>
 
 #define private public
-#include "sdk/middleware/DaprMiddleware.h"
 #include "sdk/middleware/Middleware.h"
 #include "sdk/middleware/NativeMiddleware.h"
 
@@ -31,15 +30,10 @@ TEST_F(Test_Middleware, getInstance_envVarGloballySetToNative_typeIdIsNative) {
     EXPECT_EQ(NativeMiddleware::TYPE_ID, middleware.getTypeId());
 }
 
-TEST_F(Test_Middleware, instantiate_envVarNotSet_typeIdDefaultsToDapr) {
+TEST_F(Test_Middleware, instantiate_envVarNotSet_typeIdDefaultsToNative) {
     unsetEnvVar(Middleware::TYPE_DEFINING_ENV_VAR_NAME);
     auto middleware = Middleware::instantiate();
-    EXPECT_EQ(DaprMiddleware::TYPE_ID, middleware->getTypeId());
-}
-
-TEST_F(Test_Middleware, instantiate_envVarSetToDapr_typeIdIsDapr) {
-    setEnvVar(Middleware::TYPE_DEFINING_ENV_VAR_NAME, DaprMiddleware::TYPE_ID);
-    EXPECT_EQ(DaprMiddleware::TYPE_ID, Middleware::instantiate()->getTypeId());
+    EXPECT_EQ(NativeMiddleware::TYPE_ID, middleware->getTypeId());
 }
 
 TEST_F(Test_Middleware, instantiate_envVarSetToNative_typeIdIsNative) {

@@ -73,7 +73,7 @@ public:
     /**
      * @brief Create an instance of the IVehicleDataBrokerClient.
      *
-     * @param vdbAppId  The DAPR app ID of the VDB.
+     * @param serviceName  The name of the VDB.
      *
      * @return std::shared_ptr<IVehicleDataBrokerClient>
      */

@@ -23,7 +23,6 @@ add_executable(${TARGET_NAME}
     Job_tests.cpp
     Logger_tests.cpp
     Middleware_tests.cpp
-    DaprMiddleware_tests.cpp
     NativeMiddleware_tests.cpp
     Node_tests.cpp
     ScopedBoolInverter_tests.cpp
@@ -35,11 +34,11 @@ add_executable(${TARGET_NAME}
     TestBaseUsingEnvVars.cpp
 )
 
-add_dependencies(${TARGET_NAME} 
+add_dependencies(${TARGET_NAME}
     vehicle-app-sdk
 )
 
-target_link_libraries(${TARGET_NAME} 
+target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
     gmock
 )
