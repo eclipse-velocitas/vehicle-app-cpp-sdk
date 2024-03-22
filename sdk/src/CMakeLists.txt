@@ -33,7 +33,6 @@ add_library(${TARGET_NAME}
     sdk/grpc/VehicleDataBrokerClient.cpp
 
     sdk/middleware/Middleware.cpp
-    sdk/middleware/DaprMiddleware.cpp
     sdk/middleware/NativeMiddleware.cpp
 
     sdk/pubsub/MqttPubSubClient.cpp

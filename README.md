@@ -45,44 +45,33 @@ To build the SDK, run the build script:
 
 ## Starting the runtime
 
-Open the `Run Task` view in VSCode and select `Local - Start VehicleApp runtime`.
+Open the `Run Task` view in VSCode and select `Local Runtime - Up`.
 
 ## Launching the example
 With the runtime running in the background, you can run the app.
 
 ### Without debugging
 
-Open the `Run Task` view in VSCode and select `Local - VehicleApp (Dapr run)`.
+Open the `Run Task` view in VSCode and select `Local Runtime - Start SeatAdjuster`.
 
 ### With debugging
 You can simply launch the example in the Debugging Tab. Make sure the `Example - <example of your choice>` is selected at the top. After the selection is done, you can also simply hit `F5`, to start the debugging session.
 
 *Note: This launch task will also make sure to re-build the app if it has been modified!*
 
-### Run App and Dapr-Sidecar as individual Docker containers
-#### Sidecar
+### Run App as Docker container
 ```bash
-docker run --net="host" --mount type=bind,source="$(pwd)"/.dapr,target=/.dapr daprio/daprd:edge ./daprd -app-id vehicleapp -dapr-grpc-port 50001 -dapr-http-port 3500 -components-path /.dapr/components -config /.dapr/config.yaml -app-protocol grpc
-```
-#### App
-```bash
-docker run --rm -it --net="host" -e DAPR_GRPC_PORT=50001 -e DAPR_HTTP_PORT=3500 localhost:12345/vehicleapp:local
+docker run --rm -it --net="host" -e SDV_MIDDLEWARE_TYPE="native" -e SDV_MQTT_ADDRESS="localhost:1883" -e SDV_VEHICLEDATABROKER_ADDRESS="localhost:55555" localhost:12345/vehicleapp:local
 ```
 
 ### Middleware configuration for the example apps
 
-You can configure the middleware to be used (i.e. either `dapr` or `native`) via environment variables of the app processs.
+You can configure the middleware to be used (currently only `native` is supported) via environment variables of the app processs.
 
 | Middleware | Environment Variable            | Default             | Meaning
 |------------|---------------------------------|---------------------|------------------------------------
-|            | `SDV_MIDDLEWARE_TYPE`           | `dapr`              | Defines the middleware to be used by the app (either `dapr` or `native`)
+|            | `SDV_MIDDLEWARE_TYPE`           | `native`            | Defines the middleware to be used by the app (currently only `native` is supported)
 |
-| Dapr       | `SDV_MQTT_ADDRESS`              | `localhost:1883`    | Address of the MQTT broker - needs to be set explicitly as the C++ SDK does not support Dapr PubSub, yet
-|            | `SEATSERVICE_DAPR_APP_ID`       | `seatservice`       | Application id used by Dapr to discover the application providing the seat service
-|            | `VEHICLEDATABROKER_DAPR_APP_ID` | `vehicledatabroker` | Application id used by Dapr to discover the application providing the Kuksa (Vehicle) Data Broker
-|            | (`DAPR_GRPC_PORT`)              | -                   | Usually, `DAPR_GRPC_PORT` and `DAPR_HTTP_PORT` don't need to be configured manually. They are set by `dapr run` when starting the app and its sidecar.
-|            | (`DAPR_HTTP_PORT`)              | -                   | If you need to start your app separately, please make sure these environment variables are equally available to both the app and its sidecar with identical values (see above).
-|            |
 | native     | `SDV_MQTT_ADDRESS`              | `localhost:1883`    | Address of the MQTT broker
 |            | `SDV_SEATSERVICE_ADDRESS`       | -                   | Address of the seat service
 |            | `SDV_VEHICLEDATABROKER_ADDRESS` | `localhost:55555`   | Address of the Kuksa (Vehicle) Data Broker

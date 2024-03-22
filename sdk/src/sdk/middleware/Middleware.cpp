@@ -16,7 +16,6 @@
 
 #include "sdk/middleware/Middleware.h"
 
-#include "DaprMiddleware.h"
 #include "NativeMiddleware.h"
 
 #include "sdk/Utils.h"
@@ -31,11 +30,9 @@ namespace velocitas {
 std::unique_ptr<Middleware> Middleware::instantiate() {
     const std::string middlewareType = StringUtils::toLower(getEnvVar(TYPE_DEFINING_ENV_VAR_NAME));
     if (middlewareType.empty()) {
-        return std::make_unique<DaprMiddleware>();
+        return std::make_unique<NativeMiddleware>();
     } else if (middlewareType == NativeMiddleware::TYPE_ID) {
         return std::make_unique<NativeMiddleware>();
-    } else if (middlewareType == DaprMiddleware::TYPE_ID) {
-        return std::make_unique<DaprMiddleware>();
     } else {
         throw std::runtime_error(fmt::format("Unknown middleware type '{}'", middlewareType));
     }

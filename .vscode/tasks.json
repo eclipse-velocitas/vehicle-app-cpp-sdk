@@ -2,190 +2,54 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "dapr-VehicleApp-run",
-			"appId": "vehicleapp",
-			"componentsPath": "./.dapr/components",
-			"config": "./.dapr/config.yaml",
-			"grpcPort": 50001,
-			"httpPort": 3500,
-			"type": "dapr",
+			"label": "Local Runtime - Up",
+			"detail": "Starts up the local runtime",
+			"type": "shell",
+			"command": "velocitas exec runtime-local up",
+			"group": "none",
 			"presentation": {
-				"close": true,
-				"reveal": "never"
+				"panel": "dedicated",
+				"clear": true,
 			},
-			"hide": true
+			"problemMatcher": [ ]
 		},
 		{
-			"label": "dapr-VehicleApp-stop",
+			"label": "Local Runtime - Down",
+			"detail": "Stops the local runtime",
+			"type": "shell",
+			"command": "velocitas exec runtime-local down",
+			"group": "none",
+			"presentation": {
+				"panel": "dedicated",
+				"clear": true,
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Local Runtime - Run SeatAdjuster",
+			"detail": "Starts the SeatAdjuster under development",
 			"type": "shell",
 			"command": [
-				"dapr stop --app-id vehicleapp"
+				"velocitas exec runtime-local run-vehicle-app python3 ${workspaceFolder}/examples/seat-adjuster/src/main.py"
 			],
 			"presentation": {
-				"close": true,
-				"reveal": "never"
+				"panel": "dedicated",
+				"close": false,
+				"reveal": "always"
 			},
-			"hide": true
+			"problemMatcher": [ ]
 		},
 		{
-			"label": "Local - Mosquitto",
-			"detail": "Runs Mosquitto MQTT Broker in a container (with docker run) with exposed port 1883.",
-			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-mosquitto.sh",
-			"group": "none",
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
-			},
-			"isBackground": true,
-			"problemMatcher": {
-				"pattern": [
-					{
-						"regexp": ".",
-						"file": 1,
-						"location": 2,
-						"message": 4
-					}
-				],
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "^\\d{10}: mosquitto version \\d{1}\\.\\d{1}\\.\\d{1} starting$",
-					"endsPattern": "^\\d{10}: Opening ipv6 listen socket on port \\d{3,5}\\.$"
-				}
-			}
-		},
-		{
-			"label": "Local - VehicleDataBroker",
-			"detail": "Runs the VehicleDataBroker as background task.",
-			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-vehicledatabroker.sh",
-			"group": "none",
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
-			},
-			"isBackground": true,
-			"problemMatcher": {
-				"pattern": [
-					{
-						"regexp": ".",
-						"file": 1,
-						"location": 2,
-						"message": 3
-					}
-				],
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "^You're up and running! Dapr logs will appear here.",
-					"endsPattern": "."
-				}
-			}
-		},
-		{
-			"label": "Local - VehicleDataBroker CLI",
+			"label": "Local Runtime - VehicleDataBroker CLI",
 			"detail": "Starts the VehicleDataBroker CLI",
 			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-vehicledatabroker-cli.sh",
-			"group": "none",
-			"isBackground": false,
-			"problemMatcher": []
-		},
-		{
-			"label": "Local - VehicleServices",
-			"detail": "Runs all configured VehicleServices as background task.",
-			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-vehicleservices.sh",
-			"group": "none",
+			"command": "velocitas exec runtime-local run-vehicledatabroker-cli",
 			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
+				"panel": "dedicated",
+				"clear": true,
 			},
-			"isBackground": true,
-			"problemMatcher": {
-				"pattern": [
-					{
-						"regexp": ".",
-						"file": 1,
-						"location": 2,
-						"message": 3
-					}
-				],
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "^You're up and running! Dapr logs will appear here.",
-					"endsPattern": "."
-				}
-			}
-		},
-		{
-			"label": "Local - FeederCan",
-			"detail": "Runs FeederCan as background task.",
-			"type": "shell",
-			"command": "./.vscode/scripts/runtime/local/run-feedercan.sh",
 			"group": "none",
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
-			},
-			"isBackground": true,
-			"problemMatcher": {
-				"pattern": [
-					{
-						"regexp": ".",
-						"file": 1,
-						"location": 2,
-						"message": 3
-					}
-				],
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "^You're up and running! Dapr logs will appear here.",
-					"endsPattern": "."
-				}
-			}
-		},
-		{
-			"label": "Local - Start VehicleApp runtime",
-			"detail": "Runs all components of the VehicleApp runtime.",
-			"dependsOn": [
-				"Local - Mosquitto",
-				"Local - VehicleDataBroker",
-				"Local - VehicleServices",
-				"Local - FeederCan"
-			],
-			"dependsOrder": "sequence",
-			"problemMatcher": []
-		},
-		{
-			"label": "Local - VehicleApp (Dapr run)",
-			"detail": "Start VehicleApp with dapr run (p.e. for running integration tests locally).",
-			"type": "shell",
-			"command": [
-				"dapr run",
-				"--app-id vehicleapp",
-				"--app-protocol grpc",
-				"--dapr-grpc-port 50001",
-				"--dapr-http-port 3500",
-				"--config ./.dapr/config.yaml",
-				"build/bin/example-seatadjusterapp"
-			],
-			"group": "none",
-			"isBackground": true,
-			"problemMatcher": {
-				"pattern": [
-					{
-						"regexp": ".",
-						"file": 1,
-						"location": 2,
-						"message": 3
-					}
-				],
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "^You're up and running! Both Dapr and your app logs will appear here.",
-					"endsPattern": "."
-				}
-			}
+			"problemMatcher": [ ]
 		},
 		// CPP specific tasks
 		{
@@ -201,7 +65,7 @@
 				"close": false,
 				"panel": "dedicated"
 			},
-			"problemMatcher": []
+			"problemMatcher": [ ]
 		}
 	]
 }
