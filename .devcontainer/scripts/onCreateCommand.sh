@@ -17,6 +17,13 @@
 # exit when any command fails
 set -e
 
+# restart Docker connection if in Codespaces
+# Workaround according to https://github.com/devcontainers/features/issues/671#issuecomment-1701754897
+if [ "${CODESPACES}" = "true" ]; then
+    sudo pkill dockerd && sudo pkill containerd
+    /usr/local/share/docker-init.sh
+fi
+
 echo "#######################################################"
 echo "### Run VADF Lifecycle Management                   ###"
 echo "#######################################################"
