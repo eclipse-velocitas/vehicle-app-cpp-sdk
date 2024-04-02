@@ -23,13 +23,12 @@
 
 namespace velocitas {
 
-class RecurringJob;
 class GrpcCall;
 
 class GrpcClient {
 public:
-    GrpcClient();
-    virtual ~GrpcClient();
+    GrpcClient()          = default;
+    virtual ~GrpcClient() = default;
 
     GrpcClient(const GrpcClient&)            = delete;
     GrpcClient(GrpcClient&&)                 = delete;
@@ -38,10 +37,9 @@ public:
 
     void addActiveCall(std::shared_ptr<GrpcCall> call);
 
+private:
     void pruneCompletedRequests();
 
-private:
-    std::shared_ptr<RecurringJob>          m_recurringJob;
     std::vector<std::shared_ptr<GrpcCall>> m_activeCalls;
     std::mutex                             m_mutex;
 };

@@ -15,19 +15,15 @@
  */
 
 #include "sdk/grpc/GrpcClient.h"
-#include "sdk/ThreadPool.h"
 #include "sdk/grpc/GrpcCall.h"
 
 namespace velocitas {
 
-GrpcClient::GrpcClient() {
-    m_recurringJob = std::make_shared<RecurringJob>([this]() { pruneCompletedRequests(); });
-    ThreadPool::getInstance()->enqueue(m_recurringJob);
-}
+void GrpcClient::addActiveCall(std::shared_ptr<GrpcCall> call) {
+    pruneCompletedRequests();
 
-GrpcClient::~GrpcClient() {
-    m_recurringJob->cancel();
-    m_recurringJob->waitForTermination();
+    std::scoped_lock<std::mutex> lock(m_mutex);
+    m_activeCalls.emplace_back(call);
 }
 
 void GrpcClient::pruneCompletedRequests() {
@@ -38,11 +34,6 @@ void GrpcClient::pruneCompletedRequests() {
         m_activeCalls.erase(std::remove_if(m_activeCalls.begin(), m_activeCalls.end(), isComplete),
                             m_activeCalls.end());
     }
-}
-
-void GrpcClient::addActiveCall(std::shared_ptr<GrpcCall> call) {
-    std::scoped_lock<std::mutex> lock(m_mutex);
-    m_activeCalls.emplace_back(call);
 }
 
 } // namespace velocitas

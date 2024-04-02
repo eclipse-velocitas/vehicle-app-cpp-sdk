@@ -51,6 +51,7 @@ void BrokerAsyncGrpcFacade::GetDatapoints(
         } catch (std::exception& e) {
             logger().error("GRPC: Exception occurred during \"GetDatapoints\": {}", e.what());
         }
+        callData->m_isComplete = true;
     };
 
     addActiveCall(callData);
@@ -83,6 +84,7 @@ void BrokerAsyncGrpcFacade::SetDatapoints(
         } catch (std::exception& e) {
             logger().error("GRPC: Exception occurred during \"SetDatapoints\": {}", e.what());
         }
+        callData->m_isComplete = true;
     };
 
     addActiveCall(callData);
@@ -110,10 +112,11 @@ void BrokerAsyncGrpcFacade::Subscribe(
 
     callData->onData(itemHandler);
 
-    callData->onFinish([errorHandler](const auto& status) {
+    callData->onFinish([callData, errorHandler](const auto& status) {
         if (!status.ok()) {
             errorHandler(status);
         }
+        callData->m_isComplete = true;
     });
 
     callData->startCall();

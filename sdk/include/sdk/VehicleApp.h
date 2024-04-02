@@ -20,8 +20,10 @@
 #include "sdk/AsyncResult.h"
 #include "sdk/DataPointReply.h"
 
+#include <condition_variable>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace velocitas {
@@ -110,7 +112,7 @@ protected:
      *     the data point value of the requested data point.
      */
     template <typename TDataPoint>
-    AsyncResultPtr_t<typename TDataPoint::value_type>
+    [[nodiscard]] AsyncResultPtr_t<typename TDataPoint::value_type>
     getDataPoint(const TDataPoint& dataPoint) const {
         return getDataPoint_internal(dataPoint)->template map<typename TDataPoint::value_type>(
             [&dataPoint](const DataPointReply& dataPointValues) {
@@ -146,6 +148,9 @@ private:
 
     std::shared_ptr<IVehicleDataBrokerClient> m_vdbClient;
     std::shared_ptr<IPubSubClient>            m_pubSubClient;
+    bool                                      m_isRunning{false};
+    std::mutex                                m_stopWaitMutex;
+    std::condition_variable                   m_stopWaitCV;
 };
 
 } // namespace velocitas

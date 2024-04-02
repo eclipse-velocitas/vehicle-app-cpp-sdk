@@ -22,6 +22,7 @@
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 #include "vehicle_model/Vehicle.h"
 
+#include <csignal>
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 
@@ -77,8 +78,17 @@ private:
 
 } // namespace example
 
+std::unique_ptr<example::SetDataPointsApp> myApp;
+
+void signal_handler(int sig) {
+    velocitas::logger().info("App terminating signal received: {}", sig);
+    myApp->stop();
+}
+
 int main(int argc, char** argv) {
-    example::SetDataPointsApp myApp;
-    myApp.run();
+    signal(SIGINT, signal_handler);
+
+    myApp = std::make_unique<example::SetDataPointsApp>();
+    myApp->run();
     return 0;
 }
