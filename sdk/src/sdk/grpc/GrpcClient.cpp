@@ -21,9 +21,10 @@ namespace velocitas {
 
 void GrpcClient::addActiveCall(std::shared_ptr<GrpcCall> call) {
     pruneCompletedRequests();
-
-    std::scoped_lock<std::mutex> lock(m_mutex);
-    m_activeCalls.emplace_back(call);
+    {
+        std::scoped_lock<std::mutex> lock(m_mutex);
+        m_activeCalls.emplace_back(call);
+    }
 }
 
 void GrpcClient::pruneCompletedRequests() {

@@ -35,7 +35,8 @@ public:
     GrpcClient& operator=(const GrpcClient&) = delete;
     GrpcClient& operator=(GrpcClient&&)      = delete;
 
-    void addActiveCall(std::shared_ptr<GrpcCall> call);
+    void                 addActiveCall(std::shared_ptr<GrpcCall> call);
+    [[nodiscard]] size_t getNumActiveCalls() const { return m_activeCalls.size(); }
 
 private:
     void pruneCompletedRequests();

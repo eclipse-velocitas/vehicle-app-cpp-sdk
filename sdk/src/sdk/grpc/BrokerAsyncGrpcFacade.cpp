@@ -23,9 +23,7 @@
 namespace velocitas {
 
 BrokerAsyncGrpcFacade::BrokerAsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel)
-    : m_channel{std::move(channel)} {
-    m_stub = std::make_shared<sdv::databroker::v1::Broker::Stub>(m_channel);
-}
+    : m_stub{sdv::databroker::v1::Broker::NewStub(channel)} {}
 
 void BrokerAsyncGrpcFacade::GetDatapoints(
     const std::vector<std::string>&                                           datapoints,
