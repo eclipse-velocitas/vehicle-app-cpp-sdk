@@ -15,6 +15,7 @@
  */
 
 #include "SeatAdjusterApp.h"
+#include "sdk/AppLauncher.h"
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
 #include "sdk/QueryBuilder.h"
@@ -127,17 +128,18 @@ void SeatAdjusterApp::onErrorTopic(const velocitas::Status& status) {
 }
 } // namespace example
 
-std::unique_ptr<example::SeatAdjusterApp> myApp;
+// std::unique_ptr<example::SeatAdjusterApp> myApp;
 
-void signal_handler(int sig) {
-    velocitas::logger().info("App terminating signal received: {}", sig);
-    myApp->stop();
-}
+// void signal_handler(int sig) {
+//     velocitas::logger().info("App terminating signal received: {}", sig);
+//     myApp->stop();
+// }
 
 int main(int argc, char** argv) {
-    signal(SIGINT, signal_handler);
+    // signal(SIGINT, signal_handler);
 
-    myApp = std::make_unique<example::SeatAdjusterApp>();
-    myApp->run();
+    // myApp = std::make_unique<example::SeatAdjusterApp>();
+    // myApp->run();
+    velocitas::AppLauncher<example::SeatAdjusterApp>::runApp();
     return 0;
 }
