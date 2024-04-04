@@ -45,8 +45,8 @@ class Service : public Node {
 public:
     using Node::Node;
 
-    std::string          getLocation() const;
-    Middleware::Metadata getMiddlewareMetadata() const;
+    [[nodiscard]] std::string          getLocation() const;
+    [[nodiscard]] Middleware::Metadata getMiddlewareMetadata() const;
 };
 
 } // namespace velocitas

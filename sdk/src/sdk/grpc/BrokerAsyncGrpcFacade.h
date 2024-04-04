@@ -22,11 +22,16 @@
 
 #include "sdv/databroker/v1/broker.grpc.pb.h"
 
+#include <functional>
+#include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace grpc {
 class Channel;
-}
+class Status;
+} // namespace grpc
 
 namespace velocitas {
 
@@ -50,8 +55,7 @@ public:
               std::function<void(const grpc::Status& status)>                       errorHandler);
 
 private:
-    std::shared_ptr<sdv::databroker::v1::Broker::Stub> m_stub;
-    std::shared_ptr<grpc::Channel>                     m_channel;
+    std::unique_ptr<sdv::databroker::v1::Broker::StubInterface> m_stub;
 };
 
 } // namespace velocitas

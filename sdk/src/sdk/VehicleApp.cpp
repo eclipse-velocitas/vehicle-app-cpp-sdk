@@ -25,10 +25,7 @@
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 
-#include <chrono>
 #include <string>
-#include <thread>
-#include <utility>
 
 namespace velocitas {
 
@@ -40,26 +37,37 @@ VehicleApp::VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
 }
 
 void VehicleApp::run() {
-    logger().info("Running App...");
+    logger().info("Starting app ...");
     Middleware::getInstance().start();
     Middleware::getInstance().waitUntilReady();
 
     m_pubSubClient->connect();
     onStart();
-
-    // TODO: Fix busy waiting
-    while (true) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    {
+        std::unique_lock lk(m_stopWaitMutex);
+        m_isRunning = true;
     }
+    logger().info("App is running.");
+
+    {
+        std::unique_lock lk(m_stopWaitMutex);
+        m_stopWaitCV.wait(lk, [this] { return !m_isRunning; });
+    }
+    logger().info("App stopped.");
 }
 
 void VehicleApp::stop() {
-    logger().info("Stopping App...");
+    logger().info("Stopping app ...");
 
     onStop();
     m_pubSubClient->disconnect();
-
     Middleware::getInstance().stop();
+
+    {
+        std::unique_lock lk(m_stopWaitMutex);
+        m_isRunning = false;
+        m_stopWaitCV.notify_all();
+    }
 }
 
 AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::string& topic) {

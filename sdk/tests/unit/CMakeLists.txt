@@ -28,10 +28,11 @@ add_executable(${TARGET_NAME}
     ScopedBoolInverter_tests.cpp
     ThreadPool_tests.cpp
     Utils_tests.cpp
-    VehicleDataBrokerClient_tests.cpp
     QueryBuilder_tests.cpp
     #PubSub_tests.cpp
     TestBaseUsingEnvVars.cpp
+    grpc/GrpcClient_tests.cpp
+    grpc/VehicleDataBrokerClient_tests.cpp
 )
 
 add_dependencies(${TARGET_NAME}

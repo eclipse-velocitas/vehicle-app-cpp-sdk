@@ -10,7 +10,7 @@
                     "required": [
                         {
                             "path": "Vehicle.Cabin.Seat.Row1.Pos1.Position",
-                            "access": "read"
+                            "access": "write"
                         },
                         {
                             "path": "Vehicle.Speed",
@@ -25,7 +25,7 @@
             "config": {
                 "reads": [ "seatadjuster/setPosition/request" ],
                 "writes": [
-                    "seatadjuster/setPosition/response", 
+                    "seatadjuster/setPosition/response",
                     "seatadjuster/currentPosition"
                 ]
             }

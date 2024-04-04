@@ -20,6 +20,7 @@
 #include "sdk/QueryBuilder.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
+#include <csignal>
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 
@@ -126,8 +127,17 @@ void SeatAdjusterApp::onErrorTopic(const velocitas::Status& status) {
 }
 } // namespace example
 
+std::unique_ptr<example::SeatAdjusterApp> myApp;
+
+void signal_handler(int sig) {
+    velocitas::logger().info("App terminating signal received: {}", sig);
+    myApp->stop();
+}
+
 int main(int argc, char** argv) {
-    example::SeatAdjusterApp myApp;
-    myApp.run();
+    signal(SIGINT, signal_handler);
+
+    myApp = std::make_unique<example::SeatAdjusterApp>();
+    myApp->run();
     return 0;
 }
