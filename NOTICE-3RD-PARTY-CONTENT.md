@@ -13,10 +13,10 @@
 |distlib|0.3.8|Python Software Foundation License|
 |distro|1.8.0|Apache 2.0|
 |fasteners|0.19|Apache 2.0|
-|filelock|3.13.3|The Unlicense (Unlicense)|
+|filelock|3.13.4|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
 |identify|2.5.35|MIT|
-|idna|3.6|BSD|
+|idna|3.7|BSD|
 |Jinja2|3.1.3|New BSD|
 |lxml|5.2.1|New BSD|
 |MarkupSafe|2.1.5|New BSD|

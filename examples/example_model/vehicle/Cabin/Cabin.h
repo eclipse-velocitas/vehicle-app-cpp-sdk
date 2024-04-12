@@ -35,7 +35,7 @@ public:
     public:
         class RowType : public ParentClass {
         public:
-            RowType(std::string name, ParentClass* parent)
+            RowType(const std::string& name, ParentClass* parent)
                 : ParentClass(name, parent)
                 , Pos1("Pos1", this)
                 , Pos2("Pos2", this)
