@@ -11,6 +11,10 @@
         {
             "repo": "https://github.com/eclipse-velocitas/devenv-github-templates.git",
             "version": "v1.0.4"
+        },
+        {
+            "repo": "https://github.com/eclipse-velocitas/devenv-github-workflows.git",
+            "version": "update_cpp_sdk_ci"
         }
     ],
     "components": [
@@ -25,14 +29,16 @@
         },
         {
             "id": "github-templates"
+        },
+        {
+            "id": "github-workflows"
         }
     ],
     "variables": {
         "language": "cpp",
         "repoType": "sdk",
         "githubRepoId": "eclipse-velocitas/vehicle-app-cpp-sdk",
-        "appManifestPath": "examples/seat-adjuster/AppManifest.json",
-        "vehicleAppPort": -1
+        "appManifestPath": "examples/seat-adjuster/AppManifest.json"
     },
     "cliVersion": "v0.7.0"
 }
