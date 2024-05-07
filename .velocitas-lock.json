@@ -2,7 +2,7 @@
     "packages": {
         "devenv-runtimes": "v3.0.0",
         "devenv-devcontainer-setup": "v2.0.0",
-        "devenv-github-templates": "v1.0.4",
+        "devenv-github-templates": "v1.0.5",
         "devenv-github-workflows": "v6.0.2"
     }
 }
