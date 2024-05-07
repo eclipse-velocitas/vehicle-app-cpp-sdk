@@ -3,6 +3,6 @@
         "devenv-runtimes": "v3.0.0",
         "devenv-devcontainer-setup": "v2.0.0",
         "devenv-github-templates": "v1.0.4",
-        "devenv-github-workflows": "@update_cpp_sdk_ci"
+        "devenv-github-workflows": "v6.0.2"
     }
 }
