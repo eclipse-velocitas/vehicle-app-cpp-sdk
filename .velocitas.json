@@ -1,38 +1,16 @@
 {
-    "packages": [
-        {
-            "repo": "https://github.com/eclipse-velocitas/devenv-runtimes.git",
-            "version": "v3.0.0"
-        },
-        {
-            "repo": "https://github.com/eclipse-velocitas/devenv-devcontainer-setup.git",
-            "version": "v2.0.0"
-        },
-        {
-            "repo": "https://github.com/eclipse-velocitas/devenv-github-templates.git",
-            "version": "v1.0.4"
-        },
-        {
-            "repo": "https://github.com/eclipse-velocitas/devenv-github-workflows.git",
-            "version": "update_cpp_sdk_ci"
-        }
-    ],
+    "packages": {
+        "devenv-runtimes": "v3.0.0",
+        "devenv-devcontainer-setup": "v2.0.0",
+        "devenv-github-templates": "v1.0.4",
+        "devenv-github-workflows": "@update_cpp_sdk_ci"
+    },
     "components": [
-        {
-            "id": "vehicle-signal-interface"
-        },
-        {
-            "id": "devcontainer-setup"
-        },
-        {
-            "id": "runtime-local"
-        },
-        {
-            "id": "github-templates"
-        },
-        {
-            "id": "github-workflows"
-        }
+        "vehicle-signal-interface",
+        "devcontainer-setup",
+        "runtime-local",
+        "github-templates",
+        "github-workflows"
     ],
     "variables": {
         "language": "cpp",
@@ -40,5 +18,5 @@
         "githubRepoId": "eclipse-velocitas/vehicle-app-cpp-sdk",
         "appManifestPath": "examples/seat-adjuster/AppManifest.json"
     },
-    "cliVersion": "v0.7.0"
+    "cliVersion": "v0.9.0"
 }
