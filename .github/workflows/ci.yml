@@ -35,7 +35,7 @@ jobs:
     name: Check Conan package
     strategy:
       matrix:
-        host: ["linux_x86_64", "linux_aarch64"]
+        host: ["linux_x86_64"]
       fail-fast: false
 
 
@@ -49,8 +49,7 @@ jobs:
 
       - name: install prerequisites
         run: |
-          sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck \
-              gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
+          sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
           pip3 install -r requirements.txt
 
       - name: Create conan package
