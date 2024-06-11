@@ -61,6 +61,8 @@ public:
      */
     [[nodiscard]] virtual DataPointValue::Type getDataType() const = 0;
 
+    [[nodiscard]] const DataPoint* getDataPoint(const std::string& path) const override;
+
     [[nodiscard]] virtual std::string toString() const = 0;
 
     bool operator<(const DataPoint& rhs) const { return getPath() < rhs.getPath(); }
