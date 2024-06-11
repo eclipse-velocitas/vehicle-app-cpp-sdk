@@ -123,3 +123,18 @@ TEST(Test_DataPoint, get_allDataTypes_forwardedToVdbc) {
     getTestCaseImpl<DataPointString>("foo");                      // NOLINT
     getTestCaseImpl<DataPointStringArray>({"foo", "bar", "baz"}); // NOLINT
 }
+
+TEST(Test_DataPoint, getDataPoint_addressingchild1_returnsPtrToChild1) {
+    Node             nodeRoot{"root"};
+    DataPointBoolean child1{"child1", &nodeRoot};
+    DataPointBoolean child2{"child2", &nodeRoot};
+
+    EXPECT_EQ(&child1, nodeRoot.getDataPoint("child1"));
+}
+
+TEST(Test_DataPoint, getDataPoint_addressingChildOfLeaf_returnsNullptr) {
+    Node             nodeRoot{"root"};
+    DataPointBoolean child{"child", &nodeRoot};
+
+    EXPECT_EQ(nullptr, nodeRoot.getDataPoint("child.subchild"));
+}
