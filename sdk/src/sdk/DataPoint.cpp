@@ -40,12 +40,8 @@ template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>
 }
 
 const DataPoint* DataPoint::getDataPoint(const std::string& path) const {
-    auto separator_pos = path.find_first_of('.');
-    if (path.substr(0, separator_pos) != getName()) {
-        throw std::runtime_error("Node name mismatch!");
-    }
     // We are at leaf level. Return nullptr if further child(ren) are expected
-    if (separator_pos != std::string::npos) {
+    if (!path.empty()) {
         return nullptr;
     }
     return this;

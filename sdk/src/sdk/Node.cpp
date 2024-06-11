@@ -43,20 +43,19 @@ void Node::registerChild(Node& childNode) {
 }
 
 const DataPoint* Node::getDataPoint(const std::string& path) const {
-    auto separator_pos = path.find_first_of(PATH_SEPARATOR);
-    if (path.substr(0, separator_pos) != m_name) {
-        throw std::runtime_error("Node name mismatch!");
-    }
     if (!m_children) {
         return nullptr;
     }
-    auto subpath_start = (separator_pos != std::string::npos) ? separator_pos + 1 : path.size();
-    auto subpath       = path.substr(subpath_start);
-    auto childName     = subpath.substr(0, path.find_first_of(PATH_SEPARATOR));
-    auto child         = m_children->find(childName);
+
+    auto separatorPos = path.find_first_of(PATH_SEPARATOR);
+    auto childName    = path.substr(0, separatorPos);
+    auto child        = m_children->find(childName);
     if (child == m_children->end()) {
         return nullptr;
     }
+
+    auto subpathStart = (separatorPos != std::string::npos) ? separatorPos + 1 : path.length();
+    auto subpath      = path.substr(subpathStart);
     return child->second->getDataPoint(subpath);
 }
 
