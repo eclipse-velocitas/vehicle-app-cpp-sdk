@@ -47,6 +47,8 @@ public:
     DataPoint& operator=(const DataPoint&) = delete;
     DataPoint& operator=(DataPoint&&)      = delete;
 
+    [[nodiscard]] const DataPoint* getDataPoint(const std::string& path) const override;
+
     [[nodiscard]] virtual std::string toString() const = 0;
 
     bool operator<(const DataPoint& rhs) const { return getPath() < rhs.getPath(); }
@@ -75,7 +77,7 @@ public:
     TypedDataPoint& operator=(TypedDataPoint&&)      = delete;
 
     [[nodiscard]] AsyncResultPtr_t<TypedDataPointValue<T>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                 set(T value);
+    [[nodiscard]] AsyncResultPtr_t<Status>                 set(T value) const;
 
     [[nodiscard]] std::string toString() const override;
 };

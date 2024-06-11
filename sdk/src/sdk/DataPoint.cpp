@@ -23,6 +23,7 @@
 #include <fmt/core.h>
 
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 namespace velocitas {
@@ -38,7 +39,19 @@ template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>
             [this](const DataPointReply& dataPointValues) { return *dataPointValues.get(*this); });
 }
 
-template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) {
+const DataPoint* DataPoint::getDataPoint(const std::string& path) const {
+    auto separator_pos = path.find_first_of('.');
+    if (path.substr(0, separator_pos) != getName()) {
+        throw std::runtime_error("Node name mismatch!");
+    }
+    // We are at leaf level. Return nullptr if further child(ren) are expected
+    if (separator_pos != std::string::npos) {
+        return nullptr;
+    }
+    return this;
+}
+
+template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) const {
     std::vector<std::unique_ptr<DataPointValue>> vec;
     vec.reserve(1);
     vec.emplace_back(std::make_unique<TypedDataPointValue<T>>(getPath(), value));

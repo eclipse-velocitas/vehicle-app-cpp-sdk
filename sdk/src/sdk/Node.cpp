@@ -17,14 +17,48 @@
 #include "sdk/Node.h"
 #include "sdk/Utils.h"
 
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
 namespace velocitas {
 
+static const char PATH_SEPARATOR = '.';
+
 Node::Node(std::string name, Node* parent)
     : m_name(std::move(name))
-    , m_parent(parent) {}
+    , m_parent(parent) {
+    if (m_parent != nullptr) {
+        m_parent->registerChild(*this);
+    }
+}
+
+void Node::registerChild(Node& childNode) {
+    if (!m_children) {
+        m_children = std::make_unique<NodeMap>();
+    } else if (m_children->count(childNode.getName()) > 0) {
+        throw std::runtime_error("Registering child with duplicate name!");
+    }
+    (*m_children)[childNode.getName()] = &childNode;
+}
+
+const DataPoint* Node::getDataPoint(const std::string& path) const {
+    auto separator_pos = path.find_first_of(PATH_SEPARATOR);
+    if (path.substr(0, separator_pos) != m_name) {
+        throw std::runtime_error("Node name mismatch!");
+    }
+    if (!m_children) {
+        return nullptr;
+    }
+    auto subpath_start = (separator_pos != std::string::npos) ? separator_pos + 1 : path.size();
+    auto subpath       = path.substr(subpath_start);
+    auto childName     = subpath.substr(0, path.find_first_of(PATH_SEPARATOR));
+    auto child         = m_children->find(childName);
+    if (child == m_children->end()) {
+        return nullptr;
+    }
+    return child->second->getDataPoint(subpath);
+}
 
 const Node* Node::getParent() const { return m_parent; }
 
@@ -39,7 +73,7 @@ std::string Node::getPath() const {
         node = node->m_parent;
     }
 
-    return StringUtils::join(path, ".");
+    return StringUtils::join(path, std::string(1, PATH_SEPARATOR));
 }
 
 } // namespace velocitas
