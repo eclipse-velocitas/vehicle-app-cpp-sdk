@@ -17,13 +17,13 @@
 #ifndef VEHICLE_APP_SDK_PERFORMANCETESTAPP_H
 #define VEHICLE_APP_SDK_PERFORMANCETESTAPP_H
 
-#include "sdk/DataPoint.h"
-#include "sdk/Status.h"
 #include "sdk/VehicleApp.h"
-#include "vehicle_model/Vehicle.h"
 
 #include <memory>
-#include <string>
+
+namespace velocitas {
+class Vehicle;
+} // namespace velocitas
 
 namespace example {
 
@@ -36,42 +36,8 @@ public:
 
     void onStart() override;
 
-    /**
-     * @brief Handle successful seat movement requests.
-     *
-     * @param requestId           The ID of the request requested the movement.
-     * @param requestedPosition   The seat position of the request.
-     */
-    void onSeatMovementRequested(const velocitas::VoidResult&, int requestId,
-                                 float requestedPosition);
-
-    /**
-     * @brief Handle set position request from PubSub topic
-     *
-     * @param data  The JSON string received from PubSub topic.
-     */
-    void onSetPositionRequestReceived(const std::string& data);
-
-    /**
-     * @brief Handle incoming data point upsates from the VDB.
-     *
-     * @param dataPoints  The affected data points.
-     */
-    void onDataPointUpdate(const velocitas::DataPointReply& dataPoints);
-
-    /**
-     * @brief Handle errors which occurred during async invocation.
-     *
-     * @param status  The status which contains the error.
-     */
-    void onError(const velocitas::Status& status);
-    void onDatapointError(const velocitas::Status& status);
-    void onErrorTopic(const velocitas::Status& status);
-
 private:
     std::shared_ptr<velocitas::Vehicle> m_vehicleModel;
-    velocitas::DataPointBoolean         m_something;
-    velocitas::DataPointFloat           m_speed;
 };
 
 } // namespace example

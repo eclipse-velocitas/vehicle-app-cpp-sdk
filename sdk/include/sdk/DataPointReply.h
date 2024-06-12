@@ -47,6 +47,19 @@ public:
         : m_dataPointsMap(std::move(dataPointsMap)) {}
 
     /**
+     * @brief Get the desired data point from the reply as generic type.
+     *
+     * @param dataPoint The data point to query from the reply.
+     * @return std::shared_ptr<DataPointValue>  The data point contained in the reply.
+     */
+    [[nodiscard]] std::shared_ptr<DataPointValue> getGeneric(const std::string& path) const {
+        if (m_dataPointsMap.find(path) == m_dataPointsMap.end()) {
+            throw InvalidValueException(fmt::format("{} is not contained in reply!", path));
+        }
+        return m_dataPointsMap.at(path);
+    }
+
+    /**
      * @brief Get the desired data point from the reply.
      *
      * @tparam TDataPointType   The type of the data point to return.
@@ -58,12 +71,7 @@ public:
     get(const TDataPointType& dataPoint) const {
         static_assert(std::is_base_of_v<DataPoint, TDataPointType>);
 
-        if (m_dataPointsMap.find(dataPoint.getPath()) == m_dataPointsMap.end()) {
-            throw InvalidValueException(
-                fmt::format("{} is not contained in reply!", dataPoint.getPath()));
-        }
-
-        std::shared_ptr<DataPointValue> value = m_dataPointsMap.at(dataPoint.getPath());
+        auto value = getGeneric(dataPoint.getPath());
         if (value->isValid()) {
             return std::dynamic_pointer_cast<
                 TypedDataPointValue<typename TDataPointType::value_type>>(value);
