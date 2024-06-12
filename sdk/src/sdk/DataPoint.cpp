@@ -28,9 +28,6 @@
 
 namespace velocitas {
 
-DataPoint::DataPoint(const std::string& name)
-    : Node(name) {}
-
 template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>::get() const {
     return VehicleModelContext::getInstance()
         .getVdbc()

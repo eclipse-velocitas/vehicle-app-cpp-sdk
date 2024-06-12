@@ -38,8 +38,6 @@ namespace velocitas {
 class DataPoint : public Node {
 public:
     using Node::Node;
-
-    explicit DataPoint(const std::string& name);
     ~DataPoint() override = default;
 
     DataPoint(const DataPoint&)            = delete;

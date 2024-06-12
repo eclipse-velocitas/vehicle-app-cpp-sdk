@@ -1,0 +1,7 @@
+{
+    "packages": {
+        "https://github.com/eclipse-velocitas/devenv-runtimes.git": "v3.0.0",
+        "https://github.com/eclipse-velocitas/devenv-devcontainer-setup.git": "v2.0.0",
+        "https://github.com/eclipse-velocitas/devenv-github-templates.git": "v1.0.4"
+    }
+}
