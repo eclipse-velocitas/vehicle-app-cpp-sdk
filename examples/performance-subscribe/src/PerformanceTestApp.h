@@ -35,9 +35,6 @@ public:
     PerformanceTestApp();
 
     void onStart() override;
-
-private:
-    std::shared_ptr<velocitas::Vehicle> m_vehicleModel;
 };
 
 } // namespace example

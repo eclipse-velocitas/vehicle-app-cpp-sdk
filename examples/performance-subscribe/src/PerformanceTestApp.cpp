@@ -17,9 +17,7 @@
 #include "PerformanceTestApp.h"
 #include "sdk/IPubSubClient.h"
 #include "sdk/Logger.h"
-#include "sdk/QueryBuilder.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
-#include "vehicle_model/Vehicle.h"
 
 #include <csignal>
 #include <fmt/core.h>
@@ -104,32 +102,26 @@ std::string getValueRepresentation(const velocitas::DataPointValue& value) {
 
 PerformanceTestApp::PerformanceTestApp()
     : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
-                 velocitas::IPubSubClient::createInstance("PerformanceTestApp"))
-    , m_vehicleModel(std::make_shared<velocitas::Vehicle>()) {}
+                 velocitas::IPubSubClient::createInstance("PerformanceTestApp")) {}
 
 void PerformanceTestApp::onStart() {
     velocitas::logger().info("Subscribe for data points!");
 
-    std::vector<std::string> dataPointList{"Speed", "Something", "IsMoving"};
+    std::vector<std::string> dataPointList{"Vehicle.Speed", "Vehicle.Something",
+                                           "Vehicle.IsMoving"};
 
-    for (auto dataPointName : dataPointList) {
-        const velocitas::DataPoint* dataPoint = m_vehicleModel->getDataPoint(dataPointName);
-        if (dataPoint != nullptr) {
-            auto path = dataPoint->getPath();
-            subscribeDataPoints(velocitas::QueryBuilder::select(*dataPoint).build())
-                ->onItem([path](const velocitas::DataPointReply& reply) {
-                    auto        value     = getValueRepresentation(*reply.getGeneric(path));
-                    auto        timestamp = std::chrono::high_resolution_clock::now();
-                    std::time_t time      = std::chrono::system_clock::to_time_t(timestamp);
-                    velocitas::logger().info("{} - {} - {}", std::ctime(&time), path, value);
-                })
-                ->onError([path](velocitas::Status status) {
-                    velocitas::logger().error("Error on subscription for data point {}: {}", path,
-                                              status.errorMessage());
-                });
-        } else {
-            velocitas::logger().error("Undefined data point: {}", dataPointName);
-        }
+    for (auto path : dataPointList) {
+        subscribeDataPoints("SELECT " + path)
+            ->onItem([path](const velocitas::DataPointReply& reply) {
+                auto        value     = getValueRepresentation(*reply.getGeneric(path));
+                auto        timestamp = std::chrono::high_resolution_clock::now();
+                std::time_t time      = std::chrono::system_clock::to_time_t(timestamp);
+                velocitas::logger().info("{} - {} - {}", std::ctime(&time), path, value);
+            })
+            ->onError([path](velocitas::Status status) {
+                velocitas::logger().error("Error on subscription for data point {}: {}", path,
+                                          status.errorMessage());
+            });
     }
 }
 
