@@ -22,6 +22,7 @@
 #include "sdk/Node.h"
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -44,8 +45,6 @@ public:
     DataPoint(DataPoint&&)                 = delete;
     DataPoint& operator=(const DataPoint&) = delete;
     DataPoint& operator=(DataPoint&&)      = delete;
-
-    [[nodiscard]] const DataPoint* getDataPoint(const std::string& path) const override;
 
     [[nodiscard]] virtual std::string toString() const = 0;
 

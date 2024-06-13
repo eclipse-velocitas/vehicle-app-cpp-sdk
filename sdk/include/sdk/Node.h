@@ -17,13 +17,9 @@
 #ifndef VEHICLE_APP_SDK_NODE_H
 #define VEHICLE_APP_SDK_NODE_H
 
-#include <memory>
 #include <string>
-#include <unordered_map>
 
 namespace velocitas {
-
-class DataPoint;
 
 /**
  * @brief A tree node.
@@ -45,8 +41,6 @@ public:
 
     [[nodiscard]] const std::string& getName() const;
 
-    [[nodiscard]] virtual const DataPoint* getDataPoint(const std::string& path) const;
-
     /**
      * @brief Return the fully qualified path of the node down from the root of the tree.
      *
@@ -59,15 +53,10 @@ public:
     Node& operator=(const Node&) = delete;
     Node& operator=(Node&&)      = delete;
 
-protected:
-    void registerChild(Node& childNode);
-
 private:
     // TODO: Use std::weak_ptr ?
     Node*       m_parent;
     std::string m_name;
-    using NodeMap = std::unordered_map<std::string, Node*>;
-    std::unique_ptr<NodeMap> m_children;
 };
 
 } // namespace velocitas
