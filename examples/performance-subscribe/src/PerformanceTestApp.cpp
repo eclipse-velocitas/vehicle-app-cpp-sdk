@@ -81,7 +81,7 @@ void PerformanceTestApp::onStart() {
                 auto timestamp = std::chrono::high_resolution_clock::now();
                 std::cout << timestamp << " - " << path << " - " << value << std::endl;
             })
-            ->onError([path](velocitas::Status status) {
+            ->onError([path](const velocitas::Status& status) {
                 velocitas::logger().error("Error on subscription for data point {}: {}", path,
                                           status.errorMessage());
             });
@@ -99,14 +99,14 @@ void signal_handler(int sig) {
     myApp->stop();
 }
 
-const std::string DEFAULT_CONFIG_FILE = "examples/performance-subscribe/subscription_signals.json";
+const char DEFAULT_CONFIG_FILE[] = "examples/performance-subscribe/subscription_signals.json";
 
 } // namespace
 
 int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
 
-    auto configFile = (argc > 1) ? argv[1] : DEFAULT_CONFIG_FILE;
+    const auto* configFile = (argc > 1) ? argv[1] : DEFAULT_CONFIG_FILE;
 
     myApp = std::make_unique<example::PerformanceTestApp>(configFile);
     myApp->run();
