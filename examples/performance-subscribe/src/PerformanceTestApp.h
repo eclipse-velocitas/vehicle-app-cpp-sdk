@@ -19,7 +19,7 @@
 
 #include "sdk/VehicleApp.h"
 
-#include <memory>
+#include <string>
 
 namespace velocitas {
 class Vehicle;
@@ -32,9 +32,12 @@ namespace example {
  */
 class PerformanceTestApp : public velocitas::VehicleApp {
 public:
-    PerformanceTestApp();
+    explicit PerformanceTestApp(std::string configFile);
 
     void onStart() override;
+
+private:
+    std::string m_configFile;
 };
 
 } // namespace example

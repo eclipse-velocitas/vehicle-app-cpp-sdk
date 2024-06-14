@@ -20,103 +20,66 @@
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <csignal>
-#include <fmt/core.h>
+#include <fstream>
+#include <iostream>
 #include <nlohmann/json.hpp>
+#include <utility>
 
 namespace example {
-
-const auto JSON_FIELD_REQUEST_ID = "requestId";
-const auto JSON_FIELD_POSITION   = "position";
-const auto JSON_FIELD_STATUS     = "status";
-const auto JSON_FIELD_MESSAGE    = "message";
-const auto JSON_FIELD_RESULT     = "result";
 
 namespace {
 std::string getValueRepresentation(const velocitas::DataPointValue& value) {
     if (!value.isValid()) {
-        switch (value.getFailure()) {
-        case velocitas::DataPointValue::Failure::INVALID_VALUE:
-            return "Failure::INVALID_VALUE";
-        case velocitas::DataPointValue::Failure::NOT_AVAILABLE:
-            return "Failure::NOT_AVAILABLE";
-        case velocitas::DataPointValue::Failure::UNKNOWN_DATAPOINT:
-            return "Failure::UNKNOWN_DATAPOINT";
-        case velocitas::DataPointValue::Failure::ACCESS_DENIED:
-            return "Failure::ACCESS_DENIED";
-        case velocitas::DataPointValue::Failure::INTERNAL_ERROR:
-        default:
-            return "Failure::INTERNAL_ERROR";
+        return toString(value.getFailure());
+    }
+    return value.getValueAsString();
+}
+
+std::ostream& operator<<(std::ostream&                                        ostr,
+                         const std::chrono::high_resolution_clock::time_point timestamp) {
+    std::time_t time = std::chrono::high_resolution_clock::to_time_t(timestamp);
+    uint64_t    useconds =
+        std::chrono::duration_cast<std::chrono::microseconds>(timestamp.time_since_epoch())
+            .count() %
+        std::micro::den;
+    ostr << std::put_time(std::localtime(&time), "%T") << "." << std::setw(6) << std::setfill('0')
+         << useconds;
+    return ostr;
+}
+
+std::vector<std::string> readSignalNames(const std::string& configFile) {
+    velocitas::logger().info("Reading signal list from file {}.", configFile);
+    auto config     = nlohmann::json::parse(std::ifstream(configFile));
+    auto signalList = config["signals"];
+
+    std::vector<std::string> signalNames;
+    signalNames.reserve(signalList.size());
+    for (const auto& signal : signalList) {
+        const auto& signalName = signal["path"];
+        if (!signalName.empty()) {
+            velocitas::logger().debug("    {}", signalName);
+            signalNames.push_back(signalName);
         }
     }
-
-    std::ostringstream oss;
-    switch (value.getType()) {
-    case velocitas::DataPointValue::Type::BOOL:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<bool>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::BOOL_ARRAY:
-        break;
-    case velocitas::DataPointValue::Type::INT32:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<int32_t>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::INT32_ARRAY:
-        break;
-    case velocitas::DataPointValue::Type::INT64:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<int64_t>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::INT64_ARRAY:
-        break;
-    case velocitas::DataPointValue::Type::UINT32:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<uint32_t>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::UINT32_ARRAY:
-        break;
-    case velocitas::DataPointValue::Type::UINT64:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<uint64_t>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::UINT64_ARRAY:
-        break;
-    case velocitas::DataPointValue::Type::FLOAT:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<float>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::FLOAT_ARRAY:
-        break;
-    case velocitas::DataPointValue::Type::DOUBLE:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<double>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::DOUBLE_ARRAY:
-        break;
-    case velocitas::DataPointValue::Type::STRING:
-        oss << dynamic_cast<const velocitas::TypedDataPointValue<std::string>&>(value).value();
-        break;
-    case velocitas::DataPointValue::Type::STRING_ARRAY:
-        break;
-    default:
-        oss << "UNKNOWN VALUE TYPE";
-        break;
-    }
-    return oss.str();
+    return signalNames;
 }
 
 } // anonymous namespace
 
-PerformanceTestApp::PerformanceTestApp()
+PerformanceTestApp::PerformanceTestApp(std::string configFile)
     : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
-                 velocitas::IPubSubClient::createInstance("PerformanceTestApp")) {}
+                 velocitas::IPubSubClient::createInstance("PerformanceTestApp"))
+    , m_configFile{std::move(configFile)} {}
 
 void PerformanceTestApp::onStart() {
-    velocitas::logger().info("Subscribe for data points!");
-
-    std::vector<std::string> dataPointList{"Vehicle.Speed", "Vehicle.Something",
-                                           "Vehicle.IsMoving"};
-
+    auto dataPointList = readSignalNames(m_configFile);
+    velocitas::logger().info("Subscribing to signals ...");
     for (auto path : dataPointList) {
         subscribeDataPoints("SELECT " + path)
             ->onItem([path](const velocitas::DataPointReply& reply) {
-                auto        value     = getValueRepresentation(*reply.getGeneric(path));
-                auto        timestamp = std::chrono::high_resolution_clock::now();
-                std::time_t time      = std::chrono::system_clock::to_time_t(timestamp);
-                velocitas::logger().info("{} - {} - {}", std::ctime(&time), path, value);
+                auto value     = getValueRepresentation(*reply.getGeneric(path));
+                auto timestamp = std::chrono::high_resolution_clock::now();
+                std::cout << timestamp << " - " << path << " - " << value << std::endl;
             })
             ->onError([path](velocitas::Status status) {
                 velocitas::logger().error("Error on subscription for data point {}: {}", path,
@@ -127,6 +90,8 @@ void PerformanceTestApp::onStart() {
 
 } // namespace example
 
+namespace {
+
 std::unique_ptr<example::PerformanceTestApp> myApp;
 
 void signal_handler(int sig) {
@@ -134,10 +99,16 @@ void signal_handler(int sig) {
     myApp->stop();
 }
 
+const std::string DEFAULT_CONFIG_FILE = "examples/performance-subscribe/subscription_signals.json";
+
+} // namespace
+
 int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
 
-    myApp = std::make_unique<example::PerformanceTestApp>();
+    auto configFile = (argc > 1) ? argv[1] : DEFAULT_CONFIG_FILE;
+
+    myApp = std::make_unique<example::PerformanceTestApp>(configFile);
     myApp->run();
     return 0;
 }

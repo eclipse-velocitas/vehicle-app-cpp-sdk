@@ -104,6 +104,10 @@ public:
                std::tie(other.m_path, other.m_type, other.m_timestamp, other.m_failure);
     }
 
+    [[nodiscard]] virtual std::string getValueAsString() const {
+        throw InvalidValueException("Base class does not carry values!");
+    }
+
 private:
     std::string m_path;
     Type        m_type{Type::INVALID};
@@ -194,9 +198,41 @@ public:
         return DataPointValue::operator==(other) && m_value == other.m_value;
     }
 
+    [[nodiscard]] std::string getValueAsString() const override;
+
 private:
     T m_value;
 };
+
+template <typename T> std::string TypedDataPointValue<T>::getValueAsString() const {
+    // Return empty string in case of unspecific data types
+    return "";
+}
+
+template <> inline std::string TypedDataPointValue<bool>::getValueAsString() const {
+    return std::to_string(static_cast<int>(m_value));
+}
+template <> inline std::string TypedDataPointValue<int32_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<int64_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<uint32_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<uint64_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<float>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<double>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<std::string>::getValueAsString() const {
+    return m_value;
+}
 
 } // namespace velocitas
 
