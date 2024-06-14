@@ -4,7 +4,7 @@
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
 |bottle|0.12.25|MIT|
-|certifi|2024.2.2|Mozilla Public License 2.0|
+|certifi|2024.6.2|Mozilla Public License 2.0|
 |cfgv|3.4.0|MIT|
 |charset-normalizer|3.3.2|MIT|
 |colorama|0.4.6|BSD|
@@ -13,29 +13,28 @@
 |distlib|0.3.8|Python Software Foundation License|
 |distro|1.8.0|Apache 2.0|
 |fasteners|0.19|Apache 2.0|
-|filelock|3.13.3|The Unlicense (Unlicense)|
+|filelock|3.15.1|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.5.35|MIT|
-|idna|3.6|BSD|
-|Jinja2|3.1.3|New BSD|
-|lxml|5.2.1|New BSD|
+|identify|2.5.36|MIT|
+|idna|3.7|BSD|
+|jinja2|3.1.4|BSD|
+|lxml|5.2.2|New BSD|
 |MarkupSafe|2.1.5|New BSD|
 |node-semver|0.6.1|MIT|
-|nodeenv|1.8.0|BSD|
+|nodeenv|1.9.1|BSD|
 |patch-ng|1.17.4|MIT|
-|platformdirs|4.2.0|MIT|
+|platformdirs|4.2.2|MIT|
 |pluginbase|1.0.1|BSD|
 |pre-commit|3.5.0|MIT|
-|pygments|2.17.2|Simplified BSD|
+|pygments|2.18.0|Simplified BSD|
 |PyJWT|2.8.0|MIT|
 |python-dateutil|2.9.0.post0|Apache 2.0<br/>BSD|
 |PyYAML|6.0.1|MIT|
-|requests|2.31.0|Apache 2.0|
-|setuptools|58.1.0|MIT|
+|requests|2.32.3|Apache 2.0|
 |six|1.16.0|MIT|
-|tqdm|4.66.2|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
+|tqdm|4.66.4|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
 |urllib3|1.26.18|MIT|
-|virtualenv|20.25.1|MIT|
+|virtualenv|20.26.2|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
