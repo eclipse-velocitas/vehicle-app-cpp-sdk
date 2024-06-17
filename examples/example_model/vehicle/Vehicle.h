@@ -20,7 +20,7 @@
 #include "sdk/DataPoint.h"
 #include "sdk/Model.h"
 
-#include "vehicle_model/Cabin/Cabin.h"
+#include "vehicle/Cabin/Cabin.h"
 
 namespace velocitas {
 

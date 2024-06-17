@@ -20,8 +20,7 @@
 #include "sdk/DataPoint.h"
 #include "sdk/Model.h"
 
-#include "vehicle_model/Cabin/Seat/Seat.h"
-#include "vehicle_model/Cabin/SeatService/SeatService.h"
+#include "vehicle/Cabin/Seat/Seat.h"
 
 #include <stdexcept>
 
@@ -36,7 +35,7 @@ public:
     public:
         class RowType : public ParentClass {
         public:
-            RowType(std::string name, ParentClass* parent)
+            RowType(const std::string& name, ParentClass* parent)
                 : ParentClass(name, parent)
                 , Pos1("Pos1", this)
                 , Pos2("Pos2", this)
@@ -81,16 +80,14 @@ public:
 
     Cabin(const std::string& name, ParentClass* parent)
         : ParentClass(name, parent)
-        , Seat(this)
-        , SeatService(this) {}
+        , Seat(this) {}
 
     /**
      * Seat: branch
      * All seats.
      *
      **/
-    SeatCollection              Seat;
-    vehicle::cabin::SeatService SeatService;
+    SeatCollection Seat;
 };
 
 } // namespace velocitas::vehicle
