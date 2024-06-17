@@ -52,7 +52,7 @@ public:
      * @param path The path ("name") of the data point to query from the reply.
      * @return std::shared_ptr<DataPointValue>  The genric data point value contained in the reply.
      */
-    [[nodiscard]] std::shared_ptr<DataPointValue> getGeneric(const std::string& path) const {
+    [[nodiscard]] std::shared_ptr<DataPointValue> getUntyped(const std::string& path) const {
         auto mapEntry = m_dataPointsMap.find(path);
         if (mapEntry == m_dataPointsMap.end()) {
             throw InvalidValueException(fmt::format("{} is not contained in reply!", path));
@@ -72,7 +72,7 @@ public:
     get(const TDataPointType& dataPoint) const {
         static_assert(std::is_base_of_v<DataPoint, TDataPointType>);
 
-        auto value = getGeneric(dataPoint.getPath());
+        auto value = getUntyped(dataPoint.getPath());
         if (value->isValid()) {
             return std::dynamic_pointer_cast<
                 TypedDataPointValue<typename TDataPointType::value_type>>(value);

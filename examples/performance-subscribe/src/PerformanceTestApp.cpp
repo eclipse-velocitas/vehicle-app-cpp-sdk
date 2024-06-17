@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -36,49 +36,36 @@ std::string getValueRepresentation(const velocitas::DataPointValue& value) {
     return value.getValueAsString();
 }
 
-std::ostream& operator<<(std::ostream&                                        ostr,
-                         const std::chrono::high_resolution_clock::time_point timestamp) {
-    std::time_t time = std::chrono::high_resolution_clock::to_time_t(timestamp);
-    uint64_t    useconds =
-        std::chrono::duration_cast<std::chrono::microseconds>(timestamp.time_since_epoch())
-            .count() %
-        std::micro::den;
-    ostr << std::put_time(std::localtime(&time), "%T") << "." << std::setw(6) << std::setfill('0')
-         << useconds;
-    return ostr;
+int32_t extractMicroseconds(const std::chrono::high_resolution_clock::time_point& timepoint) {
+    const auto timeSinceEpoch = timepoint.time_since_epoch();
+    const auto usecondsSinceEpoch =
+        std::chrono::duration_cast<std::chrono::microseconds>(timeSinceEpoch).count();
+    return static_cast<int32_t>(usecondsSinceEpoch % std::micro::den);
 }
 
-std::vector<std::string> readSignalNames(const std::string& configFile) {
-    velocitas::logger().info("Reading signal list from file {}.", configFile);
-    auto config     = nlohmann::json::parse(std::ifstream(configFile));
-    auto signalList = config["signals"];
-
-    std::vector<std::string> signalNames;
-    signalNames.reserve(signalList.size());
-    for (const auto& signal : signalList) {
-        const auto& signalName = signal["path"];
-        if (!signalName.empty()) {
-            velocitas::logger().debug("    {}", signalName);
-            signalNames.push_back(signalName);
-        }
-    }
-    return signalNames;
+std::ostream& operator<<(std::ostream&                                         ostr,
+                         const std::chrono::high_resolution_clock::time_point& timestamp) {
+    auto time = std::chrono::high_resolution_clock::to_time_t(timestamp);
+    ostr << std::put_time(std::localtime(&time), "%T");
+    const int32_t microseconds         = extractMicroseconds(timestamp);
+    const int     NUM_AFTER_DOT_DIGITS = 6;
+    ostr << "." << std::setw(NUM_AFTER_DOT_DIGITS) << std::setfill('0') << microseconds;
+    return ostr;
 }
 
 } // anonymous namespace
 
-PerformanceTestApp::PerformanceTestApp(std::string configFile)
+PerformanceTestApp::PerformanceTestApp(std::vector<std::string> signalList)
     : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
                  velocitas::IPubSubClient::createInstance("PerformanceTestApp"))
-    , m_configFile{std::move(configFile)} {}
+    , m_signalList{std::move(signalList)} {}
 
 void PerformanceTestApp::onStart() {
-    auto dataPointList = readSignalNames(m_configFile);
     velocitas::logger().info("Subscribing to signals ...");
-    for (auto path : dataPointList) {
+    for (auto path : m_signalList) {
         subscribeDataPoints("SELECT " + path)
             ->onItem([path](const velocitas::DataPointReply& reply) {
-                auto value     = getValueRepresentation(*reply.getGeneric(path));
+                auto value     = getValueRepresentation(*reply.getUntyped(path));
                 auto timestamp = std::chrono::high_resolution_clock::now();
                 std::cout << timestamp << " - " << path << " - " << value << std::endl;
             })
@@ -108,14 +95,34 @@ std::string getDefaultConfigFilePath(const char* appBinaryPath) {
     return std::string{path};
 }
 
-} // namespace
+std::vector<std::string> readSignalNameFromFiles(const std::string& configFile) {
+    velocitas::logger().info("Reading signal list from file {}.", configFile);
+    const auto  config     = nlohmann::json::parse(std::ifstream(configFile));
+    const auto& signalList = config["signals"];
+
+    std::vector<std::string> signalNames;
+    signalNames.reserve(signalList.size());
+    for (const auto& signal : signalList) {
+        const auto& signalName = signal["path"];
+        if (!signalName.empty()) {
+            velocitas::logger().debug("    {}", signalName);
+            signalNames.push_back(signalName);
+        } else {
+            velocitas::logger().warn("Signal entry without 'path' found!");
+        }
+    }
+    return signalNames;
+}
+
+} // anonymous namespace
 
 int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
 
     const auto configFile = (argc > 1) ? std::string(argv[1]) : getDefaultConfigFilePath(argv[0]);
+    auto       signalList = readSignalNameFromFiles(configFile);
 
-    myApp = std::make_unique<example::PerformanceTestApp>(configFile);
+    myApp = std::make_unique<example::PerformanceTestApp>(std::move(signalList));
     myApp->run();
     return 0;
 }

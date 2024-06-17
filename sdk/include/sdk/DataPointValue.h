@@ -206,11 +206,11 @@ private:
 
 template <typename T> std::string TypedDataPointValue<T>::getValueAsString() const {
     // Return empty string in case of unspecific data types
-    return "";
+    return "<unknown datatype>";
 }
 
 template <> inline std::string TypedDataPointValue<bool>::getValueAsString() const {
-    return std::to_string(static_cast<int>(m_value));
+    return m_value ? "true" : "false";
 }
 template <> inline std::string TypedDataPointValue<int32_t>::getValueAsString() const {
     return std::to_string(m_value);

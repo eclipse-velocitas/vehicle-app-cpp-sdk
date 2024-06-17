@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -20,6 +20,7 @@
 #include "sdk/VehicleApp.h"
 
 #include <string>
+#include <vector>
 
 namespace velocitas {
 class Vehicle;
@@ -32,12 +33,12 @@ namespace example {
  */
 class PerformanceTestApp : public velocitas::VehicleApp {
 public:
-    explicit PerformanceTestApp(std::string configFile);
+    explicit PerformanceTestApp(std::vector<std::string> signalList);
 
     void onStart() override;
 
 private:
-    std::string m_configFile;
+    std::vector<std::string> m_signalList;
 };
 
 } // namespace example
