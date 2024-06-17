@@ -15,6 +15,7 @@
 set(TARGET_NAME "example-performance-subscribe")
 
 add_executable(${TARGET_NAME}
+    src/Launcher.cpp
     src/PerformanceTestApp.cpp
 )
 

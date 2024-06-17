@@ -22,10 +22,6 @@
 #include <string>
 #include <vector>
 
-namespace velocitas {
-class Vehicle;
-} // namespace velocitas
-
 namespace example {
 
 /**

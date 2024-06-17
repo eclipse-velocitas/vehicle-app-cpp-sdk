@@ -19,11 +19,9 @@
 #include "sdk/Logger.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
-#include <csignal>
-#include <filesystem>
-#include <fstream>
+#include <chrono>
+#include <iomanip>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <utility>
 
 namespace example {
@@ -77,52 +75,3 @@ void PerformanceTestApp::onStart() {
 }
 
 } // namespace example
-
-namespace {
-
-std::unique_ptr<example::PerformanceTestApp> myApp;
-
-void signal_handler(int sig) {
-    velocitas::logger().info("App terminating signal received: {}", sig);
-    myApp->stop();
-}
-
-const char DEFAULT_CONFIG_FILENAME[] = "subscription_signals.json";
-
-std::string getDefaultConfigFilePath(const char* appBinaryPath) {
-    std::filesystem::path path = appBinaryPath;
-    path.replace_filename(DEFAULT_CONFIG_FILENAME);
-    return std::string{path};
-}
-
-std::vector<std::string> readSignalNameFromFiles(const std::string& configFile) {
-    velocitas::logger().info("Reading signal list from file {}.", configFile);
-    const auto  config     = nlohmann::json::parse(std::ifstream(configFile));
-    const auto& signalList = config["signals"];
-
-    std::vector<std::string> signalNames;
-    signalNames.reserve(signalList.size());
-    for (const auto& signal : signalList) {
-        const auto& signalName = signal["path"];
-        if (!signalName.empty()) {
-            velocitas::logger().debug("    {}", signalName);
-            signalNames.push_back(signalName);
-        } else {
-            velocitas::logger().warn("Signal entry without 'path' found!");
-        }
-    }
-    return signalNames;
-}
-
-} // anonymous namespace
-
-int main(int argc, char** argv) {
-    signal(SIGINT, signal_handler);
-
-    const auto configFile = (argc > 1) ? std::string(argv[1]) : getDefaultConfigFilePath(argv[0]);
-    auto       signalList = readSignalNameFromFiles(configFile);
-
-    myApp = std::make_unique<example::PerformanceTestApp>(std::move(signalList));
-    myApp->run();
-    return 0;
-}
