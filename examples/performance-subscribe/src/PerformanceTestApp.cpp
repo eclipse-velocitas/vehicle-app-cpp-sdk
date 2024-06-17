@@ -20,6 +20,7 @@
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <csignal>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -99,14 +100,20 @@ void signal_handler(int sig) {
     myApp->stop();
 }
 
-const char DEFAULT_CONFIG_FILE[] = "examples/performance-subscribe/subscription_signals.json";
+const char DEFAULT_CONFIG_FILENAME[] = "subscription_signals.json";
+
+std::string getDefaultConfigFilePath(const char* appBinaryPath) {
+    std::filesystem::path path = appBinaryPath;
+    path.replace_filename(DEFAULT_CONFIG_FILENAME);
+    return std::string{path};
+}
 
 } // namespace
 
 int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
 
-    const auto* configFile = (argc > 1) ? argv[1] : DEFAULT_CONFIG_FILE;
+    const auto configFile = (argc > 1) ? std::string(argv[1]) : getDefaultConfigFilePath(argv[0]);
 
     myApp = std::make_unique<example::PerformanceTestApp>(configFile);
     myApp->run();

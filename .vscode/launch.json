@@ -82,7 +82,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/example-performance-subscribe",
-            "args": [ ],
+            "args": [ "${workspaceFolder}/examples/performance-subscribe/subscription_signals.json" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
