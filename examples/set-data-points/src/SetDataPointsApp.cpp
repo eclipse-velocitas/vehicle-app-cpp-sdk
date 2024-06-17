@@ -20,7 +20,7 @@
 #include "sdk/QueryBuilder.h"
 #include "sdk/VehicleApp.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
-#include "vehicle_model/Vehicle.h"
+#include "vehicle/Vehicle.h"
 
 #include <csignal>
 #include <fmt/core.h>

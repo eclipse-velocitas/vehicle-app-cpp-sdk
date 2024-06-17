@@ -19,7 +19,7 @@
 
 #include "sdk/Status.h"
 #include "sdk/VehicleApp.h"
-#include "vehicle_model/Vehicle.h"
+#include "vehicle/Vehicle.h"
 
 #include <memory>
 #include <string>
@@ -29,9 +29,9 @@ namespace example {
 /**
  * @brief A sample SeatAdjusterApp.
  * The SeatAdjusterApp subscribes at the VehicleDataBroker for updates for
- * the Vehicle.Speed signal.It also subscribes at a MQTT topic to listen for
- * incoming requests to change the seat position and calls the SeatService to
- * move the seat upon such a request, but only if Vehicle.Speed equals 0.
+ * the Vehicle.Speed signal. It also subscribes at a MQTT topic to listen for
+ * incoming requests to change the seat position and forwards the requested position
+ * to the respective data point at the data broker, but only if Vehicle.Speed equals 0.
  */
 class SeatAdjusterApp : public velocitas::VehicleApp {
 public:

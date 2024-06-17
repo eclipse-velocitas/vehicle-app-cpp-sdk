@@ -12,7 +12,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(vehicle_model)
+include_directories(example_model)
 
 add_subdirectory(performance-subscribe)
 add_subdirectory(seat-adjuster)

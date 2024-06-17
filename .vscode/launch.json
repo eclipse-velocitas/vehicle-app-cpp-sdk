@@ -35,10 +35,6 @@
                     "value": "127.0.0.1:55555"
                 },
                 {
-                    "name": "SDV_SEATSERVICE_ADDRESS",
-                    "value": "127.0.0.1:50051"
-                },
-                {
                     "name": "SDV_MQTT_ADDRESS",
                     "value": "127.0.0.1:1883"
                 }
@@ -63,10 +59,6 @@
                 {
                     "name": "SDV_VEHICLEDATABROKER_ADDRESS",
                     "value": "127.0.0.1:55555"
-                },
-                {
-                    "name": "SDV_SEATSERVICE_ADDRESS",
-                    "value": "127.0.0.1:50051"
                 },
                 {
                     "name": "SDV_MQTT_ADDRESS",
