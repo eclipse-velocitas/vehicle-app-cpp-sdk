@@ -33,7 +33,7 @@
 |requests|2.32.3|Apache 2.0|
 |six|1.16.0|MIT|
 |tqdm|4.66.4|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
-|urllib3|1.26.18|MIT|
+|urllib3|1.26.19|MIT|
 |virtualenv|20.26.2|MIT|
 ## Workflows
 | Dependency | Version | License |
