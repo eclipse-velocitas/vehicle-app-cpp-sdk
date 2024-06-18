@@ -47,7 +47,7 @@ public:
         : m_dataPointsMap(std::move(dataPointsMap)) {}
 
     /**
-     * @brief Get the desired data point from the reply as generic type.
+     * @brief Get the desired data point from the reply as an untyped DataPointValue.
      *
      * @param path The path ("name") of the data point to query from the reply.
      * @return std::shared_ptr<DataPointValue>  The genric data point value contained in the reply.

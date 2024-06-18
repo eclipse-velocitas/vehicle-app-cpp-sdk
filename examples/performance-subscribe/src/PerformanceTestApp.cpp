@@ -19,9 +19,10 @@
 #include "sdk/Logger.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
+#include <fmt/chrono.h>
+#include <fmt/core.h>
+
 #include <chrono>
-#include <iomanip>
-#include <iostream>
 #include <utility>
 
 namespace example {
@@ -34,21 +35,10 @@ std::string getValueRepresentation(const velocitas::DataPointValue& value) {
     return value.getValueAsString();
 }
 
-int32_t extractMicroseconds(const std::chrono::high_resolution_clock::time_point& timepoint) {
-    const auto timeSinceEpoch = timepoint.time_since_epoch();
-    const auto usecondsSinceEpoch =
-        std::chrono::duration_cast<std::chrono::microseconds>(timeSinceEpoch).count();
-    return static_cast<int32_t>(usecondsSinceEpoch % std::micro::den);
-}
-
-std::ostream& operator<<(std::ostream&                                         ostr,
-                         const std::chrono::high_resolution_clock::time_point& timestamp) {
-    auto time = std::chrono::high_resolution_clock::to_time_t(timestamp);
-    ostr << std::put_time(std::localtime(&time), "%T");
-    const int32_t microseconds         = extractMicroseconds(timestamp);
-    const int     NUM_AFTER_DOT_DIGITS = 6;
-    ostr << "." << std::setw(NUM_AFTER_DOT_DIGITS) << std::setfill('0') << microseconds;
-    return ostr;
+template <typename TIME_BASE> TIME_BASE getTimestamp() {
+    const auto timestamp      = std::chrono::high_resolution_clock::now();
+    const auto timeSinceEpoch = timestamp.time_since_epoch();
+    return std::chrono::duration_cast<TIME_BASE>(timeSinceEpoch);
 }
 
 } // anonymous namespace
@@ -63,9 +53,9 @@ void PerformanceTestApp::onStart() {
     for (auto path : m_signalList) {
         subscribeDataPoints("SELECT " + path)
             ->onItem([path](const velocitas::DataPointReply& reply) {
-                auto value     = getValueRepresentation(*reply.getUntyped(path));
-                auto timestamp = std::chrono::high_resolution_clock::now();
-                std::cout << timestamp << " - " << path << " - " << value << std::endl;
+                const auto value     = getValueRepresentation(*reply.getUntyped(path));
+                const auto timestamp = getTimestamp<std::chrono::microseconds>();
+                fmt::print("{:%T} - {} - {}\n", timestamp, path, value);
             })
             ->onError([path](const velocitas::Status& status) {
                 velocitas::logger().error("Error on subscription for data point {}: {}", path,
