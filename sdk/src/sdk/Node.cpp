@@ -17,7 +17,6 @@
 #include "sdk/Node.h"
 #include "sdk/Utils.h"
 
-#include <utility>
 #include <vector>
 
 namespace velocitas {

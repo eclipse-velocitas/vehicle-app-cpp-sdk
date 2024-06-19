@@ -16,7 +16,6 @@
 
 #include "sdk/DataPoint.h"
 
-#include "sdk/Exceptions.h"
 #include "sdk/VehicleModelContext.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
@@ -27,9 +26,6 @@
 
 namespace velocitas {
 
-DataPoint::DataPoint(const std::string& name)
-    : Node(name) {}
-
 template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>::get() const {
     return VehicleModelContext::getInstance()
         .getVdbc()
@@ -38,7 +34,7 @@ template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>
             [this](const DataPointReply& dataPointValues) { return *dataPointValues.get(*this); });
 }
 
-template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) {
+template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) const {
     std::vector<std::unique_ptr<DataPointValue>> vec;
     vec.reserve(1);
     vec.emplace_back(std::make_unique<TypedDataPointValue<T>>(getPath(), value));

@@ -22,6 +22,7 @@
 #include "sdk/Node.h"
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -38,8 +39,6 @@ namespace velocitas {
 class DataPoint : public Node {
 public:
     using Node::Node;
-
-    explicit DataPoint(const std::string& name);
     ~DataPoint() override = default;
 
     DataPoint(const DataPoint&)            = delete;
@@ -75,7 +74,7 @@ public:
     TypedDataPoint& operator=(TypedDataPoint&&)      = delete;
 
     [[nodiscard]] AsyncResultPtr_t<TypedDataPointValue<T>> get() const;
-    [[nodiscard]] AsyncResultPtr_t<Status>                 set(T value);
+    [[nodiscard]] AsyncResultPtr_t<Status>                 set(T value) const;
 
     [[nodiscard]] std::string toString() const override;
 };

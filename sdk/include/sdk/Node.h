@@ -17,7 +17,6 @@
 #ifndef VEHICLE_APP_SDK_NODE_H
 #define VEHICLE_APP_SDK_NODE_H
 
-#include <memory>
 #include <string>
 
 namespace velocitas {
@@ -36,7 +35,7 @@ public:
      */
     explicit Node(std::string name, Node* parent = nullptr);
 
-    virtual ~Node(){};
+    virtual ~Node() = default;
 
     [[nodiscard]] const Node* getParent() const;
 

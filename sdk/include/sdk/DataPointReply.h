@@ -47,23 +47,32 @@ public:
         : m_dataPointsMap(std::move(dataPointsMap)) {}
 
     /**
+     * @brief Get the desired data point from the reply as an untyped DataPointValue.
+     *
+     * @param path The path ("name") of the data point to query from the reply.
+     * @return std::shared_ptr<DataPointValue>  The genric data point value contained in the reply.
+     */
+    [[nodiscard]] std::shared_ptr<DataPointValue> getUntyped(const std::string& path) const {
+        auto mapEntry = m_dataPointsMap.find(path);
+        if (mapEntry == m_dataPointsMap.end()) {
+            throw InvalidValueException(fmt::format("{} is not contained in reply!", path));
+        }
+        return mapEntry->second;
+    }
+
+    /**
      * @brief Get the desired data point from the reply.
      *
      * @tparam TDataPointType   The type of the data point to return.
      * @param dataPoint         The data point to query from the reply.
-     * @return std::shared_ptr<TDataPointType>  The data point contained in the reply.
+     * @return std::shared_ptr<TDataPointType>  The data point value contained in the reply.
      */
     template <class TDataPointType>
     [[nodiscard]] std::shared_ptr<TypedDataPointValue<typename TDataPointType::value_type>>
     get(const TDataPointType& dataPoint) const {
         static_assert(std::is_base_of_v<DataPoint, TDataPointType>);
 
-        if (m_dataPointsMap.find(dataPoint.getPath()) == m_dataPointsMap.end()) {
-            throw InvalidValueException(
-                fmt::format("{} is not contained in reply!", dataPoint.getPath()));
-        }
-
-        std::shared_ptr<DataPointValue> value = m_dataPointsMap.at(dataPoint.getPath());
+        auto value = getUntyped(dataPoint.getPath());
         if (value->isValid()) {
             return std::dynamic_pointer_cast<
                 TypedDataPointValue<typename TDataPointType::value_type>>(value);

@@ -68,6 +68,32 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [ ],
+        },
+        {
+            "name": "Example - Performance Subscribe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/example-performance-subscribe",
+            "args": [ "${workspaceFolder}/examples/performance-subscribe/subscription_signals.json" ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "SDV_MIDDLEWARE_TYPE",
+                    "value": "native"
+                },
+                {
+                    "name": "SDV_VEHICLEDATABROKER_ADDRESS",
+                    "value": "127.0.0.1:55555"
+                },
+                {
+                    "name": "SDV_MQTT_ADDRESS",
+                    "value": "127.0.0.1:1883"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [ ],
         }
     ]
 }
