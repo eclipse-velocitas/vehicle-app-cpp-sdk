@@ -35,10 +35,10 @@ std::string getValueRepresentation(const velocitas::DataPointValue& value) {
     return value.getValueAsString();
 }
 
-template <typename TIME_BASE> TIME_BASE getTimestamp() {
+template <typename TTimeBase> TTimeBase getTimestamp() {
     const auto timestamp      = std::chrono::high_resolution_clock::now();
     const auto timeSinceEpoch = timestamp.time_since_epoch();
-    return std::chrono::duration_cast<TIME_BASE>(timeSinceEpoch);
+    return std::chrono::duration_cast<TTimeBase>(timeSinceEpoch);
 }
 
 } // anonymous namespace
