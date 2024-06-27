@@ -42,7 +42,7 @@ DataPointValue::Failure GrpcDataPointValueProvider::getFailure() const {
     case sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR:
         return DataPointValue::Failure::INTERNAL_ERROR;
     default:
-        logger().error("Unknown 'DataPointValue::Failure': {}", m_datapoint.failure_value());
+        logger().error("Unknown 'DataPointValue::Failure': {}", static_cast<int>(m_datapoint.failure_value()));
         assert(false);
         return DataPointValue::Failure::INTERNAL_ERROR;
     }
