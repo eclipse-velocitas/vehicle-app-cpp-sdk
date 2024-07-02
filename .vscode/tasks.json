@@ -30,7 +30,7 @@
 			"detail": "Starts the SeatAdjuster under development",
 			"type": "shell",
 			"command": [
-				"velocitas exec runtime-local run-vehicle-app python3 ${workspaceFolder}/examples/seat-adjuster/src/main.py"
+				"velocitas exec runtime-local run-vehicle-app ${workspaceFolder}/build/bin/example-seatadjusterapp"
 			],
 			"presentation": {
 				"panel": "dedicated",
