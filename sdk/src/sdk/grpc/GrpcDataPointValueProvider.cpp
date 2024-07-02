@@ -30,6 +30,10 @@ const sdv::databroker::v1::Datapoint& GrpcDataPointValueProvider::getDataPoint()
 }
 
 DataPointValue::Failure GrpcDataPointValueProvider::getFailure() const {
+    if (!m_datapoint.has_failure_value()) {
+        return DataPointValue::Failure::NONE;
+    }
+
     switch (m_datapoint.failure_value()) {
     case sdv::databroker::v1::Datapoint_Failure_INVALID_VALUE:
         return DataPointValue::Failure::INVALID_VALUE;
@@ -42,7 +46,7 @@ DataPointValue::Failure GrpcDataPointValueProvider::getFailure() const {
     case sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR:
         return DataPointValue::Failure::INTERNAL_ERROR;
     default:
-        logger().error("Unknown 'DataPointValue::Failure': {}", m_datapoint.failure_value());
+        logger().error("Unknown 'DataPointValue::Failure': {}", static_cast<int>(m_datapoint.failure_value()));
         assert(false);
         return DataPointValue::Failure::INTERNAL_ERROR;
     }
