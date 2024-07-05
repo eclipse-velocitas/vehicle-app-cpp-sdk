@@ -12,7 +12,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+cmake_minimum_required(VERSION 3.16)
+
 set(TARGET_NAME "vehicle-app-sdk")
+
+if(COMMAND cmake_policy)
+    cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
 
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp
@@ -49,11 +55,17 @@ add_dependencies(${TARGET_NAME}
     vehicle-app-sdk-generated-grpc
 )
 
+find_package(gRPC REQUIRED)
+find_package(cpr REQUIRED)
+find_package(fmt REQUIRED)
+find_package(PahoMqttCpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
 target_link_libraries(${TARGET_NAME}
-    CONAN_PKG::grpc
-    CONAN_PKG::cpr
-    CONAN_PKG::fmt
-    CONAN_PKG::paho-mqtt-cpp
-    CONAN_PKG::nlohmann_json
+    gRPC::grpc
+    cpr::cpr
+    fmt::fmt
+    PahoMqttCpp::paho-mqttpp3-static
+    nlohmann_json::nlohmann_json
     vehicle-app-sdk-generated-grpc
 )

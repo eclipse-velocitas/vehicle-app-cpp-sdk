@@ -12,14 +12,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+cmake_minimum_required(VERSION 3.16)
+
 file(GLOB_RECURSE PROTO_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.proto)
 
 find_program(_gRPC_PROTOBUF_PROTOC_EXECUTABLE protoc REQUIRED 
-    PATHS ${BUILD_TOOLS_PATH}
-    NO_DEFAULT_PATH)
+    PATHS ${BUILD_TOOLS_PATH})
 find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin REQUIRED 
-    PATHS ${BUILD_TOOLS_PATH}
-    NO_DEFAULT_PATH)
+    PATHS ${BUILD_TOOLS_PATH})
 
 set(_gRPC_PROTO_GENS_DIR ${CMAKE_BINARY_DIR}/gens)
 set(_gRPC_PROTO_SRCS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -47,11 +47,11 @@ foreach(FILE ${PROTO_FILES})
         ${OUTPUT_FILE_PATH_GRPC_MOCK_HDR}
     )
 
-    set(GENERATE_GRPC_SOURCES FALSE)
+    set(GENERATE_GRPC_SOURCES OFF)
 
     foreach(OUTPUT_FILE ${OUTPUT_FILES})
         if(NOT EXISTS ${OUTPUT_FILE})
-            set(GENERATE_GRPC_SOURCES TRUE)
+            set(GENERATE_GRPC_SOURCES ON)
             message("File does not exist: " ${OUTPUT_FILE})
         else()
             # message("File already exists: " ${OUTPUT_FILE})
@@ -88,6 +88,13 @@ add_library(${TARGET_NAME} STATIC
     ${PROTO_SRCS}
 )
 
+find_package(grpc REQUIRED)
+find_package(protobuf REQUIRED)
+
 target_link_libraries(${TARGET_NAME}
-    CONAN_PKG::grpc
+    gRPC::grpc
+    gRPC::grpc++
+    protobuf::protobuf
 )
+
+set_property(TARGET ${TARGET_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
