@@ -4,7 +4,7 @@
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
 |bottle|0.12.25|MIT|
-|certifi|2024.6.2|Mozilla Public License 2.0|
+|certifi|2024.7.4|Mozilla Public License 2.0|
 |cfgv|3.4.0|MIT|
 |charset-normalizer|3.3.2|MIT|
 |colorama|0.4.6|BSD|
