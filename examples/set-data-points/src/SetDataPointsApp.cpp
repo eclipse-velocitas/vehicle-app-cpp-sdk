@@ -51,8 +51,8 @@ public:
             velocitas::logger().info("Setting batch of data points ...");
 
             auto result = Vehicle.setMany()
-                              .add(Vehicle.Cabin.Seat.Row1.Pos1.Position, 1000)
-                              .add(Vehicle.Cabin.Seat.Row1.Pos2.Position, 1000)
+                              .add(Vehicle.Cabin.Seat.Row1.DriverSide.Position, 1000)
+                              .add(Vehicle.Cabin.Seat.Row1.PassengerSide.Position, 1000)
                               .apply()
                               ->await();
 

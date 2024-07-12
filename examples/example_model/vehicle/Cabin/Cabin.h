@@ -35,28 +35,15 @@ public:
     public:
         class RowType : public ParentClass {
         public:
-            RowType(const std::string& name, ParentClass* parent)
+            RowType(std::string name, ParentClass* parent)
                 : ParentClass(name, parent)
-                , Pos1("Pos1", this)
-                , Pos2("Pos2", this)
-                , Pos3("Pos3", this) {}
+                , DriverSide("DriverSide", this)
+                , Middle("Middle", this)
+                , PassengerSide("PassengerSide", this) {}
 
-            vehicle::cabin::Seat& Pos(int index) {
-                if (index == 1) {
-                    return Pos1;
-                }
-                if (index == 2) {
-                    return Pos2;
-                }
-                if (index == 3) {
-                    return Pos3;
-                }
-                throw std::runtime_error("Given value is outside of allowed range [1;3]!");
-            }
-
-            vehicle::cabin::Seat Pos1;
-            vehicle::cabin::Seat Pos2;
-            vehicle::cabin::Seat Pos3;
+            vehicle::cabin::Seat DriverSide;
+            vehicle::cabin::Seat Middle;
+            vehicle::cabin::Seat PassengerSide;
         };
 
         explicit SeatCollection(ParentClass* parent)

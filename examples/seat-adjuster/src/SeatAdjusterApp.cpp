@@ -48,7 +48,8 @@ void SeatAdjusterApp::onStart() {
     velocitas::logger().info("Subscribe for data points!");
 
     subscribeDataPoints(
-        velocitas::QueryBuilder::select(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position).build())
+        velocitas::QueryBuilder::select(m_vehicleModel->Cabin.Seat.Row1.DriverSide.Position)
+            .build())
         ->onItem([this](auto&& item) { onSeatPositionChanged(std::forward<decltype(item)>(item)); })
         ->onError(
             [this](auto&& status) { onErrorDatapoint(std::forward<decltype(status)>(status)); });
@@ -80,7 +81,7 @@ void SeatAdjusterApp::onSetPositionRequestReceived(const std::string& data) {
     nlohmann::json respData({{JSON_FIELD_REQUEST_ID, requestId}, {JSON_FIELD_RESULT, {}}});
     const auto     vehicleSpeed = m_vehicleModel->Speed.get()->await().value();
     if (vehicleSpeed == 0) {
-        m_vehicleModel->Cabin.Seat.Row1.Pos1.Position.set(desiredSeatPosition)->await();
+        m_vehicleModel->Cabin.Seat.Row1.DriverSide.Position.set(desiredSeatPosition)->await();
 
         respData[JSON_FIELD_RESULT][JSON_FIELD_STATUS] = STATUS_OK;
         respData[JSON_FIELD_RESULT][JSON_FIELD_MESSAGE] =
@@ -101,7 +102,7 @@ void SeatAdjusterApp::onSeatPositionChanged(const velocitas::DataPointReply& dat
     nlohmann::json jsonResponse;
     try {
         const auto seatPositionValue =
-            dataPoints.get(m_vehicleModel->Cabin.Seat.Row1.Pos1.Position)->value();
+            dataPoints.get(m_vehicleModel->Cabin.Seat.Row1.DriverSide.Position)->value();
         jsonResponse[JSON_FIELD_POSITION] = seatPositionValue;
     } catch (std::exception& exception) {
         velocitas::logger().warn("Unable to get Current Seat Position, Exception: {}",

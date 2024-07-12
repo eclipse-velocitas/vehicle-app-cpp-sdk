@@ -84,7 +84,7 @@ message SubscribeReply {
 
 message GetMetadataRequest {
   // Request metadata for a list of data points referenced by their names.
-  // e.g. "Vehicle.Cabin.Seat.Row1.Pos1.Position" or "Vehicle.Speed".
+  // e.g. "Vehicle.Cabin.Seat.Row1.DriverSide.Position" or "Vehicle.Speed".
   //
   // If no names are provided, metadata for all known data points will be
   // returned.
