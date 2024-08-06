@@ -84,7 +84,7 @@ message RegisterDatapointsRequest {
 
 message RegistrationMetadata {
   // Name of the data point
-  // (e.g. "Vehicle.Cabin.Seat.Row1.Pos1.Position" or "Vehicle.Speed")
+  // (e.g. "Vehicle.Cabin.Seat.Row1.DriverSide.Position" or "Vehicle.Speed")
   string name            = 1;
   DataType data_type     = 2;
   string description     = 3;
