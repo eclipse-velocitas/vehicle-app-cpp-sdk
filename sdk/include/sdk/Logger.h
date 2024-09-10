@@ -71,7 +71,14 @@ public:
  *
  * @details Handles string formatting of the log message and its arguments
  *          then forwards the formatted message to the real logger
- *          implementation. (Bridge pattern)
+ *          implementation. (Bridge pattern).
+ *
+ *          If only msg is given and no args then the msg is assumed to be a raw text message
+ *          to be logged as is.
+ *
+ *          If args are given then msg is assumed to be a valid format message
+ *          following the formatting rules of https://fmt.dev/11.0/, and the args are assumed
+ *          to be compatible with the given format message.
  */
 class Logger {
 public:
@@ -81,44 +88,64 @@ public:
      * @brief Log a message with info level.
      *
      * @tparam T    Type of the format arguments.
-     * @param msg   The format message.
+     * @param msg   The raw message or format message.
      * @param args  The format arguments.
      */
     template <typename... T> void info(const std::string& msg, const T&... args) {
-        m_impl->info(fmt::format(msg, args...));
+        const std::size_t nbr = sizeof...(T);
+        if (nbr == 0) {
+            m_impl->info(msg);
+        } else {
+            m_impl->info(fmt::format(msg, args...));
+        }
     }
 
     /**
      * @brief Log a message with warn level.
      *
      * @tparam T    Type of the format arguments.
-     * @param msg   The format message.
+     * @param msg   The raw message or format message.
      * @param args  The format arguments.
      */
     template <typename... T> void warn(const std::string& msg, const T&... args) {
-        m_impl->warn(fmt::format(msg, args...));
+        const std::size_t nbr = sizeof...(T);
+        if (nbr == 0) {
+            m_impl->warn(msg);
+        } else {
+            m_impl->warn(fmt::format(msg, args...));
+        }
     }
 
     /**
      * @brief Log a message with error level.
      *
      * @tparam T    Type of the format arguments.
-     * @param msg   The format message.
+     * @param msg   The raw message or format message.
      * @param args  The format arguments.
      */
     template <typename... T> void error(const std::string& msg, const T&... args) {
-        m_impl->error(fmt::format(msg, args...));
+        const std::size_t nbr = sizeof...(T);
+        if (nbr == 0) {
+            m_impl->error(msg);
+        } else {
+            m_impl->error(fmt::format(msg, args...));
+        }
     }
 
     /**
      * @brief Log a message with debug level.
      *
      * @tparam T    Type of the format arguments.
-     * @param msg   The format message.
+     * @param msg   The raw message or format message.
      * @param args  The format arguments.
      */
     template <typename... T> void debug(const std::string& msg, const T&... args) {
-        m_impl->debug(fmt::format(msg, args...));
+        const std::size_t nbr = sizeof...(T);
+        if (nbr == 0) {
+            m_impl->debug(msg);
+        } else {
+            m_impl->debug(fmt::format(msg, args...));
+        }
     }
 
     /**
