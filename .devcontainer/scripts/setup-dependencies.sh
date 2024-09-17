@@ -47,4 +47,4 @@ fi
 echo "#######################################################"
 echo "### Install Dependencies                            ###"
 echo "#######################################################"
-velocitas exec build-system install 2>&1 | tee -a $HOME/install_dependencies.log
+./install_dependencies.sh 2>&1 | tee -a $HOME/install_dependencies.log
