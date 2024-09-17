@@ -1,6 +1,6 @@
 #!/bin/bash
 # This file is maintained by velocitas CLI, do not modify manually. Change settings in .velocitas.json
-# Copyright (c) 2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -14,10 +14,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-.devcontainer/scripts/upgrade-cli.sh
-
-# Call user initialization hook if present
-POST_START_USER_HOOK_PATH=.devcontainer/scripts/onPostStartUserHook.sh
-if [[ -x $POST_START_USER_HOOK_PATH ]]; then
-    $POST_START_USER_HOOK_PATH
+echo "#######################################################"
+echo "### Setup Git                                       ###"
+echo "#######################################################"
+# Add git name and email from env variables
+if [[ -n "${GIT_CONFIG_NAME}" && -n "${GIT_CONFIG_EMAIL}" ]]; then
+    git config --global user.name $GIT_CONFIG_NAME
+    git config --global user.email $GIT_CONFIG_EMAIL
 fi
+
+git config --global --add safe.directory "*"

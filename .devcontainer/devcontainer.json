@@ -115,7 +115,8 @@
 				"cs128.cs128-clang-tidy",
 				"matepek.vscode-catch2-test-adapter",
 				"sanaajani.taskrunnercode",
-				"augustocdias.tasks-shell-input"
+				"augustocdias.tasks-shell-input",
+				"ms-vscode.cpptools-extension-pack"
 			]
 		}
 	},
