@@ -13,7 +13,7 @@
 |distlib|0.3.8|Python Software Foundation License|
 |distro|1.8.0|Apache 2.0|
 |fasteners|0.19|Apache 2.0|
-|filelock|3.16.0|The Unlicense (Unlicense)|
+|filelock|3.16.1|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
 |identify|2.6.1|MIT|
 |idna|3.10|BSD|
@@ -23,7 +23,7 @@
 |node-semver|0.6.1|MIT|
 |nodeenv|1.9.1|BSD|
 |patch-ng|1.17.4|MIT|
-|platformdirs|4.3.4|MIT|
+|platformdirs|4.3.6|MIT|
 |pluginbase|1.0.1|BSD|
 |pre-commit|3.5.0|MIT|
 |pygments|2.18.0|Simplified BSD|
@@ -34,7 +34,7 @@
 |six|1.16.0|MIT|
 |tqdm|4.66.5|MIT<br/>Mozilla Public License 2.0 (MPL 2.0)|
 |urllib3|1.26.20|MIT|
-|virtualenv|20.26.4|MIT|
+|virtualenv|20.26.5|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
