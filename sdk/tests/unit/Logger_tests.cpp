@@ -20,6 +20,10 @@
 
 using namespace velocitas;
 
+const char JSON_TEST_STRING[] =
+    "\"packages\": {\"devenv-runtimes\": \"v4.0.6\",\"devenv-github-workflows\": "
+    "\"v6.1.3\"}";
+
 class StringLogger : public ILogger {
 public:
     enum class LogLevel { Unknown, Info, Warn, Error, Debug };
@@ -67,6 +71,20 @@ TEST_F(Test_Logger, info_withoutArguments_correctMessageLoggedOnCorrectLevel) {
     logger().info("Hello World");
     EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Info);
     EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World");
+
+    logger().info(JSON_TEST_STRING);
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Info);
+    EXPECT_EQ(m_stringLogger->getLogMessage(), JSON_TEST_STRING);
+}
+
+TEST_F(Test_Logger, info_missingArgumentsException) {
+    logger().info("Hello World {}");
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Info);
+    // No formatting if no arguments, we just treat it as a raw string
+    EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World {}");
+
+    // But here we expect an exception
+    EXPECT_THROW(logger().info("Hello World {} {}", "Next missing"), std::runtime_error);
 }
 
 TEST_F(Test_Logger, info_withArguments_correctMessageLoggedOnCorrectLevel) {
@@ -90,6 +108,20 @@ TEST_F(Test_Logger, warn_withoutArguments_correctMessageLoggedOnCorrectLevel) {
     logger().warn("Hello World");
     EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Warn);
     EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World");
+
+    logger().warn(JSON_TEST_STRING);
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Warn);
+    EXPECT_EQ(m_stringLogger->getLogMessage(), JSON_TEST_STRING);
+}
+
+TEST_F(Test_Logger, warn_missingArgumentsException) {
+    logger().warn("Hello World {}");
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Warn);
+    // No formatting if no arguments, we just treat it as a raw string
+    EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World {}");
+
+    // But here we expect an exception
+    EXPECT_THROW(logger().warn("Hello World {} {}", "Next missing"), std::runtime_error);
 }
 
 TEST_F(Test_Logger, warn_withArguments_correctMessageLoggedOnCorrectLevel) {
@@ -113,6 +145,20 @@ TEST_F(Test_Logger, error_withoutArguments_correctMessageLoggedOnCorrectLevel) {
     logger().error("Hello World");
     EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Error);
     EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World");
+
+    logger().error(JSON_TEST_STRING);
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Error);
+    EXPECT_EQ(m_stringLogger->getLogMessage(), JSON_TEST_STRING);
+}
+
+TEST_F(Test_Logger, error_missingArgumentsException) {
+    logger().error("Hello World {}");
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Error);
+    // No formatting if no arguments, we just treat it as a raw string
+    EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World {}");
+
+    // But here we expect an exception
+    EXPECT_THROW(logger().error("Hello World {} {}", "Next missing"), std::runtime_error);
 }
 
 TEST_F(Test_Logger, error_withArguments_correctMessageLoggedOnCorrectLevel) {
@@ -136,6 +182,20 @@ TEST_F(Test_Logger, debug_withoutArguments_correctMessageLoggedOnCorrectLevel) {
     logger().debug("Hello World");
     EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Debug);
     EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World");
+
+    logger().debug(JSON_TEST_STRING);
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Debug);
+    EXPECT_EQ(m_stringLogger->getLogMessage(), JSON_TEST_STRING);
+}
+
+TEST_F(Test_Logger, debug_missingArgumentsException) {
+    logger().debug("Hello World {}");
+    EXPECT_EQ(m_stringLogger->getLogLevel(), StringLogger::LogLevel::Debug);
+    // No formatting if no arguments, we just treat it as a raw string
+    EXPECT_EQ(m_stringLogger->getLogMessage(), "Hello World {}");
+
+    // But here we expect an exception
+    EXPECT_THROW(logger().debug("Hello World {} {}", "Next missing"), std::runtime_error);
 }
 
 TEST_F(Test_Logger, debug_withArguments_correctMessageLoggedOnCorrectLevel) {
