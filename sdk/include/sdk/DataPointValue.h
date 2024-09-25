@@ -19,8 +19,6 @@
 
 #include "sdk/Exceptions.h"
 
-#include <fmt/core.h>
-
 #include <cassert>
 #include <cstdint>
 #include <string>
@@ -188,8 +186,8 @@ public:
 
     [[nodiscard]] const T& value() const {
         if (!isValid()) {
-            throw InvalidValueException(
-                fmt::format("'{}' has no valid value: {}!", getPath(), toString(getFailure())));
+            throw InvalidValueException(getPath() +
+                                        " has no valid value: " + toString(getFailure()));
         }
         return m_value;
     }

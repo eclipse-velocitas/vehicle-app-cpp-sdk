@@ -37,6 +37,9 @@ add_library(${TARGET_NAME}
 
     sdk/pubsub/MqttPubSubClient.cpp
     sdk/vdb/DataPointBatch.cpp
+    sdk/vdb/IVehicleDataBrokerClient.cpp
+    sdk/vdb/grpc/KuksaValV2AsyncGrpcFacade.cpp
+    sdk/vdb/grpc/KuksaValV2Client.cpp
 )
 
 include_directories(
