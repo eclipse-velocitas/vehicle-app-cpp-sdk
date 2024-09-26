@@ -322,12 +322,12 @@ const std::string SELECT_STATEMENT{"SELECT "};
 const std::string WHERE_STATEMENT{" WHERE "};
 
 void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std::string& query) {
+    if (query.find(SELECT_STATEMENT) != 0) {
+        throw std::runtime_error("Mallformed query not starting with \"SELECT \"!");
+    }
     if (query.find(WHERE_STATEMENT) != std::string::npos) {
         throw std::runtime_error(
             "Queries (containing WHERE clauses) not allowd with kuksa.val.v2 API!");
-    }
-    if (query.find(SELECT_STATEMENT) != 0) {
-        throw std::runtime_error("Mallformed query not starting with \"SELECT \"!");
     }
 
     for (std::string::size_type first{SELECT_STATEMENT.size()}, last{};
@@ -336,13 +336,18 @@ void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std:
         if (last == std::string::npos) {
             last = query.length();
         }
-        // Now first at '%' and last is one past end of the found substring
         std::string path = query.substr(first, last - first);
         request.add_signal_paths(std::move(path));
     }
 
     if (request.signal_paths().empty()) {
         throw std::runtime_error("Mallformed query selecting no signals!");
+    }
+}
+
+void clearUpdateStatus(DataPointMap_t& datapointMap) {
+    for (const auto& [key, value] : datapointMap) {
+        value->clearUpdateStatus();
     }
 }
 
@@ -354,15 +359,16 @@ AsyncSubscriptionPtr_t<DataPointReply> KuksaValV2Client::subscribe(const std::st
     kuksa::val::v2::SubscribeRequest request;
     parseQueryIntoRequest(request, query);
 
+    auto lastUpdates = std::make_shared<DataPointMap_t>();
     m_asyncBrokerFacade->Subscribe(
         std::move(request),
-        [subscription](const auto& item) {
-            DataPointMap_t resultFields;
-            const auto     fieldsMap = item.entries();
+        [subscription, lastUpdates](const auto& item) {
+            clearUpdateStatus(*lastUpdates);
+            const auto fieldsMap = item.entries();
             for (const auto& [key, value] : fieldsMap) {
-                resultFields[key] = convertFromGrpcDataPoint(key, value);
+                (*lastUpdates)[key] = convertFromGrpcDataPoint(key, value);
             }
-            subscription->insertNewItem(DataPointReply(std::move(resultFields)));
+            subscription->insertNewItem(DataPointReply(DataPointMap_t(*lastUpdates)));
         },
         [subscription](const auto& status) {
             subscription->insertError(
