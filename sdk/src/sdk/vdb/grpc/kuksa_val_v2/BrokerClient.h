@@ -14,32 +14,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_KUKSAVALV2CLIENT_H
-#define VEHICLE_APP_SDK_KUKSAVALV2CLIENT_H
+#ifndef VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H
+#define VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H
 
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <memory>
 
-namespace velocitas {
+namespace velocitas::kuksa_val_v2 {
 
-class RecurringJob;
-class KuksaValV2AsyncGrpcFacade;
+class BrokerAsyncGrpcFacade;
 
 /**
  * Provides the Graph API to access vehicle signals via the kuksa.val.v2 API
  */
-class KuksaValV2Client : public IVehicleDataBrokerClient {
+class BrokerClient : public IVehicleDataBrokerClient {
 public:
-    explicit KuksaValV2Client(const std::string& vdbAddress, std::string vdbServiceName);
-    explicit KuksaValV2Client(const std::string& vdbserviceName);
+    explicit BrokerClient(const std::string& vdbAddress, std::string vdbServiceName);
+    explicit BrokerClient(const std::string& vdbserviceName);
 
-    ~KuksaValV2Client() override;
+    ~BrokerClient() override;
 
-    KuksaValV2Client(const KuksaValV2Client&)            = delete;
-    KuksaValV2Client(KuksaValV2Client&&)                 = delete;
-    KuksaValV2Client& operator=(const KuksaValV2Client&) = delete;
-    KuksaValV2Client& operator=(KuksaValV2Client&&)      = delete;
+    BrokerClient(const BrokerClient&)            = delete;
+    BrokerClient(BrokerClient&&)                 = delete;
+    BrokerClient& operator=(const BrokerClient&) = delete;
+    BrokerClient& operator=(BrokerClient&&)      = delete;
 
     AsyncResultPtr_t<DataPointReply>
     getDatapoints(const std::vector<std::string>& datapoints) override;
@@ -50,9 +49,9 @@ public:
     AsyncSubscriptionPtr_t<DataPointReply> subscribe(const std::string& query) override;
 
 private:
-    std::shared_ptr<KuksaValV2AsyncGrpcFacade> m_asyncBrokerFacade;
+    std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
 };
 
-} // namespace velocitas
+} // namespace velocitas::kuksa_val_v2
 
-#endif // VEHICLE_APP_SDK_KUKSAVALV2CLIENT_H
+#endif // VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H

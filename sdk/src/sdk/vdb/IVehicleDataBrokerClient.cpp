@@ -19,7 +19,7 @@
 #include "sdk/Logger.h"
 #include "sdk/Utils.h"
 #include "sdk/grpc/VehicleDataBrokerClient.h"
-#include "sdk/vdb/grpc/KuksaValV2Client.h"
+#include "sdk/vdb/grpc/kuksa_val_v2/BrokerClient.h"
 
 #include <memory>
 #include <stdexcept>
@@ -43,7 +43,7 @@ IVehicleDataBrokerClient::createInstance(const std::string& vdbServiceName) {
 
     if (apiVariant == KUKSA_V2_API) {
         logger().info("Using Kuksa Databroker {} API", apiVariant);
-        return std::make_shared<KuksaValV2Client>(vdbServiceName);
+        return std::make_shared<kuksa_val_v2::BrokerClient>(vdbServiceName);
     }
 
     logger().error("Unsupported Kuksa Databroker {} API", apiVariant);

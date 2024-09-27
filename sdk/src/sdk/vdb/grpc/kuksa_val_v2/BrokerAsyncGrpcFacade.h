@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_KUKSAVALV2ASYNCGRPCFACADE_H
-#define VEHICLE_APP_SDK_KUKSAVALV2ASYNCGRPCFACADE_H
+#ifndef VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERASYNCGRPCFACADE_H
+#define VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERASYNCGRPCFACADE_H
 
 #include "sdk/grpc/AsyncGrpcFacade.h"
 #include "sdk/grpc/GrpcClient.h"
@@ -30,11 +30,11 @@ class Channel;
 class Status;
 } // namespace grpc
 
-namespace velocitas {
+namespace velocitas::kuksa_val_v2 {
 
-class KuksaValV2AsyncGrpcFacade : public AsyncGrpcFacade, GrpcClient {
+class BrokerAsyncGrpcFacade : public AsyncGrpcFacade, GrpcClient {
 public:
-    explicit KuksaValV2AsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel);
+    explicit BrokerAsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel);
 
     void GetValues(kuksa::val::v2::GetValuesRequest&&                                  request,
                    std::function<void(const kuksa::val::v2::GetValuesResponse& reply)> replyHandler,
@@ -54,6 +54,6 @@ private:
     std::unique_ptr<kuksa::val::v2::VAL::StubInterface> m_stub;
 };
 
-} // namespace velocitas
+} // namespace velocitas::kuksa_val_v2
 
-#endif // VEHICLE_APP_SDK_KUKSAVALV2ASYNCGRPCFACADE_H
+#endif // VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERASYNCGRPCFACADE_H

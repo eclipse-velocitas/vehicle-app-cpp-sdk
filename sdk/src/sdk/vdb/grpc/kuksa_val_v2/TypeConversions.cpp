@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -14,35 +14,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/vdb/grpc/KuksaValV2Client.h"
+#include "TypeConversions.h"
 
 #include "sdk/DataPointValue.h"
-#include "sdk/Exceptions.h"
-#include "sdk/Job.h"
 #include "sdk/Logger.h"
+#include "sdk/vdb/grpc/common/TypeConversions.h"
 
-#include "sdk/middleware/Middleware.h"
-#include "sdk/vdb/grpc/KuksaValV2AsyncGrpcFacade.h"
-
-#include <fmt/core.h>
-#include <grpcpp/channel.h>
-#include <grpcpp/create_channel.h>
-#include <grpcpp/security/credentials.h>
-
-#include <limits>
 #include <stdexcept>
-#include <utility>
 
-namespace velocitas {
-
-namespace {
-
-int assertProtobufArrayLimits(size_t numElements) {
-    if (numElements > std::numeric_limits<int>::max()) {
-        throw std::runtime_error("# requested datapoints exceeds gRPC limits");
-    }
-    return static_cast<int>(numElements);
-}
+namespace velocitas::kuksa_val_v2 {
 
 kuksa::val::v2::Value convertToGrpcValue(const DataPointValue& dataPoint) {
     kuksa::val::v2::Value grpcValue;
@@ -146,12 +126,8 @@ std::vector<DATA_TYPE> convertValueArray(const ARRAY_CLASS& arrayObject) {
     return result;
 }
 
-Timestamp convertFromGrpcTimestamp(const google::protobuf::Timestamp& grpcTimestamp) {
-    return {grpcTimestamp.seconds(), grpcTimestamp.nanos()};
-}
-
 DataPointValue::Failure
-convertFromGrpcValueFailure(const kuksa::val::v2::ValueFailure grpcValueFailure) {
+convertFromGrpcValueFailure(const kuksa::val::v2::ValueFailure& grpcValueFailure) {
     switch (grpcValueFailure) {
     case kuksa::val::v2::ValueFailure::INVALID_VALUE:
         return DataPointValue::Failure::INVALID_VALUE;
@@ -226,6 +202,7 @@ convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoin
     if (grpcDataPoint.has_value()) {
         return convertFromGrpcValue(path, grpcDataPoint.value(), timestamp);
     }
+
     DataPointValue::Failure failure = DataPointValue::Failure::INTERNAL_ERROR;
     if (grpcDataPoint.has_failure()) {
         failure = convertFromGrpcValueFailure(grpcDataPoint.failure());
@@ -233,93 +210,6 @@ convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoin
     return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, path, timestamp,
                                             failure);
 }
-
-} // namespace
-
-KuksaValV2Client::KuksaValV2Client(const std::string& vdbAddress, std::string vdbServiceName) {
-    logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
-    m_asyncBrokerFacade = std::make_shared<KuksaValV2AsyncGrpcFacade>(
-        grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
-    Middleware::Metadata metadata = Middleware::getInstance().getMetadata(vdbServiceName);
-    m_asyncBrokerFacade->setContextModifier([metadata](auto& context) {
-        for (auto metadatum : metadata) {
-            context.AddMetadata(metadatum.first, metadatum.second);
-        }
-    });
-}
-
-KuksaValV2Client::KuksaValV2Client(const std::string& vdbServiceName)
-    : KuksaValV2Client(Middleware::getInstance().getServiceLocation(vdbServiceName),
-                       vdbServiceName) {}
-
-KuksaValV2Client::~KuksaValV2Client() {}
-
-AsyncResultPtr_t<DataPointReply>
-KuksaValV2Client::getDatapoints(const std::vector<std::string>& paths) {
-    auto result = std::make_shared<AsyncResult<DataPointReply>>();
-
-    kuksa::val::v2::GetValuesRequest request;
-
-    auto& signalIds = *request.mutable_signal_ids();
-
-    signalIds.Reserve(assertProtobufArrayLimits(paths.size()));
-    for (const auto& path : paths) {
-        signalIds.Add()->set_path(path);
-    }
-
-    m_asyncBrokerFacade->GetValues(
-        std::move(request),
-        [result, paths](auto reply) {
-            const auto& dataPoints = reply.datapoints();
-            if (dataPoints.size() == paths.size()) {
-                DataPointMap_t resultMap;
-                auto           path      = paths.cbegin();
-                auto           dataPoint = dataPoints.cbegin();
-                for (; path != paths.cend(); ++path, ++dataPoint) {
-                    resultMap[*path] = convertFromGrpcDataPoint(*path, *dataPoint);
-                }
-                result->insertResult(DataPointReply(std::move(resultMap)));
-            } else {
-                result->insertError(Status(fmt::format(
-                    "GetDatapoints: Mismatch in # returned data points (#req={}, #ret={})",
-                    paths.size(), dataPoints.size())));
-            }
-        },
-        [result](auto status) {
-            result->insertError(
-                Status(fmt::format("GetDatapoints failed:", status.error_message())));
-        });
-    return result;
-}
-
-AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t>
-KuksaValV2Client::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& datapoints) {
-    auto result = std::make_shared<AsyncResult<SetErrorMap_t>>();
-
-    kuksa::val::v2::BatchActuateRequest batchRequest;
-
-    auto& requests = *batchRequest.mutable_actuate_requests();
-    requests.Reserve(assertProtobufArrayLimits(datapoints.size()));
-
-    for (const auto& dataPoint : datapoints) {
-        kuksa::val::v2::ActuateRequest& request = *requests.Add();
-        request.mutable_signal_id()->set_path(dataPoint->getPath());
-        *request.mutable_value() = convertToGrpcValue(*dataPoint);
-    }
-
-    m_asyncBrokerFacade->BatchActuate(
-        std::move(batchRequest),
-        [result](const kuksa::val::v2::BatchActuateResponse& reply) {
-            // Everything went fine, return empty map
-        },
-        [result](auto status) {
-            result->insertError(
-                Status(fmt::format("SetDatapoints failed:", status.error_message())));
-        });
-    return result;
-}
-
-namespace {
 
 const std::string SELECT_STATEMENT{"SELECT "};
 const std::string WHERE_STATEMENT{" WHERE "};
@@ -340,47 +230,12 @@ void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std:
             last = query.length();
         }
         std::string path = query.substr(first, last - first);
-        // request.add_signal_paths(std::move(path));
-        request.add_signal_ids()->set_path(std::move(path));
+        request.add_signal_paths(std::move(path));
     }
 
-    // if (request.signal_paths().empty()) {
-    if (request.signal_ids().empty()) {
+    if (request.signal_paths().empty()) {
         throw std::runtime_error("Mallformed query selecting no signals!");
     }
 }
 
-void clearUpdateStatus(DataPointMap_t& datapointMap) {
-    for (const auto& [key, value] : datapointMap) {
-        value->clearUpdateStatus();
-    }
-}
-
-} // namespace
-
-AsyncSubscriptionPtr_t<DataPointReply> KuksaValV2Client::subscribe(const std::string& query) {
-    auto subscription = std::make_shared<AsyncSubscription<DataPointReply>>();
-
-    kuksa::val::v2::SubscribeRequest request;
-    parseQueryIntoRequest(request, query);
-
-    auto lastUpdates = std::make_shared<DataPointMap_t>();
-    m_asyncBrokerFacade->Subscribe(
-        std::move(request),
-        [subscription, lastUpdates](const auto& item) {
-            clearUpdateStatus(*lastUpdates);
-            const auto fieldsMap = item.entries();
-            for (const auto& [key, value] : fieldsMap) {
-                (*lastUpdates)[key] = convertFromGrpcDataPoint(key, value);
-            }
-            subscription->insertNewItem(DataPointReply(DataPointMap_t(*lastUpdates)));
-        },
-        [subscription](const auto& status) {
-            subscription->insertError(
-                Status(fmt::format("Subscribe failed: {}", status.error_message())));
-        });
-
-    return subscription;
-}
-
-} // namespace velocitas
+} // namespace velocitas::kuksa_val_v2
