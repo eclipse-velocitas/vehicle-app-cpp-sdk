@@ -211,8 +211,8 @@ convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoin
                                             failure);
 }
 
-const std::string SELECT_STATEMENT{"SELECT "};
-const std::string WHERE_STATEMENT{" WHERE "};
+static const std::string SELECT_STATEMENT{"SELECT "}; // NOLINT(runtime/string)
+static const std::string WHERE_STATEMENT{" WHERE "};  // NOLINT(runtime/string)
 
 void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std::string& query) {
     if (query.find(SELECT_STATEMENT) != 0) {

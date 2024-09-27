@@ -27,10 +27,10 @@
 
 namespace velocitas {
 
-static const std::string API_DEFINING_ENV_VAR = "KUKSA_DATABROKER_API";
-static const std::string SDV_V1_API           = "sdv.databroker.v1";
-static const std::string KUKSA_V2_API         = "kuksa.val.v2";
-static const auto&       DEFAULT_API          = KUKSA_V2_API;
+static const std::string API_DEFINING_ENV_VAR = "KUKSA_DATABROKER_API"; // NOLINT(runtime/string)
+static const std::string SDV_V1_API           = "sdv.databroker.v1";    // NOLINT(runtime/string)
+static const std::string KUKSA_V2_API         = "kuksa.val.v2";         // NOLINT(runtime/string)
+static const auto&       DEFAULT_API          = SDV_V1_API;
 
 std::shared_ptr<IVehicleDataBrokerClient>
 IVehicleDataBrokerClient::createInstance(const std::string& vdbServiceName) {
