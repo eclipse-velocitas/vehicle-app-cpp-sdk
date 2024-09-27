@@ -171,64 +171,67 @@ convertFromGrpcValueFailure(const kuksa::val::v2::ValueFailure grpcValueFailure)
     }
 }
 
+std::shared_ptr<DataPointValue> convertFromGrpcValue(const std::string&           path,
+                                                     const kuksa::val::v2::Value& value,
+                                                     const Timestamp&             timestamp) {
+    switch (value.typed_value_case()) {
+    case kuksa::val::v2::Value::TypedValueCase::kString:
+        return std::make_shared<TypedDataPointValue<std::string>>(path, value.string(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kBool:
+        return std::make_shared<TypedDataPointValue<bool>>(path, value.bool_(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kInt32:
+        return std::make_shared<TypedDataPointValue<int32_t>>(path, value.int32(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kInt64:
+        return std::make_shared<TypedDataPointValue<int64_t>>(path, value.int64(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kUint32:
+        return std::make_shared<TypedDataPointValue<uint32_t>>(path, value.uint32(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kUint64:
+        return std::make_shared<TypedDataPointValue<uint64_t>>(path, value.uint64(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kFloat:
+        return std::make_shared<TypedDataPointValue<float>>(path, value.float_(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kDouble:
+        return std::make_shared<TypedDataPointValue<double>>(path, value.double_(), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kStringArray:
+        return std::make_shared<TypedDataPointValue<std::vector<std::string>>>(
+            path, convertValueArray<std::string>(value.string_array()), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kBoolArray:
+        return std::make_shared<TypedDataPointValue<std::vector<bool>>>(
+            path, convertValueArray<bool>(value.bool_array()), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kInt32Array:
+        return std::make_shared<TypedDataPointValue<std::vector<int32_t>>>(
+            path, convertValueArray<int32_t>(value.int32_array()), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kInt64Array:
+        return std::make_shared<TypedDataPointValue<std::vector<int64_t>>>(
+            path, convertValueArray<int64_t>(value.int64_array()), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kUint32Array:
+        return std::make_shared<TypedDataPointValue<std::vector<uint32_t>>>(
+            path, convertValueArray<uint32_t>(value.uint32_array()), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kUint64Array:
+        return std::make_shared<TypedDataPointValue<std::vector<uint64_t>>>(
+            path, convertValueArray<uint64_t>(value.uint64_array()), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kFloatArray:
+        return std::make_shared<TypedDataPointValue<std::vector<float>>>(
+            path, convertValueArray<float>(value.float_array()), timestamp);
+    case kuksa::val::v2::Value::TypedValueCase::kDoubleArray:
+        return std::make_shared<TypedDataPointValue<std::vector<double>>>(
+            path, convertValueArray<double>(value.double_array()), timestamp);
+    default:
+        throw RpcException("Unknown value case!");
+    }
+}
+
 std::shared_ptr<DataPointValue>
 convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoint& grpcDataPoint) {
     auto timestamp = convertFromGrpcTimestamp(grpcDataPoint.timestamp());
     if (grpcDataPoint.has_value()) {
-        const auto& value = grpcDataPoint.value();
-        switch (value.typed_value_case()) {
-        case kuksa::val::v2::Value::TypedValueCase::kString:
-            return std::make_shared<TypedDataPointValue<std::string>>(path, value.string(),
-                                                                      timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kBool:
-            return std::make_shared<TypedDataPointValue<bool>>(path, value.bool_(), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kInt32:
-            return std::make_shared<TypedDataPointValue<int32_t>>(path, value.int32(), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kInt64:
-            return std::make_shared<TypedDataPointValue<int64_t>>(path, value.int64(), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kUint32:
-            return std::make_shared<TypedDataPointValue<uint32_t>>(path, value.uint32(), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kUint64:
-            return std::make_shared<TypedDataPointValue<uint64_t>>(path, value.uint64(), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kFloat:
-            return std::make_shared<TypedDataPointValue<float>>(path, value.float_(), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kDouble:
-            return std::make_shared<TypedDataPointValue<double>>(path, value.double_(), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kStringArray:
-            return std::make_shared<TypedDataPointValue<std::vector<std::string>>>(
-                path, convertValueArray<std::string>(value.string_array()), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kBoolArray:
-            return std::make_shared<TypedDataPointValue<std::vector<bool>>>(
-                path, convertValueArray<bool>(value.bool_array()), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kInt32Array:
-            return std::make_shared<TypedDataPointValue<std::vector<int32_t>>>(
-                path, convertValueArray<int32_t>(value.int32_array()), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kInt64Array:
-            return std::make_shared<TypedDataPointValue<std::vector<int64_t>>>(
-                path, convertValueArray<int64_t>(value.int64_array()), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kUint32Array:
-            return std::make_shared<TypedDataPointValue<std::vector<uint32_t>>>(
-                path, convertValueArray<uint32_t>(value.uint32_array()), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kUint64Array:
-            return std::make_shared<TypedDataPointValue<std::vector<uint64_t>>>(
-                path, convertValueArray<uint64_t>(value.uint64_array()), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kFloatArray:
-            return std::make_shared<TypedDataPointValue<std::vector<float>>>(
-                path, convertValueArray<float>(value.float_array()), timestamp);
-        case kuksa::val::v2::Value::TypedValueCase::kDoubleArray:
-            return std::make_shared<TypedDataPointValue<std::vector<double>>>(
-                path, convertValueArray<double>(value.double_array()), timestamp);
-        default:
-            throw RpcException("Unknown value case!");
-        }
-    } else {
-        DataPointValue::Failure failure = DataPointValue::Failure::INTERNAL_ERROR;
-        if (grpcDataPoint.has_failure()) {
-            failure = convertFromGrpcValueFailure(grpcDataPoint.failure());
-        }
-        return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, path, timestamp,
-                                                failure);
+        return convertFromGrpcValue(path, grpcDataPoint.value(), timestamp);
     }
+    DataPointValue::Failure failure = DataPointValue::Failure::INTERNAL_ERROR;
+    if (grpcDataPoint.has_failure()) {
+        failure = convertFromGrpcValueFailure(grpcDataPoint.failure());
+    }
+    return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, path, timestamp,
+                                            failure);
 }
 
 } // namespace
@@ -337,10 +340,12 @@ void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std:
             last = query.length();
         }
         std::string path = query.substr(first, last - first);
-        request.add_signal_paths(std::move(path));
+        // request.add_signal_paths(std::move(path));
+        request.add_signal_ids()->set_path(std::move(path));
     }
 
-    if (request.signal_paths().empty()) {
+    // if (request.signal_paths().empty()) {
+    if (request.signal_ids().empty()) {
         throw std::runtime_error("Mallformed query selecting no signals!");
     }
 }
