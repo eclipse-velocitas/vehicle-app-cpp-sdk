@@ -20,6 +20,7 @@ add_executable(${TARGET_NAME}
     AsyncSubscription_tests.cpp
     DataPoint_tests.cpp
     DataPointBatch_tests.cpp
+    DataPointValue_tests.cpp
     Job_tests.cpp
     Logger_tests.cpp
     Middleware_tests.cpp

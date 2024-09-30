@@ -174,7 +174,7 @@ template <> inline DataPointValue::Type getValueType<std::vector<std::string>>()
 template <typename T> class TypedDataPointValue : public DataPointValue {
 public:
     TypedDataPointValue()
-        : DataPointValue(Type::INVALID, "", Timestamp{}){};
+        : DataPointValue(getValueType<T>(), "", Timestamp{}, Failure::INTERNAL_ERROR){};
 
     TypedDataPointValue(const std::string& path, T value, Timestamp timestamp = Timestamp{})
         : DataPointValue(getValueType<T>(), path, std::forward<decltype(timestamp)>(timestamp))

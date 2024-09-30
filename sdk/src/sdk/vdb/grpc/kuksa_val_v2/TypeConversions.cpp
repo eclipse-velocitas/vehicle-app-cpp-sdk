@@ -126,26 +126,26 @@ std::vector<DATA_TYPE> convertValueArray(const ARRAY_CLASS& arrayObject) {
     return result;
 }
 
-DataPointValue::Failure
-convertFromGrpcValueFailure(const kuksa::val::v2::ValueFailure& grpcValueFailure) {
-    switch (grpcValueFailure) {
-    case kuksa::val::v2::ValueFailure::INVALID_VALUE:
-        return DataPointValue::Failure::INVALID_VALUE;
-    case kuksa::val::v2::ValueFailure::NOT_PROVIDED:
-        return DataPointValue::Failure::NOT_AVAILABLE;
-    case kuksa::val::v2::ValueFailure::UNKNOWN_SIGNAL:
-        return DataPointValue::Failure::UNKNOWN_DATAPOINT;
-    case kuksa::val::v2::ValueFailure::ACCESS_DENIED:
-        return DataPointValue::Failure::ACCESS_DENIED;
-    case kuksa::val::v2::ValueFailure::INTERNAL_ERROR:
-        return DataPointValue::Failure::INTERNAL_ERROR;
-    default:
-        logger().error("Unknown 'kuksa::val::v2::ValueFailure': {}",
-                       kuksa::val::v2::ValueFailure_Name(grpcValueFailure));
-        assert(false);
-        return DataPointValue::Failure::INTERNAL_ERROR;
-    }
-}
+// DataPointValue::Failure
+// convertFromGrpcValueFailure(const kuksa::val::v2::ValueFailure& grpcValueFailure) {
+//     switch (grpcValueFailure) {
+//     case kuksa::val::v2::ValueFailure::INVALID_VALUE:
+//         return DataPointValue::Failure::INVALID_VALUE;
+//     case kuksa::val::v2::ValueFailure::NOT_PROVIDED:
+//         return DataPointValue::Failure::NOT_AVAILABLE;
+//     case kuksa::val::v2::ValueFailure::UNKNOWN_SIGNAL:
+//         return DataPointValue::Failure::UNKNOWN_DATAPOINT;
+//     case kuksa::val::v2::ValueFailure::ACCESS_DENIED:
+//         return DataPointValue::Failure::ACCESS_DENIED;
+//     case kuksa::val::v2::ValueFailure::INTERNAL_ERROR:
+//         return DataPointValue::Failure::INTERNAL_ERROR;
+//     default:
+//         logger().error("Unknown 'kuksa::val::v2::ValueFailure': {}",
+//                        kuksa::val::v2::ValueFailure_Name(grpcValueFailure));
+//         assert(false);
+//         return DataPointValue::Failure::INTERNAL_ERROR;
+//     }
+// }
 
 std::shared_ptr<DataPointValue> convertFromGrpcValue(const std::string&           path,
                                                      const kuksa::val::v2::Value& value,
@@ -203,12 +203,14 @@ convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoin
         return convertFromGrpcValue(path, grpcDataPoint.value(), timestamp);
     }
 
-    DataPointValue::Failure failure = DataPointValue::Failure::INTERNAL_ERROR;
-    if (grpcDataPoint.has_failure()) {
-        failure = convertFromGrpcValueFailure(grpcDataPoint.failure());
-    }
+    // DataPointValue::Failure failure = DataPointValue::Failure::INTERNAL_ERROR;
+    // if (grpcDataPoint.has_failure()) {
+    //     failure = convertFromGrpcValueFailure(grpcDataPoint.failure());
+    // }
+    // return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, path, timestamp,
+    //                                         failure);
     return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, path, timestamp,
-                                            failure);
+                                            DataPointValue::Failure::NOT_AVAILABLE);
 }
 
 static const std::string SELECT_STATEMENT{"SELECT "}; // NOLINT(runtime/string)
@@ -230,10 +232,12 @@ void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std:
             last = query.length();
         }
         std::string path = query.substr(first, last - first);
-        request.add_signal_paths(std::move(path));
+        // request.add_signal_paths(std::move(path));
+        request.add_signal_ids()->set_path(std::move(path));
     }
 
-    if (request.signal_paths().empty()) {
+    // if (request.signal_paths().empty()) {
+    if (request.signal_ids().empty()) {
         throw std::runtime_error("Mallformed query selecting no signals!");
     }
 }
