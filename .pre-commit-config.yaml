@@ -62,7 +62,7 @@ repos:
           - --allow-past-years
           - --skip-license-insertion-comment=This file is maintained by velocitas CLI, do not modify manually.
       - id: insert-license
-        files: '.*\.(cpp|c|cc|h|proto)$'
+        files: '.*\.(cpp|c|cc|h)$'
         exclude: '.*\.(pb.cpp|pb.c|pb.cc|pb.h)$'
         args:
           - --license-filepath
