@@ -126,27 +126,6 @@ std::vector<DATA_TYPE> convertValueArray(const ARRAY_CLASS& arrayObject) {
     return result;
 }
 
-// DataPointValue::Failure
-// convertFromGrpcValueFailure(const kuksa::val::v2::ValueFailure& grpcValueFailure) {
-//     switch (grpcValueFailure) {
-//     case kuksa::val::v2::ValueFailure::INVALID_VALUE:
-//         return DataPointValue::Failure::INVALID_VALUE;
-//     case kuksa::val::v2::ValueFailure::NOT_PROVIDED:
-//         return DataPointValue::Failure::NOT_AVAILABLE;
-//     case kuksa::val::v2::ValueFailure::UNKNOWN_SIGNAL:
-//         return DataPointValue::Failure::UNKNOWN_DATAPOINT;
-//     case kuksa::val::v2::ValueFailure::ACCESS_DENIED:
-//         return DataPointValue::Failure::ACCESS_DENIED;
-//     case kuksa::val::v2::ValueFailure::INTERNAL_ERROR:
-//         return DataPointValue::Failure::INTERNAL_ERROR;
-//     default:
-//         logger().error("Unknown 'kuksa::val::v2::ValueFailure': {}",
-//                        kuksa::val::v2::ValueFailure_Name(grpcValueFailure));
-//         assert(false);
-//         return DataPointValue::Failure::INTERNAL_ERROR;
-//     }
-// }
-
 std::shared_ptr<DataPointValue> convertFromGrpcValue(const std::string&           path,
                                                      const kuksa::val::v2::Value& value,
                                                      const Timestamp&             timestamp) {
@@ -203,12 +182,6 @@ convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoin
         return convertFromGrpcValue(path, grpcDataPoint.value(), timestamp);
     }
 
-    // DataPointValue::Failure failure = DataPointValue::Failure::INTERNAL_ERROR;
-    // if (grpcDataPoint.has_failure()) {
-    //     failure = convertFromGrpcValueFailure(grpcDataPoint.failure());
-    // }
-    // return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, path, timestamp,
-    //                                         failure);
     return std::make_shared<DataPointValue>(DataPointValue::Type::INVALID, path, timestamp,
                                             DataPointValue::Failure::NOT_AVAILABLE);
 }

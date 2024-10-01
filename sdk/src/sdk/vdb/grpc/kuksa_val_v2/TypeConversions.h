@@ -28,12 +28,10 @@ namespace velocitas::kuksa_val_v2 {
 
 kuksa::val::v2::Value convertToGrpcValue(const DataPointValue& dataPoint);
 
-// DataPointValue::Failure
-// convertFromGrpcValueFailure(const kuksa::val::v2::ValueFailure& grpcValueFailure);
-
 std::shared_ptr<DataPointValue> convertFromGrpcValue(const std::string&           path,
                                                      const kuksa::val::v2::Value& value,
                                                      const Timestamp&             timestamp);
+
 std::shared_ptr<DataPointValue>
 convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoint& grpcDataPoint);
 

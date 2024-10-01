@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -101,51 +101,53 @@ TEST(Test_DataPointValue, clearUpdateStatus__updateStatusIsFalse) {
     EXPECT_THROW(std::ignore = cut.getValueAsString(), InvalidValueException);
 }
 
-// template <typename DATA_TYPE> void checkTypedDataPointValueDefaultCtor() {
-//     const auto        expectedValueType    = getValueType<DATA_TYPE>();
-//     const auto* const expectedPath         = "";
-//     const auto        expectedTimestamp    = Timestamp{0, 0};
-//     const auto        expectedValueFailure = DataPointValue::Failure::INTERNAL_ERROR;
+template <typename DATA_TYPE> class TestTypedDataPointValue : public testing::Test {
+public:
+    DataPointValue::Type valueType() { return getValueType<DATA_TYPE>(); }
 
-//     TypedDataPointValue<DATA_TYPE> cut();
+    TypedDataPointValue<DATA_TYPE> createTypedDataPointValue() {
+        return TypedDataPointValue<DATA_TYPE>();
+    };
 
-//     EXPECT_EQ(expectedValueType, cut.getType());
-//     EXPECT_EQ(expectedPath, cut.getPath());
-//     EXPECT_EQ(expectedTimestamp, cut.getTimestamp());
-//     EXPECT_EQ(expectedValueFailure, cut.getFailure());
-//     EXPECT_FALSE(cut.isValid());
-//     EXPECT_TRUE(cut.wasUpdated());
-//     EXPECT_NO_THROW(std::ignore = cut.getValueAsString());
-// }
+    TypedDataPointValue<DATA_TYPE> createTypedDataPointValue(const std::string&      path,
+                                                             DataPointValue::Failure valueFailure,
+                                                             const Timestamp&        timestamp) {
+        return TypedDataPointValue<DATA_TYPE>(path, valueFailure, timestamp);
+    }
+};
 
-// TEST(Test_TypedDataPointValue, defaultCtor__allMembersSetCorrectly) {
-//     checkTypedDataPointValueDefaultCtor<bool>();
-//     checkTypedDataPointValueDefaultCtor<int32_t>();
-//     checkTypedDataPointValueDefaultCtor<int64_t>();
-//     checkTypedDataPointValueDefaultCtor<uint32_t>();
-//     checkTypedDataPointValueDefaultCtor<uint64_t>();
-//     checkTypedDataPointValueDefaultCtor<float>();
-//     checkTypedDataPointValueDefaultCtor<double>();
-//     checkTypedDataPointValueDefaultCtor<std::string>();
+using AllDataTypes =
+    ::testing::Types<bool, std::vector<bool>, int32_t, std::vector<int32_t>, int64_t,
+                     std::vector<int64_t>, uint32_t, std::vector<uint32_t>, uint64_t,
+                     std::vector<uint64_t>, float, std::vector<float>, double, std::vector<double>,
+                     std::string, std::vector<std::string>>;
+TYPED_TEST_SUITE(TestTypedDataPointValue, AllDataTypes);
 
-//     checkTypedDataPointValueDefaultCtor<std::vector<bool>>();
-//     checkTypedDataPointValueDefaultCtor<std::vector<int32_t>>();
-//     checkTypedDataPointValueDefaultCtor<std::vector<int64_t>>();
-//     checkTypedDataPointValueDefaultCtor<std::vector<uint32_t>>();
-//     checkTypedDataPointValueDefaultCtor<std::vector<uint64_t>>();
-//     checkTypedDataPointValueDefaultCtor<std::vector<float>>();
-//     checkTypedDataPointValueDefaultCtor<std::vector<double>>();
-//     checkTypedDataPointValueDefaultCtor<std::vector<std::string>>();
-// }
+TYPED_TEST(TestTypedDataPointValue, defaultCtor) {
+    auto cut = this->createTypedDataPointValue();
 
-TEST(Test_TypedDataPointValue, ctorWithFailure__allMembersSetCorrectly) {
-    const auto        expectedValueType    = getValueType<bool>();
-    const auto* const expectedPath         = "some.path";
-    const auto        expectedTimestamp    = Timestamp{1, 2};
-    const auto        expectedValueFailure = DataPointValue::Failure::NOT_AVAILABLE;
+    const auto        expectedValueType    = this->valueType();
+    const auto* const expectedPath         = "";
+    const auto        expectedTimestamp    = Timestamp{0, 0};
+    const auto        expectedValueFailure = DataPointValue::Failure::INTERNAL_ERROR;
+    EXPECT_EQ(expectedValueType, cut.getType());
+    EXPECT_EQ(expectedPath, cut.getPath());
+    EXPECT_EQ(expectedTimestamp, cut.getTimestamp());
+    EXPECT_EQ(expectedValueFailure, cut.getFailure());
+    EXPECT_FALSE(cut.isValid());
+    EXPECT_TRUE(cut.wasUpdated());
+    EXPECT_NO_THROW(std::ignore = cut.getValueAsString());
+}
 
-    TypedDataPointValue<bool> cut(expectedPath, expectedValueFailure, expectedTimestamp);
+TYPED_TEST(TestTypedDataPointValue, ctorWithFailure) {
+    const auto* const expectedPath         = "foo.bar";
+    const auto        expectedTimestamp    = Timestamp{0, 0};
+    const auto        expectedValueFailure = DataPointValue::Failure::INTERNAL_ERROR;
 
+    auto cut =
+        this->createTypedDataPointValue(expectedPath, expectedValueFailure, expectedTimestamp);
+
+    const auto expectedValueType = this->valueType();
     EXPECT_EQ(expectedValueType, cut.getType());
     EXPECT_EQ(expectedPath, cut.getPath());
     EXPECT_EQ(expectedTimestamp, cut.getTimestamp());
@@ -171,7 +173,7 @@ template <typename DATA_TYPE> void checkTypedDataPointValueCtor(const DATA_TYPE&
     EXPECT_NO_THROW(std::ignore = cut.getValueAsString());
 }
 
-TEST(Test_TypedDataPointValue, ctor__allMembersSetCorrectly) {
+TEST(Test_TypedDataPointValue, ctorWithValue__allMembersSetCorrectly) {
     checkTypedDataPointValueCtor<bool>(false);
     checkTypedDataPointValueCtor<bool>(true);
     checkTypedDataPointValueCtor<int32_t>(std::numeric_limits<int32_t>::min());
