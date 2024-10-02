@@ -205,12 +205,10 @@ void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std:
             last = query.length();
         }
         std::string path = query.substr(first, last - first);
-        // request.add_signal_paths(std::move(path));
-        request.add_signal_ids()->set_path(std::move(path));
+        request.add_signal_paths(std::move(path));
     }
 
-    // if (request.signal_paths().empty()) {
-    if (request.signal_ids().empty()) {
+    if (request.signal_paths().empty()) {
         throw std::runtime_error("Mallformed query selecting no signals!");
     }
 }
