@@ -34,6 +34,7 @@ add_executable(${TARGET_NAME}
     TestBaseUsingEnvVars.cpp
     grpc/GrpcClient_tests.cpp
     grpc/VehicleDataBrokerClient_tests.cpp
+    vdb/grpc/kuksa_val_v2/TypeConversions_tests.cpp
 )
 
 add_dependencies(${TARGET_NAME}
@@ -49,6 +50,7 @@ include(GoogleTest)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
+    ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
 )
 
