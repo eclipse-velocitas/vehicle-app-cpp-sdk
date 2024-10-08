@@ -308,9 +308,4 @@ VehicleDataBrokerClient::subscribe(const std::string& query) {
     return subscription;
 }
 
-std::shared_ptr<IVehicleDataBrokerClient>
-IVehicleDataBrokerClient::createInstance(const std::string& vdbServiceName) {
-    return std::make_shared<VehicleDataBrokerClient>(vdbServiceName);
-}
-
 } // namespace velocitas
