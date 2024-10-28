@@ -12,7 +12,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set(TARGET_NAME "app")
+set(TARGET_NAME "grpc_client")
 
 add_executable(${TARGET_NAME}
     Launcher.cpp
