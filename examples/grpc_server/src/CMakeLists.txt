@@ -12,14 +12,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Adding examples that contain header files but no CMakeLists.txt
+set(TARGET_NAME "app")
 
-include_directories(example_model)
+add_executable(${TARGET_NAME}
+    # SeatsServiceImpl.cpp - No need to include as included from header file
+    Launcher.cpp
+)
 
-# Adding examples that contain a CMakeLists.txt
-
-add_subdirectory(performance-subscribe)
-add_subdirectory(seat-adjuster)
-add_subdirectory(set-data-points)
-add_subdirectory(grpc_client)
-add_subdirectory(grpc_server)
+target_link_libraries(${TARGET_NAME}
+    ${CONAN_LIBS}
+)

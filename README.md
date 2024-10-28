@@ -11,6 +11,9 @@ The Vehicle App SDK for C++ allows to create `Vehicle Apps` from the [Velocitas 
     * 📁 `seat-adjuster` - an example application showing how to adjust the driver seat when receiving MQTT messages
     * 📁 `set-data-points` - an example application showing how to set single and multiple data points
     * 📁 `example_model` - a handwritten example model to be used by all examples
+    * 📁 `performance-subscribe` - an example application subscribing to signals and printing time and value when updates are received.
+    * 📁 `grpc_client` - an example application implementing a gRPC client, matching the example in [Velocitas documentation](https://eclipse.dev/velocitas/docs/tutorials/grpc_service_generation/create_client/).
+    * 📁 `grpc_server` - an example application implementing a gRPC server, matching the example in [Velocitas documentation](https://eclipse.dev/velocitas/docs/tutorials/grpc_service_generation/create_server/).
 * 📁 `sdk`
     * 📁 `include` - the headers which need to be included by users of the SDK
     * 📁 `src` - contains the source code for the SDK from which the SDK library is built

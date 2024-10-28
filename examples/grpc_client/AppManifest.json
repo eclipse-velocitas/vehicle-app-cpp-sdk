@@ -1,0 +1,17 @@
+{
+    "manifestVersion": "v3",
+    "name": "SampleApp",
+    "interfaces": [
+        {
+            "type": "grpc-interface",
+            "config": {
+                "src": "https://raw.githubusercontent.com/eclipse-kuksa/kuksa-incubation/0.4.0/seat_service/proto/sdv/edge/comfort/seats/v1/seats.proto",
+                "required": {
+                    "methods": [
+                        "Move", "CurrentPosition"
+                    ]
+                }
+            }
+        }
+    ]
+}
