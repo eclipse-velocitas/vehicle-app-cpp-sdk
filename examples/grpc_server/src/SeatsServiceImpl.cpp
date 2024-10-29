@@ -39,7 +39,6 @@ namespace velocitas {
             vehicle.Cabin.Seat.Row1.DriverSide.Position.set(seat.position().base())->await();
 
         if (status.ok()) {
-
             std::cout << "OK!" << std::endl;
             return ::grpc::Status(::grpc::StatusCode::OK, "");
         } else {
