@@ -12,14 +12,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Adding examples that contain header files but no CMakeLists.txt
-
 include_directories(example_model)
 
-# Adding examples that contain a CMakeLists.txt
+# Currently only adding examples that can be tested without additional velocitas code generation
 
 add_subdirectory(performance-subscribe)
 add_subdirectory(seat-adjuster)
 add_subdirectory(set-data-points)
-add_subdirectory(grpc_client)
-add_subdirectory(grpc_server)

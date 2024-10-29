@@ -12,7 +12,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set(TARGET_NAME "grpc_server")
+set(TARGET_NAME "app")
 
 add_executable(${TARGET_NAME}
     # SeatsServiceImpl.cpp - No need to include as included from header file

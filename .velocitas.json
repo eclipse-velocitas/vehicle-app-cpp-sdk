@@ -8,6 +8,7 @@
     "components": [
         "devcontainer-setup",
         "vehicle-signal-interface",
+        "grpc-interface-support",
         "runtime-local",
         "github-templates",
         "github-workflows"
