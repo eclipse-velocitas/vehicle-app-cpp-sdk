@@ -107,13 +107,13 @@ To release a new version re-run all GitHub actions manually and verify that they
 Then create a new GitHub release and tag the commit used. No need to include any additional artifacts.
 
 After creating the GitHub release, verify that the new release can be used by the [Vehicle App C++ Template](https://github.com/eclipse-velocitas/vehicle-app-cpp-template).
-Update the [conanfile.txt](https://github.com/eclipse-velocitas/vehicle-app-cpp-template/blob/main/conanfile.txt) with wanted version in the line
+Update the [conanfile.txt](https://github.com/eclipse-velocitas/vehicle-app-cpp-template/blob/main/conanfile.txt) with the new version in the line
 
 ```cpp
 vehicle-app-sdk/X.Y.Z
 ```
 
-Then verify that the example application in the template can be successfult built.
+Then verify that the example application in the template can be successfully built.
 After successful verification, consider creating a Pull Request in the [Vehicle App C++ Template repository](https://github.com/eclipse-velocitas/vehicle-app-cpp-template) tp update the SDK version.
 
 ### Resources
