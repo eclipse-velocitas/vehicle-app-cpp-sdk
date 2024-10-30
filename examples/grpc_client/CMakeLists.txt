@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2024 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -12,10 +12,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-include_directories(example_model)
+include_directories(
+    ${CMAKE_BINARY_DIR}/gens
+    ${CONAN_INCLUDE_DIRS}
+)
 
-# Currently only adding examples that can be tested without additional velocitas code generation
+link_directories(
+    ${CONAN_LIB_DIRS}
+)
 
-add_subdirectory(performance-subscribe)
-add_subdirectory(seat-adjuster)
-add_subdirectory(set-data-points)
+add_subdirectory(src)

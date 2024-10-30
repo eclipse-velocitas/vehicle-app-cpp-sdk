@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2024 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -12,10 +12,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-include_directories(example_model)
+set(TARGET_NAME "grpc_client")
 
-# Currently only adding examples that can be tested without additional velocitas code generation
+add_executable(${TARGET_NAME}
+    Launcher.cpp
+)
 
-add_subdirectory(performance-subscribe)
-add_subdirectory(seat-adjuster)
-add_subdirectory(set-data-points)
+target_link_libraries(${TARGET_NAME}
+    ${CONAN_LIBS}
+)
