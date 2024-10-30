@@ -20,8 +20,6 @@
 #include "sdk/DataPointValue.h"
 #include "sdk/Exceptions.h"
 
-#include <fmt/core.h>
-
 #include <map>
 #include <memory>
 #include <string>
@@ -55,7 +53,7 @@ public:
     [[nodiscard]] std::shared_ptr<DataPointValue> getUntyped(const std::string& path) const {
         auto mapEntry = m_dataPointsMap.find(path);
         if (mapEntry == m_dataPointsMap.end()) {
-            throw InvalidValueException(fmt::format("{} is not contained in reply!", path));
+            throw InvalidValueException(path + " is not contained in reply!");
         }
         return mapEntry->second;
     }
