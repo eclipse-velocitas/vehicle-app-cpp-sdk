@@ -30,18 +30,13 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
-        ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
-        ("cpr/1.10.5"),
-        ("fmt/9.1.0"),
-        ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
-        ("grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce"),
-        ("grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d"),
-        ("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
-        ("nlohmann_json/3.11.2"),
-        ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
-        ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
-        ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
-        ("zlib/1.3")
+        ("cpr/1.11.0"),
+        ("fmt/11.0.2"),
+        ("grpc/1.67.1"),
+        ("libcurl/8.10.1"),
+        ("nlohmann_json/3.11.3"),
+        ("paho-mqtt-c/1.3.13"),
+        ("paho-mqtt-cpp/1.4.0"),
     ]
     generators = "cmake"
     author = "Robert Bosch GmbH"
@@ -76,7 +71,7 @@ class VehicleAppCppSdkConan(ConanFile):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
             else:
                 raise FileNotFoundError("Missing version.txt!")
-                
+
 
     def config_options(self):
         if self.settings.os == "Linux":
@@ -116,4 +111,4 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
-        self.tool_requires("grpc/1.50.1")
+        self.tool_requires("grpc/1.67.1")
