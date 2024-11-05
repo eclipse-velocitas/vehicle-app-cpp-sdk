@@ -30,13 +30,29 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
+        ("abseil/20240116.2"),
+        ("bzip2/1.0.8"),
+        ("c-ares/1.19.1"),
         ("cpr/1.11.0"),
         ("fmt/11.0.2"),
         ("grpc/1.67.1"),
+        ("libcap/2.69"),
         ("libcurl/8.10.1"),
+        ("libmount/2.39.2"),
+        ("libselinux/3.6"),
+        ("libsystemd/255.10"),
+        ("libxcrypt/4.4.36"),
+        ("lz4/1.9.4"),
         ("nlohmann_json/3.11.3"),
+        ("openssl/3.3.2"),
         ("paho-mqtt-c/1.3.13"),
         ("paho-mqtt-cpp/1.4.0"),
+        ("pcre2/10.42"),
+        ("protobuf/5.27.0"),
+        ("re2/20230301"),
+        ("xz_utils/5.4.5"),
+        ("zlib/1.3"),
+        ("zstd/1.5.5"),
     ]
     generators = "cmake"
     author = "Robert Bosch GmbH"
