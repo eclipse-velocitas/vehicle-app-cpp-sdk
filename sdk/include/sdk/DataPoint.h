@@ -97,10 +97,18 @@ public:
 
 using DataPointBoolean      = TypedDataPoint<bool>;
 using DataPointBooleanArray = TypedDataPoint<std::vector<bool>>;
+using DataPointInt8         = TypedDataPoint<int8_t>;
+using DataPointInt8Array    = TypedDataPoint<std::vector<int8_t>>;
+using DataPointInt16        = TypedDataPoint<int16_t>;
+using DataPointInt16Array   = TypedDataPoint<std::vector<int16_t>>;
 using DataPointInt32        = TypedDataPoint<int32_t>;
 using DataPointInt32Array   = TypedDataPoint<std::vector<int32_t>>;
 using DataPointInt64        = TypedDataPoint<int64_t>;
 using DataPointInt64Array   = TypedDataPoint<std::vector<int64_t>>;
+using DataPointUint8        = TypedDataPoint<uint8_t>;
+using DataPointUint8Array   = TypedDataPoint<std::vector<uint8_t>>;
+using DataPointUint16       = TypedDataPoint<uint16_t>;
+using DataPointUint16Array  = TypedDataPoint<std::vector<uint16_t>>;
 using DataPointUint32       = TypedDataPoint<uint32_t>;
 using DataPointUint32Array  = TypedDataPoint<std::vector<uint32_t>>;
 using DataPointUint64       = TypedDataPoint<uint64_t>;

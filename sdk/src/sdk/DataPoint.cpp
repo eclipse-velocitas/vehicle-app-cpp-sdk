@@ -64,6 +64,22 @@ template <> std::string TypedDataPoint<std::vector<bool>>::toString() const {
     return fmt::format("DataPointBooleanArray: ('{}')", getName());
 }
 
+template <> std::string TypedDataPoint<int8_t>::toString() const {
+    return fmt::format("DataPointInt8: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<std::vector<int8_t>>::toString() const {
+    return fmt::format("DataPointInt8Array: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<int16_t>::toString() const {
+    return fmt::format("DataPointInt16: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<std::vector<int16_t>>::toString() const {
+    return fmt::format("DataPointInt16Array: ('{}' : '{}')", getName());
+}
+
 template <> std::string TypedDataPoint<int32_t>::toString() const {
     return fmt::format("DataPointInt32: ('{}')", getName());
 }
@@ -78,6 +94,22 @@ template <> std::string TypedDataPoint<int64_t>::toString() const {
 
 template <> std::string TypedDataPoint<std::vector<int64_t>>::toString() const {
     return fmt::format("DataPointInt64Array: ('{}' : '{}')", getName());
+}
+
+template <> std::string TypedDataPoint<uint8_t>::toString() const {
+    return fmt::format("DataPointUint8: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<std::vector<uint8_t>>::toString() const {
+    return fmt::format("DataPointUint8Array: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<uint16_t>::toString() const {
+    return fmt::format("DataPointUint16: ('{}')", getName());
+}
+
+template <> std::string TypedDataPoint<std::vector<uint16_t>>::toString() const {
+    return fmt::format("DataPointUint16Array: ('{}' : '{}')", getName());
 }
 
 template <> std::string TypedDataPoint<uint32_t>::toString() const {
@@ -122,10 +154,18 @@ template <> std::string TypedDataPoint<std::vector<std::string>>::toString() con
 
 template class TypedDataPoint<bool>;
 template class TypedDataPoint<std::vector<bool>>;
+template class TypedDataPoint<int8_t>;
+template class TypedDataPoint<std::vector<int8_t>>;
+template class TypedDataPoint<int16_t>;
+template class TypedDataPoint<std::vector<int16_t>>;
 template class TypedDataPoint<int32_t>;
 template class TypedDataPoint<std::vector<int32_t>>;
 template class TypedDataPoint<int64_t>;
 template class TypedDataPoint<std::vector<int64_t>>;
+template class TypedDataPoint<uint8_t>;
+template class TypedDataPoint<std::vector<uint8_t>>;
+template class TypedDataPoint<uint16_t>;
+template class TypedDataPoint<std::vector<uint16_t>>;
 template class TypedDataPoint<uint32_t>;
 template class TypedDataPoint<std::vector<uint32_t>>;
 template class TypedDataPoint<uint64_t>;
