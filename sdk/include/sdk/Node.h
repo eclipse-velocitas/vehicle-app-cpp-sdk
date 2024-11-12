@@ -74,8 +74,8 @@ protected:
 
 private:
     // TODO: Use std::weak_ptr ?
-    Node*       m_parent;
-    std::string m_name;
+    Node* const       m_parent;
+    const std::string m_name;
     using NodeMap = std::unordered_map<std::string, Node*>;
     std::unique_ptr<NodeMap> m_children;
 };
