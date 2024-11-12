@@ -21,6 +21,7 @@
 #include "sdk/DataPointValue.h"
 #include "sdk/Node.h"
 
+#include <cassert>
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -39,6 +40,11 @@ namespace velocitas {
 class DataPoint : public Node {
 public:
     using Node::Node;
+    DataPoint(std::string name, Type type, Node* parent = nullptr)
+        : Node{name, parent}
+        , m_type{type} {
+        assert(m_type != Type::BRANCH && m_type != Type::UNKNOWN_LEAF_TYPE);
+    }
     ~DataPoint() override = default;
 
     DataPoint(const DataPoint&)            = delete;
@@ -46,9 +52,15 @@ public:
     DataPoint& operator=(const DataPoint&) = delete;
     DataPoint& operator=(DataPoint&&)      = delete;
 
+    [[nodiscard]] Type                         getType() const override { return m_type; }
+    [[nodiscard]] virtual DataPointValue::Type getDataType() const = 0;
+
     [[nodiscard]] virtual std::string toString() const = 0;
 
     bool operator<(const DataPoint& rhs) const { return getPath() < rhs.getPath(); }
+
+private:
+    const Type m_type = Type::UNKNOWN_LEAF_TYPE;
 };
 
 inline bool operator<(const std::reference_wrapper<DataPoint>& lhs,
@@ -72,6 +84,8 @@ public:
     TypedDataPoint(TypedDataPoint&&)                 = delete;
     TypedDataPoint& operator=(const TypedDataPoint&) = delete;
     TypedDataPoint& operator=(TypedDataPoint&&)      = delete;
+
+    [[nodiscard]] DataPointValue::Type getDataType() const override { return getValueType<T>(); }
 
     [[nodiscard]] AsyncResultPtr_t<TypedDataPointValue<T>> get() const;
     [[nodiscard]] AsyncResultPtr_t<Status>                 set(T value) const;

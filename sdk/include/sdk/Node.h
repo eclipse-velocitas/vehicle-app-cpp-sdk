@@ -27,6 +27,14 @@ namespace velocitas {
  */
 class Node {
 public:
+    enum class Type {
+        BRANCH,
+        UNKNOWN_LEAF_TYPE,
+        ATTRIBUTE,
+        SENSOR,
+        ACTUATOR,
+    };
+
     /**
      * @brief Construct a new Node object
      *
@@ -40,6 +48,8 @@ public:
     [[nodiscard]] const Node* getParent() const;
 
     [[nodiscard]] const std::string& getName() const;
+
+    [[nodiscard]] virtual Type getType() const { return Type::BRANCH; }
 
     /**
      * @brief Return the fully qualified path of the node down from the root of the tree.

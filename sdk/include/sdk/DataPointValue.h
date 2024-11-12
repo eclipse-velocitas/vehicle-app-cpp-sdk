@@ -62,7 +62,15 @@ public:
         DOUBLE,
         DOUBLE_ARRAY,
         STRING,
-        STRING_ARRAY
+        STRING_ARRAY,
+        INT8,
+        INT8_ARRAY,
+        INT16,
+        INT16_ARRAY,
+        UINT8,
+        UINT8_ARRAY,
+        UINT16,
+        UINT16_ARRAY,
     };
 
     enum class Failure {
