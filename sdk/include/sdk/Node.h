@@ -49,8 +49,19 @@ public:
 
     virtual ~Node() = default;
 
+    /**
+     * @brief Get the parent node of this Node
+     *
+     * @return const Node* Pointer to the parent or nullptr if this node represents the root of the
+     * model
+     */
     [[nodiscard]] const Node* getParent() const;
 
+    /**
+     * @brief Get the name of this node
+     *
+     * @return const std::string& being the name (not the path) of this node
+     */
     [[nodiscard]] const std::string& getName() const;
 
     /**
@@ -60,8 +71,21 @@ public:
      */
     [[nodiscard]] std::string getPath() const;
 
+    /**
+     * @brief Get the type of the node
+     * Possibly, needs being overridden by sub-classes
+     *
+     * @return Type::BRANCH as the Node base class always represents a branch of the model
+     */
     [[nodiscard]] virtual Type getType() const { return Type::BRANCH; }
 
+    /**
+     * @brief Get the DataPoint object addressed by the specified path.
+     *
+     * @param path string addressing the desired data point
+     * @return const DataPoint* pointer to the addressed DataPoint or nullptr if the addressed data
+     * point is not part of the model hierarchy
+     */
     [[nodiscard]] virtual const DataPoint* getDataPoint(const std::string& path) const;
 
     Node(const Node&)            = delete;
@@ -70,6 +94,11 @@ public:
     Node& operator=(Node&&)      = delete;
 
 protected:
+    /**
+     * @brief Used by child nodes to register themselves with this parent node
+     *
+     * @param childNode to be registered
+     */
     void registerChild(const Node& childNode);
 
 private:

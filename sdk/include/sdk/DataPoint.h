@@ -52,7 +52,13 @@ public:
     DataPoint& operator=(const DataPoint&) = delete;
     DataPoint& operator=(DataPoint&&)      = delete;
 
-    [[nodiscard]] Type                         getType() const override { return m_type; }
+    [[nodiscard]] Type getType() const override { return m_type; }
+
+    /**
+     * @brief Get the data type of the signal represented by this data point
+     *
+     * @return DataPointValue::Type
+     */
     [[nodiscard]] virtual DataPointValue::Type getDataType() const = 0;
 
     [[nodiscard]] const DataPoint* getDataPoint(const std::string& path) const override;
