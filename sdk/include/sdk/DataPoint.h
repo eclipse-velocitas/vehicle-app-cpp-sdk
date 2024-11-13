@@ -40,7 +40,7 @@ namespace velocitas {
 class DataPoint : public Node {
 public:
     using Node::Node;
-    DataPoint(std::string name, Type type, Node* parent = nullptr)
+    DataPoint(const std::string& name, Type type, Node* parent = nullptr)
         : Node{name, parent}
         , m_type{type} {
         assert(m_type != Type::BRANCH && m_type != Type::UNKNOWN_LEAF_TYPE);

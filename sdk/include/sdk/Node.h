@@ -70,13 +70,13 @@ public:
     Node& operator=(Node&&)      = delete;
 
 protected:
-    void registerChild(Node& childNode);
+    void registerChild(const Node& childNode);
 
 private:
     // TODO: Use std::weak_ptr ?
     Node* const       m_parent;
     const std::string m_name;
-    using NodeMap = std::unordered_map<std::string, Node*>;
+    using NodeMap = std::unordered_map<std::string, const Node*>;
     std::unique_ptr<NodeMap> m_children;
 };
 

@@ -18,6 +18,7 @@
 #include "sdk/Utils.h"
 
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace velocitas {
@@ -32,7 +33,7 @@ Node::Node(std::string name, Node* parent)
     }
 }
 
-void Node::registerChild(Node& childNode) {
+void Node::registerChild(const Node& childNode) {
     if (!m_children) {
         m_children = std::make_unique<NodeMap>();
     } else if (m_children->count(childNode.getName()) > 0) {
