@@ -32,7 +32,7 @@
                 },
                 {
                     "name": "SDV_VEHICLEDATABROKER_ADDRESS",
-                    "value": "127.0.0.1:55555"
+                    "value": "unix:///tmp/kuksa/databroker.sock"
                 },
                 {
                     "name": "SDV_MQTT_ADDRESS",
