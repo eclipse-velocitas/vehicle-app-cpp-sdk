@@ -51,9 +51,9 @@ std::vector<std::string> readSignalNameFromFiles(const std::string& configFile) 
     std::vector<std::string> signalNames;
     signalNames.reserve(signalList.size());
     for (const auto& signal : signalList) {
-        const auto& signalName = signal["path"];
+        const std::string& signalName = signal["path"];
         if (!signalName.empty()) {
-            velocitas::logger().debug("    {}", signalName);
+            velocitas::logger().debug("{}", signalName);
             signalNames.push_back(signalName);
         } else {
             velocitas::logger().warn("Signal entry without 'path' found!");
@@ -67,8 +67,9 @@ std::vector<std::string> readSignalNameFromFiles(const std::string& configFile) 
 int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
 
-    const auto configFile = (argc > 1) ? std::string(argv[1]) : getDefaultConfigFilePath(argv[0]);
-    auto       signalList = readSignalNameFromFiles(configFile);
+    const auto configFile =
+        (argc > 1) ? std::filesystem::path(argv[1]).string() : getDefaultConfigFilePath(argv[0]);
+    auto signalList = readSignalNameFromFiles(configFile);
 
     myApp = std::make_unique<example::PerformanceTestApp>(std::move(signalList));
     myApp->run();
