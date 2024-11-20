@@ -67,6 +67,12 @@ SimpleUrlParse::SimpleUrlParse(const std::string& url) {
         schemeLen = 0;
     }
 
+    // return the full URL if using Unix domain socket
+    if (m_scheme == "unix") {
+        m_netLocation = url;
+        return;
+    }
+
     auto startOfSchemePart = url.find(SCHEME_PART_START, schemeLen);
     if (startOfSchemePart != std::string::npos) {
         startOfSchemePart += SCHEME_PART_START.length();

@@ -21,6 +21,7 @@
 #include "sdk/DataPointValue.h"
 #include "sdk/Node.h"
 
+#include <cassert>
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -39,6 +40,11 @@ namespace velocitas {
 class DataPoint : public Node {
 public:
     using Node::Node;
+    DataPoint(const std::string& name, Type type, Node* parent = nullptr)
+        : Node{name, parent}
+        , m_type{type} {
+        assert(m_type != Type::BRANCH && m_type != Type::UNKNOWN_LEAF_TYPE);
+    }
     ~DataPoint() override = default;
 
     DataPoint(const DataPoint&)            = delete;
@@ -46,9 +52,21 @@ public:
     DataPoint& operator=(const DataPoint&) = delete;
     DataPoint& operator=(DataPoint&&)      = delete;
 
+    [[nodiscard]] Type getType() const override { return m_type; }
+
+    /**
+     * @brief Get the data type of the signal represented by this data point
+     *
+     * @return DataPointValue::Type
+     */
+    [[nodiscard]] virtual DataPointValue::Type getDataType() const = 0;
+
     [[nodiscard]] virtual std::string toString() const = 0;
 
     bool operator<(const DataPoint& rhs) const { return getPath() < rhs.getPath(); }
+
+private:
+    const Type m_type = Type::UNKNOWN_LEAF_TYPE;
 };
 
 inline bool operator<(const std::reference_wrapper<DataPoint>& lhs,
@@ -73,6 +91,8 @@ public:
     TypedDataPoint& operator=(const TypedDataPoint&) = delete;
     TypedDataPoint& operator=(TypedDataPoint&&)      = delete;
 
+    [[nodiscard]] DataPointValue::Type getDataType() const override { return getValueType<T>(); }
+
     [[nodiscard]] AsyncResultPtr_t<TypedDataPointValue<T>> get() const;
     [[nodiscard]] AsyncResultPtr_t<Status>                 set(T value) const;
 
@@ -81,10 +101,18 @@ public:
 
 using DataPointBoolean      = TypedDataPoint<bool>;
 using DataPointBooleanArray = TypedDataPoint<std::vector<bool>>;
+using DataPointInt8         = TypedDataPoint<int8_t>;
+using DataPointInt8Array    = TypedDataPoint<std::vector<int8_t>>;
+using DataPointInt16        = TypedDataPoint<int16_t>;
+using DataPointInt16Array   = TypedDataPoint<std::vector<int16_t>>;
 using DataPointInt32        = TypedDataPoint<int32_t>;
 using DataPointInt32Array   = TypedDataPoint<std::vector<int32_t>>;
 using DataPointInt64        = TypedDataPoint<int64_t>;
 using DataPointInt64Array   = TypedDataPoint<std::vector<int64_t>>;
+using DataPointUint8        = TypedDataPoint<uint8_t>;
+using DataPointUint8Array   = TypedDataPoint<std::vector<uint8_t>>;
+using DataPointUint16       = TypedDataPoint<uint16_t>;
+using DataPointUint16Array  = TypedDataPoint<std::vector<uint16_t>>;
 using DataPointUint32       = TypedDataPoint<uint32_t>;
 using DataPointUint32Array  = TypedDataPoint<std::vector<uint32_t>>;
 using DataPointUint64       = TypedDataPoint<uint64_t>;
