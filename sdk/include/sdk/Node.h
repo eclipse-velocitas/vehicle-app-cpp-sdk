@@ -17,13 +17,9 @@
 #ifndef VEHICLE_APP_SDK_NODE_H
 #define VEHICLE_APP_SDK_NODE_H
 
-#include <memory>
 #include <string>
-#include <unordered_map>
 
 namespace velocitas {
-
-class DataPoint;
 
 /**
  * @brief A tree node.
@@ -79,34 +75,15 @@ public:
      */
     [[nodiscard]] virtual Type getType() const { return Type::BRANCH; }
 
-    /**
-     * @brief Get the DataPoint object addressed by the specified path.
-     *
-     * @param path string addressing the desired data point
-     * @return const DataPoint* pointer to the addressed DataPoint or nullptr if the addressed data
-     * point is not part of the model hierarchy
-     */
-    [[nodiscard]] virtual const DataPoint* getDataPoint(const std::string& path) const;
-
     Node(const Node&)            = delete;
     Node(Node&&)                 = delete;
     Node& operator=(const Node&) = delete;
     Node& operator=(Node&&)      = delete;
 
-protected:
-    /**
-     * @brief Used by child nodes to register themselves with this parent node
-     *
-     * @param childNode to be registered
-     */
-    void registerChild(const Node& childNode);
-
 private:
     // TODO: Use std::weak_ptr ?
     Node* const       m_parent;
     const std::string m_name;
-    using NodeMap = std::unordered_map<std::string, const Node*>;
-    std::unique_ptr<NodeMap> m_children;
 };
 
 } // namespace velocitas

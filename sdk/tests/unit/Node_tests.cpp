@@ -17,8 +17,6 @@
 #include "sdk/Node.h"
 #include <gtest/gtest.h>
 
-#include <stdexcept>
-
 using namespace velocitas;
 
 TEST(Test_Node, constructor_withoutParent_isRootNoParent) {
@@ -36,30 +34,4 @@ TEST(Test_Node, constructor_withParent_isLeaf) {
     EXPECT_EQ(node.getName(), "foo");
     EXPECT_EQ(node.getParent(), &nodeRoot);
     EXPECT_EQ(node.getPath(), "root.foo");
-}
-
-TEST(Test_Node, constructor_parentWithSamelyNamedChild_throwsRuntimeError) {
-    Node nodeRoot{"root"};
-    Node node{"foo", &nodeRoot};
-
-    EXPECT_THROW(Node("foo", &nodeRoot), std::runtime_error);
-}
-
-TEST(Test_Node, getDataPoint_addressingNoFurtherNode_returnsNullptr) {
-    Node nodeRoot{"root"};
-
-    EXPECT_EQ(nullptr, nodeRoot.getDataPoint(""));
-}
-
-TEST(Test_Node, getDataPoint_addressingIntermediateChildNode_returnsNullptr) {
-    Node nodeRoot{"root"};
-    Node child{"child", &nodeRoot};
-
-    EXPECT_EQ(nullptr, nodeRoot.getDataPoint("child"));
-}
-
-TEST(Test_Node, getDataPoint_addressingNonExistantChild_returnsNullptr) {
-    Node nodeRoot{"root"};
-
-    EXPECT_EQ(nullptr, nodeRoot.getDataPoint("child"));
 }

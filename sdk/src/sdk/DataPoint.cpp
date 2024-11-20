@@ -34,14 +34,6 @@ template <typename T> AsyncResultPtr_t<TypedDataPointValue<T>> TypedDataPoint<T>
             [this](const DataPointReply& dataPointValues) { return *dataPointValues.get(*this); });
 }
 
-const DataPoint* DataPoint::getDataPoint(const std::string& path) const {
-    // We are at leaf level. Return nullptr if further child(ren) are expected
-    if (!path.empty()) {
-        return nullptr;
-    }
-    return this;
-}
-
 template <typename T> AsyncResultPtr_t<Status> TypedDataPoint<T>::set(T value) const {
     std::vector<std::unique_ptr<DataPointValue>> vec;
     vec.reserve(1);
