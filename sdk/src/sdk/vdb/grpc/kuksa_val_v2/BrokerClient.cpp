@@ -77,7 +77,7 @@ BrokerClient::getDatapoints(const std::vector<std::string>& paths) {
     m_asyncBrokerFacade->GetValues(
         std::move(request),
         [result, paths](auto reply) {
-            const auto& dataPoints = reply.datapoints();
+            const auto& dataPoints = reply.data_points();
             if (dataPoints.size() == paths.size()) {
                 DataPointMap_t resultMap;
                 auto           path      = paths.cbegin();
