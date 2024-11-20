@@ -29,7 +29,7 @@ class Node {
 public:
     enum class Type {
         BRANCH,
-        UNKNOWN_LEAF_TYPE,
+        UNKNOWN_LEAF_TYPE, // Added for backward compatibility with older model generators
         ATTRIBUTE,
         SENSOR,
         ACTUATOR,
