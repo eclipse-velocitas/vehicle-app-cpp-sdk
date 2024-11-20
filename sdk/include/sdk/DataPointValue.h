@@ -62,7 +62,15 @@ public:
         DOUBLE,
         DOUBLE_ARRAY,
         STRING,
-        STRING_ARRAY
+        STRING_ARRAY,
+        INT8,
+        INT8_ARRAY,
+        INT16,
+        INT16_ARRAY,
+        UINT8,
+        UINT8_ARRAY,
+        UINT16,
+        UINT16_ARRAY,
     };
 
     enum class Failure {
@@ -126,6 +134,18 @@ template <> inline DataPointValue::Type getValueType<bool>() { return DataPointV
 template <> inline DataPointValue::Type getValueType<std::vector<bool>>() {
     return DataPointValue::Type::BOOL_ARRAY;
 }
+template <> inline DataPointValue::Type getValueType<int8_t>() {
+    return DataPointValue::Type::INT8;
+}
+template <> inline DataPointValue::Type getValueType<std::vector<int8_t>>() {
+    return DataPointValue::Type::INT8_ARRAY;
+}
+template <> inline DataPointValue::Type getValueType<int16_t>() {
+    return DataPointValue::Type::INT16;
+}
+template <> inline DataPointValue::Type getValueType<std::vector<int16_t>>() {
+    return DataPointValue::Type::INT16_ARRAY;
+}
 template <> inline DataPointValue::Type getValueType<int32_t>() {
     return DataPointValue::Type::INT32;
 }
@@ -137,6 +157,18 @@ template <> inline DataPointValue::Type getValueType<int64_t>() {
 }
 template <> inline DataPointValue::Type getValueType<std::vector<int64_t>>() {
     return DataPointValue::Type::INT64_ARRAY;
+}
+template <> inline DataPointValue::Type getValueType<uint8_t>() {
+    return DataPointValue::Type::UINT8;
+}
+template <> inline DataPointValue::Type getValueType<std::vector<uint8_t>>() {
+    return DataPointValue::Type::UINT8_ARRAY;
+}
+template <> inline DataPointValue::Type getValueType<uint16_t>() {
+    return DataPointValue::Type::UINT16;
+}
+template <> inline DataPointValue::Type getValueType<std::vector<uint16_t>>() {
+    return DataPointValue::Type::UINT16_ARRAY;
 }
 template <> inline DataPointValue::Type getValueType<uint32_t>() {
     return DataPointValue::Type::UINT32;
@@ -212,10 +244,22 @@ template <typename T> std::string TypedDataPointValue<T>::getValueAsString() con
 template <> inline std::string TypedDataPointValue<bool>::getValueAsString() const {
     return m_value ? "true" : "false";
 }
+template <> inline std::string TypedDataPointValue<int8_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<int16_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
 template <> inline std::string TypedDataPointValue<int32_t>::getValueAsString() const {
     return std::to_string(m_value);
 }
 template <> inline std::string TypedDataPointValue<int64_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<uint8_t>::getValueAsString() const {
+    return std::to_string(m_value);
+}
+template <> inline std::string TypedDataPointValue<uint16_t>::getValueAsString() const {
     return std::to_string(m_value);
 }
 template <> inline std::string TypedDataPointValue<uint32_t>::getValueAsString() const {

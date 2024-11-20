@@ -27,6 +27,14 @@ namespace velocitas {
  */
 class Node {
 public:
+    enum class Type {
+        BRANCH,
+        UNKNOWN_LEAF_TYPE, // Added for backward compatibility with older model generators
+        ATTRIBUTE,
+        SENSOR,
+        ACTUATOR,
+    };
+
     /**
      * @brief Construct a new Node object
      *
@@ -37,8 +45,19 @@ public:
 
     virtual ~Node() = default;
 
+    /**
+     * @brief Get the parent node of this Node
+     *
+     * @return const Node* Pointer to the parent or nullptr if this node represents the root of the
+     * model
+     */
     [[nodiscard]] const Node* getParent() const;
 
+    /**
+     * @brief Get the name of this node
+     *
+     * @return const std::string& being the name (not the path) of this node
+     */
     [[nodiscard]] const std::string& getName() const;
 
     /**
@@ -48,6 +67,14 @@ public:
      */
     [[nodiscard]] std::string getPath() const;
 
+    /**
+     * @brief Get the type of the node
+     * Possibly, needs being overridden by sub-classes
+     *
+     * @return Type::BRANCH as the Node base class always represents a branch of the model
+     */
+    [[nodiscard]] virtual Type getType() const { return Type::BRANCH; }
+
     Node(const Node&)            = delete;
     Node(Node&&)                 = delete;
     Node& operator=(const Node&) = delete;
@@ -55,8 +82,8 @@ public:
 
 private:
     // TODO: Use std::weak_ptr ?
-    Node*       m_parent;
-    std::string m_name;
+    Node* const       m_parent;
+    const std::string m_name;
 };
 
 } // namespace velocitas

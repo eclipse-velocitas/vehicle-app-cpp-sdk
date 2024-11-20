@@ -18,6 +18,7 @@
 
 #include "sdk/Logger.h"
 
+#include <limits>
 #include <utility>
 
 namespace velocitas {
@@ -46,7 +47,8 @@ DataPointValue::Failure GrpcDataPointValueProvider::getFailure() const {
     case sdv::databroker::v1::Datapoint_Failure_INTERNAL_ERROR:
         return DataPointValue::Failure::INTERNAL_ERROR;
     default:
-        logger().error("Unknown 'DataPointValue::Failure': {}", static_cast<int>(m_datapoint.failure_value()));
+        logger().error("Unknown 'DataPointValue::Failure': {}",
+                       static_cast<int>(m_datapoint.failure_value()));
         assert(false);
         return DataPointValue::Failure::INTERNAL_ERROR;
     }
@@ -76,10 +78,48 @@ std::vector<double> GrpcDataPointValueProvider::getDoubleArrayValue() const {
     return result;
 }
 
+int8_t GrpcDataPointValueProvider::getInt8Value() const {
+    const auto value = getDataPoint().int32_value();
+    assert(std::numeric_limits<int8_t>::min() <= value &&
+           value <= std::numeric_limits<int8_t>::max());
+    return static_cast<int8_t>(value);
+}
+
+std::vector<int8_t> GrpcDataPointValueProvider::getInt8ArrayValue() const {
+    auto                valueArray = getDataPoint().int32_array().values();
+    std::vector<int8_t> result;
+    result.reserve(valueArray.size());
+    for (const auto value : valueArray) {
+        assert(std::numeric_limits<int8_t>::min() <= value &&
+               value <= std::numeric_limits<int8_t>::max());
+        result.push_back(static_cast<int8_t>(value));
+    }
+    return result;
+}
+
+int16_t GrpcDataPointValueProvider::getInt16Value() const {
+    const auto value = getDataPoint().int32_value();
+    assert(std::numeric_limits<int16_t>::min() <= value &&
+           value <= std::numeric_limits<int16_t>::max());
+    return static_cast<int16_t>(value);
+}
+
+std::vector<int16_t> GrpcDataPointValueProvider::getInt16ArrayValue() const {
+    auto                 valueArray = getDataPoint().int32_array().values();
+    std::vector<int16_t> result;
+    result.reserve(valueArray.size());
+    for (const auto value : valueArray) {
+        assert(std::numeric_limits<int16_t>::min() <= value &&
+               value <= std::numeric_limits<int16_t>::max());
+        result.push_back(static_cast<int16_t>(value));
+    }
+    return result;
+}
+
 int32_t GrpcDataPointValueProvider::getInt32Value() const { return getDataPoint().int32_value(); }
 
 std::vector<int32_t> GrpcDataPointValueProvider::getInt32ArrayValue() const {
-    auto                 valueArray = getDataPoint().uint32_array().values();
+    auto                 valueArray = getDataPoint().int32_array().values();
     std::vector<int32_t> result{valueArray.cbegin(), valueArray.cend()};
     return result;
 }
@@ -89,6 +129,44 @@ int64_t GrpcDataPointValueProvider::getInt64Value() const { return getDataPoint(
 std::vector<int64_t> GrpcDataPointValueProvider::getInt64ArrayValue() const {
     auto                 valueArray = getDataPoint().int64_array().values();
     std::vector<int64_t> result{valueArray.cbegin(), valueArray.cend()};
+    return result;
+}
+
+uint8_t GrpcDataPointValueProvider::getUint8Value() const {
+    const auto value = getDataPoint().uint32_value();
+    assert(std::numeric_limits<uint8_t>::min() <= value &&
+           value <= std::numeric_limits<uint8_t>::max());
+    return static_cast<uint8_t>(value);
+}
+
+std::vector<uint8_t> GrpcDataPointValueProvider::getUint8ArrayValue() const {
+    auto                 valueArray = getDataPoint().uint32_array().values();
+    std::vector<uint8_t> result;
+    result.reserve(valueArray.size());
+    for (const auto value : valueArray) {
+        assert(std::numeric_limits<uint8_t>::min() <= value &&
+               value <= std::numeric_limits<uint8_t>::max());
+        result.push_back(static_cast<uint8_t>(value));
+    }
+    return result;
+}
+
+uint16_t GrpcDataPointValueProvider::getUint16Value() const {
+    const auto value = getDataPoint().uint32_value();
+    assert(std::numeric_limits<uint16_t>::min() <= value &&
+           value <= std::numeric_limits<uint16_t>::max());
+    return static_cast<uint16_t>(value);
+}
+
+std::vector<uint16_t> GrpcDataPointValueProvider::getUint16ArrayValue() const {
+    auto                  valueArray = getDataPoint().uint32_array().values();
+    std::vector<uint16_t> result;
+    result.reserve(valueArray.size());
+    for (const auto value : valueArray) {
+        assert(std::numeric_limits<uint16_t>::min() <= value &&
+               value <= std::numeric_limits<uint16_t>::max());
+        result.push_back(static_cast<uint16_t>(value));
+    }
     return result;
 }
 
