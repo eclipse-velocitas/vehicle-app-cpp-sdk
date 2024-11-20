@@ -50,6 +50,7 @@ include(GoogleTest)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/../model
     ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
 )

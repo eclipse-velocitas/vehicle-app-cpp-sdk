@@ -16,6 +16,9 @@
 
 #include "sdk/vdb/grpc/kuksa_val_v2/TypeConversions.h"
 
+#include "Vehicle.h"
+#include "sdk/QueryBuilder.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -159,4 +162,55 @@ TEST(Test_TypeConversion, convertFromGrpcValue__allMembersSetCorrectly) {
     testValueConversion<std::vector<float>>({-9.87654321F, 0.0F, 0.1F, 1.23456789F});
     testValueConversion<std::vector<double>>({-9.87654321, 0.0, 0.1, 1.23456789});
     testValueConversion<std::vector<std::string>>({"", "hello", "world", "!"});
+}
+
+TEST(Test_TypeConversion, parseQueryIntoRequest_emptyQuery_runtimeError) {
+    kuksa::val::v2::SubscribeRequest request;
+    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, ""), std::runtime_error);
+}
+
+TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithoutSelect_runtimeError) {
+    kuksa::val::v2::SubscribeRequest request;
+    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, "Vehicle.Speed"), std::runtime_error);
+}
+
+TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithoutSignals_runtimeError) {
+    kuksa::val::v2::SubscribeRequest request;
+    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, "SELECT "), std::runtime_error);
+}
+
+TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithSingleSignal_signalPathIsCorrect) {
+    const Vehicle     vehicle;
+    const std::string query = QueryBuilder::select(vehicle.Speed).build();
+
+    kuksa::val::v2::SubscribeRequest request;
+    EXPECT_NO_THROW(kuksa_val_v2::parseQueryIntoRequest(request, query));
+
+    ASSERT_EQ(1, request.signal_paths().size());
+    EXPECT_EQ(vehicle.Speed.getPath(), request.signal_paths()[0]);
+}
+
+TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithMultipleSignals_signalPathsAreCorrect) {
+    Vehicle           vehicle;
+    const std::string query =
+        QueryBuilder::select({vehicle.Speed, vehicle.Cabin.Seat.Row1.DriverSide.Position,
+                              vehicle.Cabin.Seat.Row1.PassengerSide.Position})
+            .build();
+
+    kuksa::val::v2::SubscribeRequest request;
+    EXPECT_NO_THROW(kuksa_val_v2::parseQueryIntoRequest(request, query));
+
+    ASSERT_EQ(3, request.signal_paths().size());
+    EXPECT_EQ(vehicle.Speed.getPath(), request.signal_paths()[0]);
+    EXPECT_EQ(vehicle.Cabin.Seat.Row1.DriverSide.Position.getPath(), request.signal_paths()[1]);
+    EXPECT_EQ(vehicle.Cabin.Seat.Row1.PassengerSide.Position.getPath(), request.signal_paths()[2]);
+}
+
+TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithWhereClause_runtimeError) {
+    const Vehicle     vehicle;
+    const std::string query =
+        QueryBuilder::select(vehicle.Speed).where(vehicle.Speed).gt(30).build();
+
+    kuksa::val::v2::SubscribeRequest request;
+    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, query), std::runtime_error);
 }
