@@ -22,7 +22,7 @@
 
 namespace velocitas {
 
-Timestamp convertFromGrpcTimestamp(const google::protobuf::Timestamp& grpcTimestamp) {
+Timestamp convertFromGrpcTimestamp(const google::protobuf::Timestamp& grpcTimestamp) noexcept {
     return {grpcTimestamp.seconds(), grpcTimestamp.nanos()};
 }
 

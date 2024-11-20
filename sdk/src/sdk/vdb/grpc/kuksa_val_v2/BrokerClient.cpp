@@ -44,7 +44,7 @@ int assertProtobufArrayLimits(size_t numElements) {
 
 } // namespace
 
-BrokerClient::BrokerClient(const std::string& vdbAddress, std::string vdbServiceName) {
+BrokerClient::BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName) {
     logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
     m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
         grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));

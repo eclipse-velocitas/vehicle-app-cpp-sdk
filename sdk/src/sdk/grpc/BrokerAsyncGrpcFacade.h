@@ -37,7 +37,7 @@ namespace velocitas {
 
 class BrokerAsyncGrpcFacade : public AsyncGrpcFacade, GrpcClient {
 public:
-    explicit BrokerAsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel);
+    explicit BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel);
 
     void GetDatapoints(
         const std::vector<std::string>&                                           datapoints,

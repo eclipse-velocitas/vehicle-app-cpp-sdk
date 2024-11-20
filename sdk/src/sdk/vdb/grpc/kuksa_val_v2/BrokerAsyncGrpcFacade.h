@@ -34,19 +34,19 @@ namespace velocitas::kuksa_val_v2 {
 
 class BrokerAsyncGrpcFacade : public AsyncGrpcFacade, GrpcClient {
 public:
-    explicit BrokerAsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel);
+    explicit BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel);
 
-    void GetValues(kuksa::val::v2::GetValuesRequest&&                                  request,
+    void GetValues(kuksa::val::v2::GetValuesRequest                                    request,
                    std::function<void(const kuksa::val::v2::GetValuesResponse& reply)> replyHandler,
                    std::function<void(const grpc::Status& status)> errorHandler);
 
     void
-    Subscribe(kuksa::val::v2::SubscribeRequest&&                                   request,
+    Subscribe(kuksa::val::v2::SubscribeRequest                                     request,
               std::function<void(const kuksa::val::v2::SubscribeResponse& update)> updateHandler,
               std::function<void(const grpc::Status& status)>                      errorHandler);
 
     void BatchActuate(
-        kuksa::val::v2::BatchActuateRequest&&                                  request,
+        kuksa::val::v2::BatchActuateRequest                                    request,
         std::function<void(const kuksa::val::v2::BatchActuateResponse& reply)> replyHandler,
         std::function<void(const grpc::Status& status)>                        errorHandler);
 

@@ -22,7 +22,7 @@
 
 namespace velocitas {
 
-BrokerAsyncGrpcFacade::BrokerAsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel)
+BrokerAsyncGrpcFacade::BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel)
     : m_stub{sdv::databroker::v1::Broker::NewStub(channel)} {}
 
 void BrokerAsyncGrpcFacade::GetDatapoints(
@@ -39,7 +39,7 @@ void BrokerAsyncGrpcFacade::GetDatapoints(
 
     applyContextModifier(*callData);
 
-    auto grpcResultHandler = [callData, replyHandler, errorHandler](grpc::Status status) {
+    const auto grpcResultHandler = [callData, replyHandler, errorHandler](grpc::Status status) {
         try {
             if (status.ok()) {
                 replyHandler(callData->m_reply);

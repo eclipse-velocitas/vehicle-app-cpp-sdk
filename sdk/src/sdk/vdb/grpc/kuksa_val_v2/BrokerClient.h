@@ -30,7 +30,7 @@ class BrokerAsyncGrpcFacade;
  */
 class BrokerClient : public IVehicleDataBrokerClient {
 public:
-    explicit BrokerClient(const std::string& vdbAddress, std::string vdbServiceName);
+    explicit BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName);
     explicit BrokerClient(const std::string& vdbserviceName);
 
     ~BrokerClient() override;

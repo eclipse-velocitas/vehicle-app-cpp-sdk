@@ -23,11 +23,11 @@
 
 namespace velocitas::kuksa_val_v2 {
 
-BrokerAsyncGrpcFacade::BrokerAsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel)
+BrokerAsyncGrpcFacade::BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel)
     : m_stub{kuksa::val::v2::VAL::NewStub(channel)} {}
 
 void BrokerAsyncGrpcFacade::GetValues(
-    kuksa::val::v2::GetValuesRequest&&                                  request,
+    kuksa::val::v2::GetValuesRequest                                    request,
     std::function<void(const kuksa::val::v2::GetValuesResponse& reply)> replyHandler,
     std::function<void(const grpc::Status& status)>                     errorHandler) {
     auto callData = std::make_shared<GrpcSingleResponseCall<kuksa::val::v2::GetValuesRequest,
@@ -57,7 +57,7 @@ void BrokerAsyncGrpcFacade::GetValues(
 }
 
 void BrokerAsyncGrpcFacade::BatchActuate(
-    kuksa::val::v2::BatchActuateRequest&&                                  request,
+    kuksa::val::v2::BatchActuateRequest                                    request,
     std::function<void(const kuksa::val::v2::BatchActuateResponse& reply)> replyHandler,
     std::function<void(const grpc::Status& status)>                        errorHandler) {
     auto callData =
@@ -88,7 +88,7 @@ void BrokerAsyncGrpcFacade::BatchActuate(
 }
 
 void BrokerAsyncGrpcFacade::Subscribe(
-    kuksa::val::v2::SubscribeRequest&&                                  request,
+    kuksa::val::v2::SubscribeRequest                                    request,
     std::function<void(const kuksa::val::v2::SubscribeResponse& reply)> itemHandler,
     std::function<void(const grpc::Status& status)>                     errorHandler) {
     auto callData =

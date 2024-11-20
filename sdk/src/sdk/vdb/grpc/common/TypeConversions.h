@@ -25,7 +25,7 @@ namespace velocitas {
 
 class Timestamp;
 
-Timestamp convertFromGrpcTimestamp(const google::protobuf::Timestamp& grpcTimestamp);
+Timestamp convertFromGrpcTimestamp(const google::protobuf::Timestamp& grpcTimestamp) noexcept;
 
 } // namespace velocitas
 
