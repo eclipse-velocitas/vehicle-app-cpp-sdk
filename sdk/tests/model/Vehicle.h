@@ -31,7 +31,7 @@ class Seat : public ParentClass {
 public:
     Seat(const std::string& name, ParentClass* parent)
         : ParentClass(name, parent)
-        , Position("Position", this) {}
+        , Position("Position", Node::Type::ACTUATOR, this) {}
     DataPointUint32 Position;
 };
 
@@ -85,7 +85,7 @@ class Vehicle : public ParentClass {
 public:
     Vehicle()
         : ParentClass("Vehicle")
-        , Speed("Speed", this)
+        , Speed("Speed", Node::Type::SENSOR, this)
         , Cabin("Cabin", this) {}
     DataPointFloat Speed;
     vehicle::Cabin Cabin;
