@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
-#define VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
+#ifndef VEHICLE_APP_SDK_BROKERCLIENT_H
+#define VEHICLE_APP_SDK_BROKERCLIENT_H
 
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
@@ -26,24 +26,26 @@
 namespace velocitas {
 
 class RecurringJob;
+
+namespace sdv_databroker_v1 {
+
 class BrokerAsyncGrpcFacade;
 
 /**
  * VehicleDataBrokerClient provides the Graph API to access vehicle services
  * and vehicle signals.
  */
-class VehicleDataBrokerClient : public IVehicleDataBrokerClient {
+class BrokerClient : public IVehicleDataBrokerClient {
 public:
-    explicit VehicleDataBrokerClient(const std::string& vdbAddress,
-                                     const std::string& vdbServiceName);
-    explicit VehicleDataBrokerClient(const std::string& vdbserviceName);
+    explicit BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName);
+    explicit BrokerClient(const std::string& vdbserviceName);
 
-    ~VehicleDataBrokerClient() override;
+    ~BrokerClient() override;
 
-    VehicleDataBrokerClient(const VehicleDataBrokerClient&)            = delete;
-    VehicleDataBrokerClient(VehicleDataBrokerClient&&)                 = delete;
-    VehicleDataBrokerClient& operator=(const VehicleDataBrokerClient&) = delete;
-    VehicleDataBrokerClient& operator=(VehicleDataBrokerClient&&)      = delete;
+    BrokerClient(const BrokerClient&)            = delete;
+    BrokerClient(BrokerClient&&)                 = delete;
+    BrokerClient& operator=(const BrokerClient&) = delete;
+    BrokerClient& operator=(BrokerClient&&)      = delete;
 
     AsyncResultPtr_t<DataPointReply>
     getDatapoints(const std::vector<std::string>& datapoints) override;
@@ -57,6 +59,7 @@ private:
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
 };
 
+} // namespace sdv_databroker_v1
 } // namespace velocitas
 
-#endif // VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
+#endif // VEHICLE_APP_SDK_BROKERCLIENT_H

@@ -28,9 +28,6 @@ add_library(${TARGET_NAME}
 
     sdk/grpc/GrpcClient.cpp
     sdk/grpc/AsyncGrpcFacade.cpp
-    sdk/grpc/BrokerAsyncGrpcFacade.cpp
-    sdk/grpc/GrpcDataPointValueProvider.cpp
-    sdk/grpc/VehicleDataBrokerClient.cpp
 
     sdk/middleware/Middleware.cpp
     sdk/middleware/NativeMiddleware.cpp
@@ -42,6 +39,9 @@ add_library(${TARGET_NAME}
     sdk/vdb/grpc/kuksa_val_v2/BrokerAsyncGrpcFacade.cpp
     sdk/vdb/grpc/kuksa_val_v2/BrokerClient.cpp
     sdk/vdb/grpc/kuksa_val_v2/TypeConversions.cpp
+    sdk/vdb/grpc/sdv_databroker_v1/BrokerAsyncGrpcFacade.cpp
+    sdk/vdb/grpc/sdv_databroker_v1/BrokerClient.cpp
+    sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.cpp
 )
 
 include_directories(

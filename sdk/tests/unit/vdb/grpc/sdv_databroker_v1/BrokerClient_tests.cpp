@@ -14,13 +14,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/grpc/VehicleDataBrokerClient.h"
+#include "sdk/vdb/grpc/sdv_databroker_v1/BrokerClient.h"
 
 #include <gtest/gtest.h>
 
 using namespace velocitas;
 
-TEST(Test_VehicleDataBrokerClient, getDatapoints_noConnection_throwsAsyncException) {
-    auto client = VehicleDataBrokerClient("vehicledatabroker");
+TEST(Test_sdv_databroker_v1_BrokerClient, getDatapoints_noConnection_throwsAsyncException) {
+    auto client = sdv_databroker_v1::BrokerClient("vehicledatabroker");
     EXPECT_THROW(client.getDatapoints({})->await(), AsyncException);
 }

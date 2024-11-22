@@ -14,14 +14,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/grpc/GrpcDataPointValueProvider.h"
+#include "GrpcDataPointValueProvider.h"
 
 #include "sdk/Logger.h"
 
 #include <limits>
 #include <utility>
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
 GrpcDataPointValueProvider::GrpcDataPointValueProvider(sdv::databroker::v1::Datapoint datapoint)
     : m_datapoint(std::move(datapoint)) {}
@@ -204,4 +204,4 @@ Timestamp GrpcDataPointValueProvider::getTimestamp() const {
     return {m_datapoint.timestamp().seconds(), m_datapoint.timestamp().nanos()};
 }
 
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1

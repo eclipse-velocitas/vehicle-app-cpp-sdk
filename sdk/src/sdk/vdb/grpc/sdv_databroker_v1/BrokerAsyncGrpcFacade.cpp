@@ -14,13 +14,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/grpc/BrokerAsyncGrpcFacade.h"
+#include "BrokerAsyncGrpcFacade.h"
+
 #include "sdk/Logger.h"
 #include "sdk/grpc/GrpcCall.h"
 
 #include <grpcpp/channel.h>
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
 BrokerAsyncGrpcFacade::BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel)
     : m_stub{sdv::databroker::v1::Broker::NewStub(channel)} {}
@@ -120,4 +121,4 @@ void BrokerAsyncGrpcFacade::Subscribe(
     callData->startCall();
 }
 
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1

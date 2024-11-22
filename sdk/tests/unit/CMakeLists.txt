@@ -33,8 +33,8 @@ add_executable(${TARGET_NAME}
     #PubSub_tests.cpp
     TestBaseUsingEnvVars.cpp
     grpc/GrpcClient_tests.cpp
-    grpc/VehicleDataBrokerClient_tests.cpp
     vdb/grpc/kuksa_val_v2/TypeConversions_tests.cpp
+    vdb/grpc/sdv_databroker_v1/BrokerClient_tests.cpp
 )
 
 add_dependencies(${TARGET_NAME}
