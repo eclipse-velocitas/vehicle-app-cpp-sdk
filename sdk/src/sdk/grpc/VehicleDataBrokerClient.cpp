@@ -301,7 +301,7 @@ VehicleDataBrokerClient::getDatapoints(const std::vector<std::string>& datapoint
         },
         [result](auto status) {
             result->insertError(
-                Status(fmt::format("RPC 'GetDatapoints' failed:", status.error_message())));
+                Status(fmt::format("RPC 'GetDatapoints' failed: {}", status.error_message())));
         });
     return result;
 }
@@ -326,7 +326,7 @@ AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t> VehicleDataBrokerClien
         },
         [result](auto status) {
             result->insertError(
-                Status(fmt::format("RPC 'SetDatapoints' failed:", status.error_message())));
+                Status(fmt::format("RPC 'SetDatapoints' failed: {}", status.error_message())));
         });
     return result;
 }

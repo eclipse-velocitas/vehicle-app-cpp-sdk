@@ -94,7 +94,7 @@ BrokerClient::getDatapoints(const std::vector<std::string>& paths) {
         },
         [result](auto status) {
             result->insertError(
-                Status(fmt::format("GetDatapoints failed:", status.error_message())));
+                Status(fmt::format("GetDatapoints failed: {}", status.error_message())));
         });
     return result;
 }
@@ -121,7 +121,7 @@ BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& 
         },
         [result](auto status) {
             result->insertError(
-                Status(fmt::format("SetDatapoints failed:", status.error_message())));
+                Status(fmt::format("SetDatapoints failed: {}", status.error_message())));
         });
     return result;
 }
