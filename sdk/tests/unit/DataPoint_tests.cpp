@@ -76,11 +76,23 @@ TEST(Test_DataPoint, set_allDatatypes_forwardedToVdbc) {
     setTestCaseImpl<DataPointBoolean>(false);
     setTestCaseImpl<DataPointBooleanArray>({true, false, true});
 
-    setTestCaseImpl<DataPointInt32>(32); // NOLINT
-    setTestCaseImpl<DataPointInt32Array>({1, 2, 3, 4});
+    setTestCaseImpl<DataPointInt8>(-8); // NOLINT
+    setTestCaseImpl<DataPointInt8Array>({-1, -2, -3, -4});
 
-    setTestCaseImpl<DataPointInt64>(128); // NOLINT
-    setTestCaseImpl<DataPointInt64Array>({1, 2, 3, 4});
+    setTestCaseImpl<DataPointInt16>(-16); // NOLINT
+    setTestCaseImpl<DataPointInt16Array>({-1, -2, -3, -4});
+
+    setTestCaseImpl<DataPointInt32>(-32); // NOLINT
+    setTestCaseImpl<DataPointInt32Array>({-1, -2, -3, -4});
+
+    setTestCaseImpl<DataPointInt64>(-128); // NOLINT
+    setTestCaseImpl<DataPointInt64Array>({-1, -2, -3, -4});
+
+    setTestCaseImpl<DataPointUint8>(8u); // NOLINT
+    setTestCaseImpl<DataPointUint8Array>({1U, 2U, 3U, 4U});
+
+    setTestCaseImpl<DataPointUint16>(16u); // NOLINT
+    setTestCaseImpl<DataPointUint16Array>({1U, 2U, 3U, 4U});
 
     setTestCaseImpl<DataPointUint32>(32u); // NOLINT
     setTestCaseImpl<DataPointUint32Array>({1U, 2U, 3U, 4U});

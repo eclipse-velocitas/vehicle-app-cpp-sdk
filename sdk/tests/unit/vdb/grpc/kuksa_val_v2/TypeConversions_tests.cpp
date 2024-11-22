@@ -36,6 +36,16 @@ template <> kuksa::val::v2::Value createGrpcValue(const bool& value) {
     grpcValue.set_bool_(value);
     return grpcValue;
 }
+template <> kuksa::val::v2::Value createGrpcValue(const int8_t& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.set_int32(value);
+    return grpcValue;
+}
+template <> kuksa::val::v2::Value createGrpcValue(const int16_t& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.set_int32(value);
+    return grpcValue;
+}
 template <> kuksa::val::v2::Value createGrpcValue(const int32_t& value) {
     kuksa::val::v2::Value grpcValue;
     grpcValue.set_int32(value);
@@ -44,6 +54,16 @@ template <> kuksa::val::v2::Value createGrpcValue(const int32_t& value) {
 template <> kuksa::val::v2::Value createGrpcValue(const int64_t& value) {
     kuksa::val::v2::Value grpcValue;
     grpcValue.set_int64(value);
+    return grpcValue;
+}
+template <> kuksa::val::v2::Value createGrpcValue(const uint8_t& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.set_uint32(value);
+    return grpcValue;
+}
+template <> kuksa::val::v2::Value createGrpcValue(const uint16_t& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.set_uint32(value);
     return grpcValue;
 }
 template <> kuksa::val::v2::Value createGrpcValue(const uint32_t& value) {
@@ -77,6 +97,16 @@ template <> kuksa::val::v2::Value createGrpcValue(const std::vector<bool>& value
     grpcValue.mutable_bool_array()->mutable_values()->Add(value.cbegin(), value.cend());
     return grpcValue;
 }
+template <> kuksa::val::v2::Value createGrpcValue(const std::vector<int8_t>& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.mutable_int32_array()->mutable_values()->Add(value.cbegin(), value.cend());
+    return grpcValue;
+}
+template <> kuksa::val::v2::Value createGrpcValue(const std::vector<int16_t>& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.mutable_int32_array()->mutable_values()->Add(value.cbegin(), value.cend());
+    return grpcValue;
+}
 template <> kuksa::val::v2::Value createGrpcValue(const std::vector<int32_t>& value) {
     kuksa::val::v2::Value grpcValue;
     grpcValue.mutable_int32_array()->mutable_values()->Add(value.cbegin(), value.cend());
@@ -85,6 +115,16 @@ template <> kuksa::val::v2::Value createGrpcValue(const std::vector<int32_t>& va
 template <> kuksa::val::v2::Value createGrpcValue(const std::vector<int64_t>& value) {
     kuksa::val::v2::Value grpcValue;
     grpcValue.mutable_int64_array()->mutable_values()->Add(value.cbegin(), value.cend());
+    return grpcValue;
+}
+template <> kuksa::val::v2::Value createGrpcValue(const std::vector<uint8_t>& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.mutable_uint32_array()->mutable_values()->Add(value.cbegin(), value.cend());
+    return grpcValue;
+}
+template <> kuksa::val::v2::Value createGrpcValue(const std::vector<uint16_t>& value) {
+    kuksa::val::v2::Value grpcValue;
+    grpcValue.mutable_uint32_array()->mutable_values()->Add(value.cbegin(), value.cend());
     return grpcValue;
 }
 template <> kuksa::val::v2::Value createGrpcValue(const std::vector<uint32_t>& value) {

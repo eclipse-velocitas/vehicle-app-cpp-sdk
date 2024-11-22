@@ -116,11 +116,11 @@ public:
     }
 };
 
-using AllDataTypes =
-    ::testing::Types<bool, std::vector<bool>, int32_t, std::vector<int32_t>, int64_t,
-                     std::vector<int64_t>, uint32_t, std::vector<uint32_t>, uint64_t,
-                     std::vector<uint64_t>, float, std::vector<float>, double, std::vector<double>,
-                     std::string, std::vector<std::string>>;
+using AllDataTypes = ::testing::Types<
+    bool, std::vector<bool>, int8_t, std::vector<int8_t>, int16_t, std::vector<int16_t>, int32_t,
+    std::vector<int32_t>, int64_t, std::vector<int64_t>, uint8_t, std::vector<uint8_t>, uint16_t,
+    std::vector<uint16_t>, uint32_t, std::vector<uint32_t>, uint64_t, std::vector<uint64_t>, float,
+    std::vector<float>, double, std::vector<double>, std::string, std::vector<std::string>>;
 TYPED_TEST_SUITE(TestTypedDataPointValue, AllDataTypes);
 
 TYPED_TEST(TestTypedDataPointValue, defaultCtor) {
@@ -176,10 +176,18 @@ template <typename DATA_TYPE> void checkTypedDataPointValueCtor(const DATA_TYPE&
 TEST(Test_TypedDataPointValue, ctorWithValue__allMembersSetCorrectly) {
     checkTypedDataPointValueCtor<bool>(false);
     checkTypedDataPointValueCtor<bool>(true);
+    checkTypedDataPointValueCtor<int8_t>(std::numeric_limits<int8_t>::min());
+    checkTypedDataPointValueCtor<int8_t>(std::numeric_limits<int8_t>::max());
+    checkTypedDataPointValueCtor<int16_t>(std::numeric_limits<int16_t>::min());
+    checkTypedDataPointValueCtor<int16_t>(std::numeric_limits<int16_t>::max());
     checkTypedDataPointValueCtor<int32_t>(std::numeric_limits<int32_t>::min());
     checkTypedDataPointValueCtor<int32_t>(std::numeric_limits<int32_t>::max());
     checkTypedDataPointValueCtor<int64_t>(std::numeric_limits<int64_t>::min());
     checkTypedDataPointValueCtor<int64_t>(std::numeric_limits<int64_t>::max());
+    checkTypedDataPointValueCtor<uint8_t>(std::numeric_limits<uint8_t>::min());
+    checkTypedDataPointValueCtor<uint8_t>(std::numeric_limits<uint8_t>::max());
+    checkTypedDataPointValueCtor<uint16_t>(std::numeric_limits<uint16_t>::min());
+    checkTypedDataPointValueCtor<uint16_t>(std::numeric_limits<uint16_t>::max());
     checkTypedDataPointValueCtor<uint32_t>(std::numeric_limits<uint32_t>::min());
     checkTypedDataPointValueCtor<uint32_t>(std::numeric_limits<uint32_t>::max());
     checkTypedDataPointValueCtor<uint64_t>(std::numeric_limits<uint64_t>::min());
@@ -194,8 +202,12 @@ TEST(Test_TypedDataPointValue, ctorWithValue__allMembersSetCorrectly) {
         "this component under test");
 
     checkTypedDataPointValueCtor<std::vector<bool>>({false, true, false, true});
+    checkTypedDataPointValueCtor<std::vector<int8_t>>({-100, 0, 42, 127});
+    checkTypedDataPointValueCtor<std::vector<int16_t>>({-100, 0, 42, 32767});
     checkTypedDataPointValueCtor<std::vector<int32_t>>({-100, 0, 42, 123456789});
     checkTypedDataPointValueCtor<std::vector<int64_t>>({-100, 0, 42, 123456789});
+    checkTypedDataPointValueCtor<std::vector<uint8_t>>({0, 1, 42, 255});
+    checkTypedDataPointValueCtor<std::vector<uint16_t>>({0, 1, 42, 65535});
     checkTypedDataPointValueCtor<std::vector<uint32_t>>({0, 1, 42, 123456789});
     checkTypedDataPointValueCtor<std::vector<uint64_t>>({0, 1, 42, 123456789});
     checkTypedDataPointValueCtor<std::vector<float>>({-9.87654321F, 0.0F, 0.1F, 1.23456789F});

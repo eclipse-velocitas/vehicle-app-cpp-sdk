@@ -38,6 +38,26 @@ kuksa::val::v2::Value convertToGrpcValue(const DataPointValue& dataPoint) {
         grpcValue.mutable_bool_array()->mutable_values()->Assign(array.cbegin(), array.cend());
         break;
     }
+    case DataPointValue::Type::INT8: {
+        grpcValue.set_int32(dynamic_cast<const TypedDataPointValue<int8_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointValue::Type::INT8_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointValue<std::vector<int8_t>>*>(&dataPoint)->value();
+        grpcValue.mutable_int32_array()->mutable_values()->Assign(array.cbegin(), array.cend());
+        break;
+    }
+    case DataPointValue::Type::INT16: {
+        grpcValue.set_int32(dynamic_cast<const TypedDataPointValue<int16_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointValue::Type::INT16_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointValue<std::vector<int16_t>>*>(&dataPoint)->value();
+        grpcValue.mutable_int32_array()->mutable_values()->Assign(array.cbegin(), array.cend());
+        break;
+    }
     case DataPointValue::Type::INT32: {
         grpcValue.set_int32(dynamic_cast<const TypedDataPointValue<int32_t>*>(&dataPoint)->value());
         break;
@@ -56,6 +76,28 @@ kuksa::val::v2::Value convertToGrpcValue(const DataPointValue& dataPoint) {
         auto array =
             dynamic_cast<const TypedDataPointValue<std::vector<int64_t>>*>(&dataPoint)->value();
         grpcValue.mutable_int64_array()->mutable_values()->Assign(array.cbegin(), array.cend());
+        break;
+    }
+    case DataPointValue::Type::UINT8: {
+        grpcValue.set_uint32(
+            dynamic_cast<const TypedDataPointValue<uint8_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointValue::Type::UINT8_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointValue<std::vector<uint8_t>>*>(&dataPoint)->value();
+        grpcValue.mutable_uint32_array()->mutable_values()->Assign(array.cbegin(), array.cend());
+        break;
+    }
+    case DataPointValue::Type::UINT16: {
+        grpcValue.set_uint32(
+            dynamic_cast<const TypedDataPointValue<uint16_t>*>(&dataPoint)->value());
+        break;
+    }
+    case DataPointValue::Type::UINT16_ARRAY: {
+        auto array =
+            dynamic_cast<const TypedDataPointValue<std::vector<uint16_t>>*>(&dataPoint)->value();
+        grpcValue.mutable_uint32_array()->mutable_values()->Assign(array.cbegin(), array.cend());
         break;
     }
     case DataPointValue::Type::UINT32: {
