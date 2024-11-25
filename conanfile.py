@@ -12,12 +12,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from conans import ConanFile, tools
+from conan.tools.cmake import cmake_layout, CMake
 import os
 import re
-import subprocess
-
-from conan.tools.cmake import cmake_layout
-from conans import ConanFile, tools
 
 
 
@@ -30,26 +28,28 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
-        ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
-        ("cpr/1.10.5"),
+        ("abseil/20230802.1", "override"),
+        ("protobuf/3.21.12"),
+        ("c-ares/1.19.1"),
+        ("cpr/1.10.1"),
         ("fmt/9.1.0"),
-        ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
-        ("grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce"),
-        ("grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d"),
-        ("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
+        ("googleapis/cci.20221108"),
+        ("grpc/1.50.1"),
+        ("grpc-proto/cci.20220627"),
+        ("libcurl/8.1.2"),
         ("nlohmann_json/3.11.2"),
-        ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
-        ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
-        ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
-        ("zlib/1.3")
+        ("openssl/1.1.1u"),
+        ("paho-mqtt-c/1.3.13"),
+        ("paho-mqtt-cpp/1.2.0"),
+        ("zlib/1.3"),
     ]
-    generators = "cmake"
+    generators = "CMakeToolchain", "CMakeDeps"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {"shared": [True, False], "examples": [True, False], "generateCoverage": [True, False]}
+    default_options = {"shared": False, "examples": True, "generateCoverage": False}
 
     exports = "version.txt"
 
@@ -79,29 +79,24 @@ class VehicleAppCppSdkConan(ConanFile):
                 
 
     def config_options(self):
-        if self.settings.os == "Linux":
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self, src_folder="sdk")
-
-    def generate(self):
-        #tc = CMakeToolchain(self)
-        # tc.generate()
-        # commented out since we rely on our build script to set up cmake
-        pass
+        cmake_layout(self)
 
     def build(self):
-        build_type = self.settings.get_safe(
-            "build_type", default="Release").lower()
-        option = "-r" if build_type == "release" else "-d"
-        subprocess.call(
-            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
+        cmake = CMake(self)
+        cmake.configure(variables={
+            "STATIC_BUILD:BOOL": "ON" if not self.options.shared else "OFF",
+            "SDK_BUILD_EXAMPLES:BOOL": "ON" if self.options.examples else "OFF",
+            "SDK_GENERATE_COVERAGE:BOOL": "ON" if self.options.generateCoverage else "OFF"
+        })
+        cmake.build()
 
     def package(self):
-        self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
-        self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.includedirs = ["include"]
