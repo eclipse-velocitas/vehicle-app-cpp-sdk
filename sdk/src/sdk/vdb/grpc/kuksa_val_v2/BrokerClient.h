@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -14,35 +14,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
-#define VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
+#ifndef VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H
+#define VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H
 
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <memory>
-#include <string>
-#include <vector>
 
-namespace velocitas {
+namespace velocitas::kuksa_val_v2 {
 
-class RecurringJob;
 class BrokerAsyncGrpcFacade;
 
 /**
- * VehicleDataBrokerClient provides the Graph API to access vehicle services
- * and vehicle signals.
+ * Provides the Graph API to access vehicle signals via the kuksa.val.v2 API
  */
-class VehicleDataBrokerClient : public IVehicleDataBrokerClient {
+class BrokerClient : public IVehicleDataBrokerClient {
 public:
-    explicit VehicleDataBrokerClient(const std::string& vdbAddress, std::string vdbServiceName);
-    explicit VehicleDataBrokerClient(const std::string& vdbserviceName);
+    explicit BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName);
+    explicit BrokerClient(const std::string& vdbserviceName);
 
-    ~VehicleDataBrokerClient() override;
+    ~BrokerClient() override;
 
-    VehicleDataBrokerClient(const VehicleDataBrokerClient&)            = delete;
-    VehicleDataBrokerClient(VehicleDataBrokerClient&&)                 = delete;
-    VehicleDataBrokerClient& operator=(const VehicleDataBrokerClient&) = delete;
-    VehicleDataBrokerClient& operator=(VehicleDataBrokerClient&&)      = delete;
+    BrokerClient(const BrokerClient&)            = delete;
+    BrokerClient(BrokerClient&&)                 = delete;
+    BrokerClient& operator=(const BrokerClient&) = delete;
+    BrokerClient& operator=(BrokerClient&&)      = delete;
 
     AsyncResultPtr_t<DataPointReply>
     getDatapoints(const std::vector<std::string>& datapoints) override;
@@ -56,6 +52,6 @@ private:
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
 };
 
-} // namespace velocitas
+} // namespace velocitas::kuksa_val_v2
 
-#endif // VEHICLE_APP_SDK_VEHICLEDATABROKERCLIENT_H
+#endif // VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H

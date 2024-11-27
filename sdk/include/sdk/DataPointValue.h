@@ -19,8 +19,6 @@
 
 #include "sdk/Exceptions.h"
 
-#include <fmt/core.h>
-
 #include <cassert>
 #include <cstdint>
 #include <string>
@@ -106,6 +104,9 @@ public:
     [[nodiscard]] const Timestamp&   getTimestamp() const { return m_timestamp; }
     [[nodiscard]] bool               isValid() const { return m_failure == Failure::NONE; }
     [[nodiscard]] Failure            getFailure() const { return m_failure; }
+    [[nodiscard]] bool               wasUpdated() const { return m_wasUpdated; }
+
+    void clearUpdateStatus() { m_wasUpdated = false; }
 
     bool operator==(const DataPointValue& other) const {
         return std::tie(m_path, m_type, m_timestamp, m_failure) ==
@@ -121,6 +122,7 @@ private:
     Type        m_type{Type::INVALID};
     Timestamp   m_timestamp{};
     Failure     m_failure{Failure::NONE};
+    bool        m_wasUpdated{true};
 };
 
 std::string toString(DataPointValue::Failure);
@@ -204,7 +206,7 @@ template <> inline DataPointValue::Type getValueType<std::vector<std::string>>()
 template <typename T> class TypedDataPointValue : public DataPointValue {
 public:
     TypedDataPointValue()
-        : DataPointValue(Type::INVALID, "", Timestamp{}){};
+        : DataPointValue(getValueType<T>(), "", Timestamp{}, Failure::INTERNAL_ERROR){};
 
     TypedDataPointValue(const std::string& path, T value, Timestamp timestamp = Timestamp{})
         : DataPointValue(getValueType<T>(), path, std::forward<decltype(timestamp)>(timestamp))
@@ -220,8 +222,8 @@ public:
 
     [[nodiscard]] const T& value() const {
         if (!isValid()) {
-            throw InvalidValueException(
-                fmt::format("'{}' has no valid value: {}!", getPath(), toString(getFailure())));
+            throw InvalidValueException(getPath() +
+                                        " has no valid value: " + toString(getFailure()));
         }
         return m_value;
     }

@@ -37,6 +37,7 @@ SPDX-License-Identifier: Apache-2.0
 | clang-format | <https://github.com/llvm/llvm-project/blob/main/clang-tools-extra/LICENSE.TXT> |
 |  clang-tidy  | <https://github.com/llvm/llvm-project/blob/main/clang-tools-extra/LICENSE.TXT> |
 |    GTest     |            <https://github.com/google/googletest/blob/main/LICENSE>            |
+| Kuksa Databroker<br>interface definition | https://github.com/eclipse-kuksa/kuksa-databroker/blob/0.5.0/LICENSE |
 
 ### Further 3rd party licenses used in project
 
@@ -52,7 +53,7 @@ they are given here (manually added) for time being:
 |:-----------|:-------:|--------:|
 |abseil|20220623.0|Apache 2.0|
 |c-ares|1.19.1|c-ares (MIT-style)|
-|cpr|1.10.1|MIT|
+|cpr|1.10.5|MIT|
 |fmt|9.1.0|MIT|
 |googleapis|cci.20221108|Apache 2.0|
 |grpc|1.50.1|Apache 2.0|

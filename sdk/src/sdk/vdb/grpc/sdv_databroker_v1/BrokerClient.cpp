@@ -14,17 +14,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/grpc/VehicleDataBrokerClient.h"
+#include "BrokerClient.h"
 
 #include "sdk/DataPointValue.h"
 #include "sdk/Exceptions.h"
 #include "sdk/Job.h"
 #include "sdk/Logger.h"
 
-#include "sdk/grpc/AsyncGrpcFacade.h"
-#include "sdk/grpc/BrokerAsyncGrpcFacade.h"
-#include "sdk/grpc/GrpcDataPointValueProvider.h"
 #include "sdk/middleware/Middleware.h"
+#include "sdk/vdb/grpc/sdv_databroker_v1/BrokerAsyncGrpcFacade.h"
+#include "sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.h"
 
 #include <fmt/core.h>
 #include <grpcpp/channel.h>
@@ -34,10 +33,9 @@
 #include <thread>
 #include <utility>
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
-VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAddress,
-                                                 std::string        vdbServiceName) {
+BrokerClient::BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName) {
     logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
     m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
         grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
@@ -49,11 +47,10 @@ VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbAddress,
     });
 }
 
-VehicleDataBrokerClient::VehicleDataBrokerClient(const std::string& vdbServiceName)
-    : VehicleDataBrokerClient(Middleware::getInstance().getServiceLocation(vdbServiceName),
-                              vdbServiceName) {}
+BrokerClient::BrokerClient(const std::string& vdbServiceName)
+    : BrokerClient(Middleware::getInstance().getServiceLocation(vdbServiceName), vdbServiceName) {}
 
-VehicleDataBrokerClient::~VehicleDataBrokerClient() {}
+BrokerClient::~BrokerClient() {}
 
 static sdv::databroker::v1::Datapoint_Failure mapToGrpcType(DataPointValue::Failure failure) {
     switch (failure) {
@@ -287,7 +284,7 @@ convertDataPointToInternal(const std::string&                    name,
 }
 
 AsyncResultPtr_t<DataPointReply>
-VehicleDataBrokerClient::getDatapoints(const std::vector<std::string>& datapoints) {
+BrokerClient::getDatapoints(const std::vector<std::string>& datapoints) {
     auto result = std::make_shared<AsyncResult<DataPointReply>>();
     m_asyncBrokerFacade->GetDatapoints(
         datapoints,
@@ -301,13 +298,13 @@ VehicleDataBrokerClient::getDatapoints(const std::vector<std::string>& datapoint
         },
         [result](auto status) {
             result->insertError(
-                Status(fmt::format("RPC 'GetDatapoints' failed:", status.error_message())));
+                Status(fmt::format("RPC 'GetDatapoints' failed: {}", status.error_message())));
         });
     return result;
 }
 
-AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t> VehicleDataBrokerClient::setDatapoints(
-    const std::vector<std::unique_ptr<DataPointValue>>& datapoints) {
+AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t>
+BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& datapoints) {
     auto result = std::make_shared<AsyncResult<SetErrorMap_t>>();
 
     std::map<std::string, sdv::databroker::v1::Datapoint> grpcDataPoints{};
@@ -326,13 +323,12 @@ AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t> VehicleDataBrokerClien
         },
         [result](auto status) {
             result->insertError(
-                Status(fmt::format("RPC 'SetDatapoints' failed:", status.error_message())));
+                Status(fmt::format("RPC 'SetDatapoints' failed: {}", status.error_message())));
         });
     return result;
 }
 
-AsyncSubscriptionPtr_t<DataPointReply>
-VehicleDataBrokerClient::subscribe(const std::string& query) {
+AsyncSubscriptionPtr_t<DataPointReply> BrokerClient::subscribe(const std::string& query) {
     auto subscription = std::make_shared<AsyncSubscription<DataPointReply>>();
     m_asyncBrokerFacade->Subscribe(
         query,
@@ -352,9 +348,4 @@ VehicleDataBrokerClient::subscribe(const std::string& query) {
     return subscription;
 }
 
-std::shared_ptr<IVehicleDataBrokerClient>
-IVehicleDataBrokerClient::createInstance(const std::string& vdbServiceName) {
-    return std::make_shared<VehicleDataBrokerClient>(vdbServiceName);
-}
-
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1

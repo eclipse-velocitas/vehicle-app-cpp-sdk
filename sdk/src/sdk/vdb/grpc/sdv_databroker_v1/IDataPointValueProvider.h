@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
 /**
  * @brief Interface for providing values to Datapoints.
@@ -91,6 +91,6 @@ public:
     [[nodiscard]] virtual std::vector<std::string> getStringArrayValue() const = 0;
 };
 
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1
 
 #endif // VEHICLE_APP_SDK_IDATAPOINTVALUEPROVIDER_H

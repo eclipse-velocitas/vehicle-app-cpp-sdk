@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/vdb/IDataPointValueProvider.h"
+#include "IDataPointValueProvider.h"
 #include "sdv/databroker/v1/types.grpc.pb.h"
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
 /**
  * @brief Value provider implementation for gRPC provided DataPoints
@@ -61,4 +61,4 @@ private:
     sdv::databroker::v1::Datapoint m_datapoint;
 };
 
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1
