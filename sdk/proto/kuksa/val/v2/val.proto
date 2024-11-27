@@ -52,12 +52,18 @@ service VAL {
   //   NOT_FOUND if any of the signals are non-existant.
   //   UNAUTHENTICATED if no credentials provided or credentials has expired
   //   PERMISSION_DENIED if access is denied for any of the signals.
-  //   INVALID_ARGUMENT if the request is empty or provided path is too long
-  //       - MAX_REQUEST_PATH_LENGTH: usize = 1000;
+  //   INVALID_ARGUMENT
+  //       - if the request is empty or provided path is too long
+  //             MAX_REQUEST_PATH_LENGTH: usize = 1000;
+  //       - if buffer_size exceeds the maximum permitted
+  //             MAX_BUFFER_SIZE: usize = 1000;
   //
   // When subscribing, Databroker shall immediately return the value for all
   // subscribed entries.
   // If a value isn't available when subscribing to a it, it should return None
+  //
+  // If a subscriber is slow to consume signals, messages will be buffered up
+  // to the specified buffer_size before the oldest messages are dropped.
   //
   rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse);
 
@@ -66,11 +72,18 @@ service VAL {
   //   NOT_FOUND if any of the signals are non-existant.
   //   UNAUTHENTICATED if no credentials provided or credentials has expired
   //   PERMISSION_DENIED if access is denied for any of the signals.
-  //   INVALID_ARGUMENT if the request is empty or provided path is too long
+  //   INVALID_ARGUMENT
+  //       - if the request is empty or provided path is too long
+  //             MAX_REQUEST_PATH_LENGTH: usize = 1000;
+  //       - if buffer_size exceeds the maximum permitted
+  //             MAX_BUFFER_SIZE: usize = 1000;
   //
   // When subscribing, Databroker shall immediately return the value for all
   // subscribed entries.
   // If a value isn't available when subscribing to a it, it should return None
+  //
+  // If a subscriber is slow to consume signals, messages will be buffered up
+  // to the specified buffer_size before the oldest messages are dropped.
   //
   rpc SubscribeById(SubscribeByIdRequest) returns (stream SubscribeByIdResponse);
 
@@ -165,8 +178,10 @@ service VAL {
   //                   e.g. if sending an unsupported enum value
   //              - if the published value is out of the min/max range specified
   //
-  //    - Provider returns BatchActuateStreamResponse <- Databroker sends BatchActuateStreamRequest
-  //        No error definition, a BatchActuateStreamResponse is expected from provider.
+  //    - Databroker sends BatchActuateStreamRequest -> Provider shall return a BatchActuateStreamResponse,
+  //        for every signal requested to indicate if the request was accepted or not.
+  //        It is up to the provider to decide if the stream shall be closed,
+  //        as of today Databroker will not react on the received error message.
   //
   rpc OpenProviderStream(stream OpenProviderStreamRequest) returns (stream OpenProviderStreamResponse);
 
@@ -192,6 +207,12 @@ message GetValuesResponse {
 
 message SubscribeRequest {
   repeated string signal_paths = 1;
+
+  // Specifies the number of messages that can be buffered for
+  // slow subscribers before the oldest messages are dropped.
+  // Default (0) results in that only latest message is kept.
+  // Maximum value supported is implementation dependent.
+  uint32 buffer_size           = 2;
 }
 
 message SubscribeResponse {
@@ -200,6 +221,12 @@ message SubscribeResponse {
 
 message SubscribeByIdRequest {
   repeated int32 signal_ids = 1;
+
+  // Specifies the number of messages that can be buffered for
+  // slow subscribers before the oldest messages are dropped.
+  // Default (0) results in that only latest message is kept.
+  // Maximum value supported is implementation dependent.
+  uint32 buffer_size        = 2;
 }
 
 message SubscribeByIdResponse {
@@ -222,7 +249,13 @@ message BatchActuateResponse {
 }
 
 message ListMetadataRequest {
+  // Root path to be used when listing metadata
+  // Shall correspond to a VSS branch, e.g. "Vehicle", "Vehicle.Cabin"
+  // Metadata for all signals under that branch will be returned unless filtered by filter.
+  // NOTE: Currently Databroker supports also signals and wildcards in root but that may
+  //       be removed in a future release!
   string root   = 1;
+  // NOTE : Currently not considered by Databroker, all signals matching root are returned
   string filter = 2;
 }
 
@@ -240,7 +273,7 @@ message PublishValueResponse {
 
 message PublishValuesRequest {
   int32 request_id                 = 1; /// Unique request id for the stream that can be used to identify the response.
-  map<int32, Datapoint> datapoints = 2;
+  map<int32, Datapoint> data_points = 2;
 }
 
 message PublishValuesResponse {
@@ -259,7 +292,10 @@ message BatchActuateStreamRequest {
   repeated ActuateRequest actuate_requests = 1;
 }
 
+// Message that shall be used by provider to indicate if an actuation request was accepted.
 message BatchActuateStreamResponse {
+  SignalID signal_id   = 1;
+  Error error = 2;
 }
 
 message OpenProviderStreamRequest {
