@@ -1,7 +1,7 @@
 {
     "packages": {
-        "devenv-runtimes": "@databroker",
-        "devenv-devcontainer-setup": "v2.5.3",
+        "devenv-runtimes": "v4.1.0",
+        "devenv-devcontainer-setup": "v2.5.4",
         "devenv-github-templates": "v1.0.5",
         "devenv-github-workflows": "v6.1.3"
     },
