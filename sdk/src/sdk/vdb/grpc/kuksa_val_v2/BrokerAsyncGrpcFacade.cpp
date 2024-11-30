@@ -107,9 +107,9 @@ void BrokerAsyncGrpcFacade::Subscribe(
     callData->onData(itemHandler);
 
     callData->onFinish([callData, errorHandler](const auto& status) {
-        if (!status.ok()) {
-            errorHandler(status);
-        }
+        // Subscriptions shall be only terminated on behalf of the client.
+        // Termination by the server is always a failure situation from client's point of view.
+        errorHandler(status);
         callData->m_isComplete = true;
     });
 

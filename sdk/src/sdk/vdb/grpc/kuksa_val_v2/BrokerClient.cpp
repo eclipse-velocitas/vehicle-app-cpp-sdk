@@ -134,6 +134,39 @@ void clearUpdateStatus(DataPointMap_t& datapointMap) {
     }
 }
 
+class SubscriptionHandler {
+public:
+    SubscriptionHandler(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade,
+                        kuksa::val::v2::SubscribeRequest              request)
+        : m_asyncBrokerFacade(asyncBrokerFacade)
+        , m_request(std::move(request))
+        , m_subscription(std::make_shared<AsyncSubscription<DataPointReply>>())
+        , m_datapointUpdates(std::make_shared<DataPointMap_t>()) {
+        m_asyncBrokerFacade->Subscribe(std::move(m_request),
+                                       std::bind(&onUpdate, this, std::placeholders::_1),
+                                       std::bind(&onError, this, std::placeholders::_1));
+    }
+
+    void onUpdate(const kuksa::val::v2::SubscribeResponse& update) {
+        clearUpdateStatus(*m_datapointUpdates);
+        const auto fieldsMap = update.entries();
+        for (const auto& [key, value] : fieldsMap) {
+            (*m_datapointUpdates)[key] = convertFromGrpcDataPoint(key, value);
+        }
+        m_subscription->insertNewItem(DataPointReply(DataPointMap_t(*m_datapointUpdates)));
+    }
+    void onError(const grpc::Status& status) {
+        m_subscription->insertError(
+            Status(fmt::format("Subscribe failed: {}", status.error_message())));
+    }
+
+private:
+    std::shared_ptr<BrokerAsyncGrpcFacade>             m_asyncBrokerFacade;
+    kuksa::val::v2::SubscribeRequest                   m_request;
+    std::shared_ptr<AsyncSubscription<DataPointReply>> m_subscription;
+    std::shared_ptr<DataPointMap_t>                    m_datapointUpdates;
+};
+
 } // namespace
 
 AsyncSubscriptionPtr_t<DataPointReply> BrokerClient::subscribe(const std::string& query) {
