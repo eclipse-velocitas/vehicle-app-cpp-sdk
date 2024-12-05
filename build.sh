@@ -27,11 +27,11 @@ Builds the targets of the project in different flavors.
 Arguments:
 -d, --debug                      Builds the target(s) in debug mode.
 -r, --release                    Builds the target(s) in release mode.
--t <name>, --target <name>       Builds only the target <name> instead of all targets. 
+-t <name>, --target <name>       Builds only the target <name> instead of all targets.
 -no-examples                     Disables the build of the SDK examples.
 -no-tests                        Disables the build of the SDK tests.
 --cov                            Generates coverage information.
--s, --static                     Links all dependencies statically. 
+-s, --static                     Links all dependencies statically.
 -x, --cross <arch>               Cross compiles for the specified architecture.
 -h, --help                       Shows this help.
 "
@@ -147,11 +147,12 @@ cmake --no-warn-unused-cli \
   -DCMAKE_BUILD_TYPE:STRING=${BUILD_VARIANT} \
   -DSTATIC_BUILD:BOOL=${STATIC_BUILD} \
   -DSDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES} \
+  -DSDK_BUILD_TESTS=${SDK_BUILD_TESTS} \
   -S.. \
   -B../build \
   -G Ninja \
   -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
   -DBUILD_TOOLS_PATH:STRING="${BUILD_TOOLS_PATH}" \
   ${XCOMPILE_TOOLCHAIN_FILE} ..
-cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} -- 
+cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} --
 cd ..
