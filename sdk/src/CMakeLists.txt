@@ -35,6 +35,7 @@ add_library(${TARGET_NAME}
     sdk/pubsub/MqttPubSubClient.cpp
     sdk/vdb/DataPointBatch.cpp
     sdk/vdb/IVehicleDataBrokerClient.cpp
+    sdk/vdb/grpc/common/ChannelConfiguration.cpp
     sdk/vdb/grpc/common/TypeConversions.cpp
     sdk/vdb/grpc/kuksa_val_v2/BrokerAsyncGrpcFacade.cpp
     sdk/vdb/grpc/kuksa_val_v2/BrokerClient.cpp

@@ -19,6 +19,7 @@
 #include "sdk/DataPointValue.h"
 #include "sdk/Logger.h"
 #include "sdk/middleware/Middleware.h"
+#include "sdk/vdb/grpc/common/ChannelConfiguration.h"
 #include "sdk/vdb/grpc/kuksa_val_v2/BrokerAsyncGrpcFacade.h"
 #include "sdk/vdb/grpc/kuksa_val_v2/TypeConversions.h"
 
@@ -46,8 +47,8 @@ int assertProtobufArrayLimits(size_t numElements) {
 
 BrokerClient::BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName) {
     logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
-    m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
-        grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
+    m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(grpc::CreateCustomChannel(
+        vdbAddress, grpc::InsecureChannelCredentials(), getChannelArguments()));
     Middleware::Metadata metadata = Middleware::getInstance().getMetadata(vdbServiceName);
     m_asyncBrokerFacade->setContextModifier([metadata](auto& context) {
         for (auto metadatum : metadata) {
