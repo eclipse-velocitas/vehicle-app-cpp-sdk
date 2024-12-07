@@ -18,6 +18,7 @@
 
 #include "sdk/DataPointValue.h"
 #include "sdk/Logger.h"
+#include "sdk/Utils.h"
 #include "sdk/grpc/GrpcCall.h"
 #include "sdk/grpc/GrpcClient.h"
 #include "sdk/middleware/Middleware.h"
@@ -250,6 +251,22 @@ private:
     std::function<void(grpc::Status)>        m_onError;
 };
 
+uint32_t determineSubscribeBufferSize() {
+    uint32_t bufferSize = 0;
+    try {
+        auto bufferSizeStr = getEnvVar("SDV_SUBSCRIBE_BUFFER_SIZE", "0");
+        bufferSize         = std::stoi(bufferSizeStr);
+    } catch (...) {
+        logger().error("Invalid Subscribe BufferSize specified via env var! Using default=0.");
+    }
+    return bufferSize;
+}
+
+uint32_t getSubscribeBufferSize() {
+    static uint32_t bufferSize = determineSubscribeBufferSize();
+    return bufferSize;
+}
+
 // ToDo: Making this class a GrpcCall to store active subscriptions is a bit "quick & dirty".
 // Please check for better solution before merging to main!
 class SubscriptionHandler : public GrpcCall {
@@ -271,6 +288,7 @@ public:
 
     void onMetadataPresent() {
         kuksa::val::v2::SubscribeByIdRequest request;
+        request.set_buffer_size(getSubscribeBufferSize());
         for (const auto& path : m_signalPaths) {
             auto metadata = m_metadataStore->getByPath(path);
             if (metadata->m_isKnown) {
