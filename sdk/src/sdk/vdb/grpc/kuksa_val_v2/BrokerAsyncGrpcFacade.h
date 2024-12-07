@@ -40,14 +40,19 @@ public:
                    std::function<void(const kuksa::val::v2::GetValuesResponse& reply)> replyHandler,
                    std::function<void(const grpc::Status& status)> errorHandler);
 
-    void
-    Subscribe(kuksa::val::v2::SubscribeRequest                                     request,
-              std::function<void(const kuksa::val::v2::SubscribeResponse& update)> updateHandler,
-              std::function<void(const grpc::Status& status)>                      errorHandler);
+    void SubscribeById(
+        kuksa::val::v2::SubscribeByIdRequest                                     request,
+        std::function<void(const kuksa::val::v2::SubscribeByIdResponse& update)> updateHandler,
+        std::function<void(const grpc::Status& status)>                          errorHandler);
 
     void BatchActuate(
         kuksa::val::v2::BatchActuateRequest                                    request,
         std::function<void(const kuksa::val::v2::BatchActuateResponse& reply)> replyHandler,
+        std::function<void(const grpc::Status& status)>                        errorHandler);
+
+    void ListMetadata(
+        kuksa::val::v2::ListMetadataRequest                                    request,
+        std::function<void(const kuksa::val::v2::ListMetadataResponse& reply)> replyHandler,
         std::function<void(const grpc::Status& status)>                        errorHandler);
 
 private:
