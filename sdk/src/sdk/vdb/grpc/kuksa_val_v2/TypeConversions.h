@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace velocitas::kuksa_val_v2 {
 
@@ -35,7 +36,7 @@ std::shared_ptr<DataPointValue> convertFromGrpcValue(const std::string&         
 std::shared_ptr<DataPointValue>
 convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoint& grpcDataPoint);
 
-void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std::string& query);
+std::vector<std::string> parseQuery(const std::string& query);
 
 } // namespace velocitas::kuksa_val_v2
 

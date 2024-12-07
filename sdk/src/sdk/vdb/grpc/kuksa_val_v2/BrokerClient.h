@@ -21,9 +21,14 @@
 
 #include <memory>
 
-namespace velocitas::kuksa_val_v2 {
+namespace velocitas {
+
+class GrpcClient;
+
+namespace kuksa_val_v2 {
 
 class BrokerAsyncGrpcFacade;
+class MetadataStore;
 
 /**
  * Provides the Graph API to access vehicle signals via the kuksa.val.v2 API
@@ -50,8 +55,11 @@ public:
 
 private:
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
+    std::shared_ptr<MetadataStore>         m_metadataStore;
+    std::unique_ptr<GrpcClient>            m_activeCalls;
 };
 
-} // namespace velocitas::kuksa_val_v2
+} // namespace kuksa_val_v2
+} // namespace velocitas
 
 #endif // VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H

@@ -45,7 +45,7 @@ void BrokerAsyncGrpcFacade::GetValues(
                 errorHandler(status);
             };
         } catch (std::exception& e) {
-            logger().error("GRPC: Exception occurred during \"GetDatapoints\": {}", e.what());
+            logger().error("GRPC: Exception occurred during \"GetValues\": {}", e.what());
         }
         callData->m_isComplete = true;
     };
@@ -76,7 +76,7 @@ void BrokerAsyncGrpcFacade::BatchActuate(
                 errorHandler(status);
             };
         } catch (std::exception& e) {
-            logger().error("GRPC: Exception occurred during \"SetDatapoints\": {}", e.what());
+            logger().error("GRPC: Exception occurred during \"BatchActuate\": {}", e.what());
         }
         callData->m_isComplete = true;
     };
@@ -87,13 +87,13 @@ void BrokerAsyncGrpcFacade::BatchActuate(
                                   grpcResultHandler);
 }
 
-void BrokerAsyncGrpcFacade::Subscribe(
-    kuksa::val::v2::SubscribeRequest                                    request,
-    std::function<void(const kuksa::val::v2::SubscribeResponse& reply)> itemHandler,
-    std::function<void(const grpc::Status& status)>                     errorHandler) {
+void BrokerAsyncGrpcFacade::SubscribeById(
+    kuksa::val::v2::SubscribeByIdRequest                                    request,
+    std::function<void(const kuksa::val::v2::SubscribeByIdResponse& reply)> itemHandler,
+    std::function<void(const grpc::Status& status)>                         errorHandler) {
     auto callData =
-        std::make_shared<GrpcStreamingResponseCall<kuksa::val::v2::SubscribeRequest,
-                                                   kuksa::val::v2::SubscribeResponse>>();
+        std::make_shared<GrpcStreamingResponseCall<kuksa::val::v2::SubscribeByIdRequest,
+                                                   kuksa::val::v2::SubscribeByIdResponse>>();
 
     callData->getRequest() = std::move(request);
 
@@ -101,8 +101,8 @@ void BrokerAsyncGrpcFacade::Subscribe(
 
     addActiveCall(callData);
 
-    m_stub->async()->Subscribe(&callData->m_context, &callData->getRequest(),
-                               &callData->getReactor());
+    m_stub->async()->SubscribeById(&callData->m_context, &callData->getRequest(),
+                                   &callData->getReactor());
 
     callData->onData(itemHandler);
 
@@ -114,6 +114,37 @@ void BrokerAsyncGrpcFacade::Subscribe(
     });
 
     callData->startCall();
+}
+
+void BrokerAsyncGrpcFacade::ListMetadata(
+    kuksa::val::v2::ListMetadataRequest                                    request,
+    std::function<void(const kuksa::val::v2::ListMetadataResponse& reply)> replyHandler,
+    std::function<void(const grpc::Status& status)>                        errorHandler) {
+    auto callData =
+        std::make_shared<GrpcSingleResponseCall<kuksa::val::v2::ListMetadataRequest,
+                                                kuksa::val::v2::ListMetadataResponse>>();
+
+    callData->m_request = std::move(request);
+
+    applyContextModifier(*callData);
+
+    auto grpcResultHandler = [callData, replyHandler, errorHandler](grpc::Status status) {
+        try {
+            if (status.ok()) {
+                replyHandler(callData->m_reply);
+            } else {
+                errorHandler(status);
+            };
+        } catch (std::exception& e) {
+            logger().error("GRPC: Exception occurred during \"ListMetadata\": {}", e.what());
+        }
+        callData->m_isComplete = true;
+    };
+
+    addActiveCall(callData);
+
+    m_stub->async()->ListMetadata(&callData->m_context, &callData->m_request, &callData->m_reply,
+                                  grpcResultHandler);
 }
 
 } // namespace velocitas::kuksa_val_v2
