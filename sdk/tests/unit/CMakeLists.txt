@@ -20,6 +20,7 @@ add_executable(${TARGET_NAME}
     AsyncSubscription_tests.cpp
     DataPoint_tests.cpp
     DataPointBatch_tests.cpp
+    DataPointValue_tests.cpp
     Job_tests.cpp
     Logger_tests.cpp
     Middleware_tests.cpp
@@ -32,7 +33,8 @@ add_executable(${TARGET_NAME}
     #PubSub_tests.cpp
     TestBaseUsingEnvVars.cpp
     grpc/GrpcClient_tests.cpp
-    grpc/VehicleDataBrokerClient_tests.cpp
+    vdb/grpc/kuksa_val_v2/TypeConversions_tests.cpp
+    vdb/grpc/sdv_databroker_v1/BrokerClient_tests.cpp
 )
 
 add_dependencies(${TARGET_NAME}
@@ -48,6 +50,8 @@ include(GoogleTest)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/../model
+    ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
 )
 

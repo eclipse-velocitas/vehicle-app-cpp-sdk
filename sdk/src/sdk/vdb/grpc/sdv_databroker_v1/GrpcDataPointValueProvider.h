@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/vdb/IDataPointValueProvider.h"
+#include "IDataPointValueProvider.h"
 #include "sdv/databroker/v1/types.grpc.pb.h"
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
 /**
  * @brief Value provider implementation for gRPC provided DataPoints
@@ -34,10 +34,18 @@ public:
     std::vector<float>       getFloatArrayValue() const override;
     double                   getDoubleValue() const override;
     std::vector<double>      getDoubleArrayValue() const override;
+    int8_t                   getInt8Value() const override;
+    std::vector<int8_t>      getInt8ArrayValue() const override;
+    int16_t                  getInt16Value() const override;
+    std::vector<int16_t>     getInt16ArrayValue() const override;
     int32_t                  getInt32Value() const override;
     std::vector<int32_t>     getInt32ArrayValue() const override;
     int64_t                  getInt64Value() const override;
     std::vector<int64_t>     getInt64ArrayValue() const override;
+    uint8_t                  getUint8Value() const override;
+    std::vector<uint8_t>     getUint8ArrayValue() const override;
+    uint16_t                 getUint16Value() const override;
+    std::vector<uint16_t>    getUint16ArrayValue() const override;
     uint32_t                 getUint32Value() const override;
     std::vector<uint32_t>    getUint32ArrayValue() const override;
     uint64_t                 getUint64Value() const override;
@@ -53,4 +61,4 @@ private:
     sdv::databroker::v1::Datapoint m_datapoint;
 };
 
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1

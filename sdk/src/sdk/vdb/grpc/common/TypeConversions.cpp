@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -14,13 +14,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "sdk/grpc/VehicleDataBrokerClient.h"
+#include "TypeConversions.h"
 
-#include <gtest/gtest.h>
+#include "sdk/DataPointValue.h"
 
-using namespace velocitas;
+#include <google/protobuf/timestamp.pb.h>
 
-TEST(Test_VehicleDataBrokerClient, getDatapoints_noConnection_throwsAsyncException) {
-    auto client = VehicleDataBrokerClient("vehicledatabroker");
-    EXPECT_THROW(client.getDatapoints({})->await(), AsyncException);
+namespace velocitas {
+
+Timestamp convertFromGrpcTimestamp(const google::protobuf::Timestamp& grpcTimestamp) noexcept {
+    return {grpcTimestamp.seconds(), grpcTimestamp.nanos()};
 }
+
+} // namespace velocitas

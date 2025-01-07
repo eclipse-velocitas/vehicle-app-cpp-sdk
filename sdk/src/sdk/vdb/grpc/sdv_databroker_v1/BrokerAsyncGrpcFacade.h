@@ -33,11 +33,11 @@ class Channel;
 class Status;
 } // namespace grpc
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
 class BrokerAsyncGrpcFacade : public AsyncGrpcFacade, GrpcClient {
 public:
-    explicit BrokerAsyncGrpcFacade(std::shared_ptr<grpc::Channel> channel);
+    explicit BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel);
 
     void GetDatapoints(
         const std::vector<std::string>&                                           datapoints,
@@ -58,6 +58,6 @@ private:
     std::unique_ptr<sdv::databroker::v1::Broker::StubInterface> m_stub;
 };
 
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1
 
 #endif // VEHICLE_APP_SDK_BROKERASYNCGRPCFACADE_H

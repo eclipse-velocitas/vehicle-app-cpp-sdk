@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace velocitas {
+namespace velocitas::sdv_databroker_v1 {
 
 /**
  * @brief Interface for providing values to Datapoints.
@@ -54,6 +54,14 @@ public:
 
     [[nodiscard]] virtual std::vector<double> getDoubleArrayValue() const = 0;
 
+    [[nodiscard]] virtual int8_t getInt8Value() const = 0;
+
+    [[nodiscard]] virtual std::vector<int8_t> getInt8ArrayValue() const = 0;
+
+    [[nodiscard]] virtual int16_t getInt16Value() const = 0;
+
+    [[nodiscard]] virtual std::vector<int16_t> getInt16ArrayValue() const = 0;
+
     [[nodiscard]] virtual int32_t getInt32Value() const = 0;
 
     [[nodiscard]] virtual std::vector<int32_t> getInt32ArrayValue() const = 0;
@@ -61,6 +69,14 @@ public:
     [[nodiscard]] virtual int64_t getInt64Value() const = 0;
 
     [[nodiscard]] virtual std::vector<int64_t> getInt64ArrayValue() const = 0;
+
+    [[nodiscard]] virtual uint8_t getUint8Value() const = 0;
+
+    [[nodiscard]] virtual std::vector<uint8_t> getUint8ArrayValue() const = 0;
+
+    [[nodiscard]] virtual uint16_t getUint16Value() const = 0;
+
+    [[nodiscard]] virtual std::vector<uint16_t> getUint16ArrayValue() const = 0;
 
     [[nodiscard]] virtual uint32_t getUint32Value() const = 0;
 
@@ -75,6 +91,6 @@ public:
     [[nodiscard]] virtual std::vector<std::string> getStringArrayValue() const = 0;
 };
 
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1
 
 #endif // VEHICLE_APP_SDK_IDATAPOINTVALUEPROVIDER_H

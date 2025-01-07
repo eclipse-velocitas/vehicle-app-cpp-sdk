@@ -121,3 +121,8 @@ TEST(SimpleUrlParse, ctor_someScheme_slashes_ipAddress_noPort_pathAndQuery) {
     EXPECT_EQ("somescheme", cut.getScheme());
     EXPECT_EQ("1.2.3.4", cut.getNetLocation());
 }
+TEST(SimpleUrlParse, ctor_unix_domain_socket) {
+    SimpleUrlParse cut("unix:///some/path/to/socket");
+    EXPECT_EQ("unix", cut.getScheme());
+    EXPECT_EQ("unix:///some/path/to/socket", cut.getNetLocation());
+}
