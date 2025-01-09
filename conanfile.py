@@ -32,7 +32,7 @@ class VehicleAppCppSdkConan(ConanFile):
     requires = [
         ("abseil/20240116.2"),
         ("bzip2/1.0.8"),
-        ("c-ares/1.19.1"),
+        ("c-ares/1.34.1"),
         ("cpr/1.11.0"),
         ("fmt/11.0.2"),
         ("grpc/1.67.1"),
@@ -51,7 +51,7 @@ class VehicleAppCppSdkConan(ConanFile):
         ("protobuf/5.27.0"),
         ("re2/20230301"),
         ("xz_utils/5.4.5"),
-        ("zlib/1.3"),
+        ("zlib/1.3.1"),
         ("zstd/1.5.5"),
     ]
     generators = "cmake"

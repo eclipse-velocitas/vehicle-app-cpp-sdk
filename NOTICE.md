@@ -53,7 +53,7 @@ they are given here (manually added) for time being:
 |:-----------|:-------:|--------:|
 |abseil|20240116.2|Apache 2.0|
 |bzip2|1.0.8|bzip2-1.0.8|
-|c-ares|1.19.1|c-ares (MIT-style)|
+|c-ares|1.34.1|c-ares (MIT-style)|
 |cpr|1.11.0|MIT|
 |fmt|11.0.2|MIT|
 |grpc|1.67.1|Apache 2.0|
@@ -72,5 +72,5 @@ they are given here (manually added) for time being:
 |protobuf|5.27.0|Google License|
 |re2|20230301|BSD-3-Clause|
 |xz_utils|5.4.5|LGPL-2.1-or-later, GPL-3.0-or-later, GPL-2.0-or-later, Unlicense|
-|zlib|1.3|zlib/libpng license|
+|zlib|1.3.1|zlib/libpng license|
 |zstd|1.5.5|BSD-3-Clause|
