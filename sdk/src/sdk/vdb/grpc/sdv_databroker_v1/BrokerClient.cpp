@@ -18,7 +18,6 @@
 
 #include "sdk/DataPointValue.h"
 #include "sdk/Exceptions.h"
-#include "sdk/Job.h"
 #include "sdk/Logger.h"
 
 #include "sdk/middleware/Middleware.h"

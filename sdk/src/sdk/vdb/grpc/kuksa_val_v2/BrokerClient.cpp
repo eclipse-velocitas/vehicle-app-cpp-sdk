@@ -18,6 +18,7 @@
 
 #include "sdk/DataPointValue.h"
 #include "sdk/Logger.h"
+#include "sdk/ThreadPool.h"
 #include "sdk/Utils.h"
 #include "sdk/grpc/GrpcCall.h"
 #include "sdk/grpc/GrpcClient.h"
@@ -40,6 +41,10 @@
 namespace velocitas::kuksa_val_v2 {
 
 namespace {
+
+const std::chrono::milliseconds RESUBSCRIBE_DELAY_INITIAL{100};
+const std::chrono::milliseconds RESUBSCRIBE_DELAY_MAX{2000};
+const unsigned int              RESUBSCRIBE_DELAY_FACTOR{2};
 
 int assertProtobufArrayLimits(size_t numElements) {
     if (numElements > std::numeric_limits<int>::max()) {
@@ -167,6 +172,12 @@ public:
         }
     }
 
+    void invalidate() {
+        std::unique_lock lock(m_mutex);
+        m_idMap.clear();
+        m_pathMap.clear();
+    }
+
 private:
     mutable std::shared_mutex                        m_mutex;
     std::map<int32_t, std::shared_ptr<Metadata>>     m_idMap;
@@ -190,11 +201,17 @@ public:
         : m_asyncBrokerFacade(std::move(asyncBrokerFacade))
         , m_metadataStore(std::move(metadataStore))
         , m_signalPaths(std::move(signalPaths))
-        , m_currentPath(m_signalPaths.cbegin())
+        , m_currentPath(m_signalPaths.cend())
         , m_onDone(std::move(onDone))
         , m_onError(std::move(onError)) {}
 
     void getMetadata() {
+        assert(m_currentPath == m_signalPaths.cend());
+        m_currentPath = m_signalPaths.cbegin();
+        ensureMetadata();
+    }
+
+    void ensureMetadata() {
         while (m_currentPath != m_signalPaths.cend() &&
                m_metadataStore->getByPath(*m_currentPath)) {
             ++m_currentPath;
@@ -233,13 +250,14 @@ public:
                 std::make_shared<Metadata>(Metadata{*m_currentPath, 0, false}));
             getNextMetadata();
         } else {
+            m_currentPath = m_signalPaths.cend();
             m_onError(std::move(status));
         }
     }
 
     void getNextMetadata() {
         ++m_currentPath;
-        getMetadata();
+        ensureMetadata();
     }
 
 private:
@@ -257,7 +275,8 @@ uint32_t determineSubscribeBufferSize() {
         auto bufferSizeStr = getEnvVar("SDV_SUBSCRIBE_BUFFER_SIZE", "0");
         bufferSize         = std::stoi(bufferSizeStr);
     } catch (...) {
-        logger().error("Invalid Subscribe BufferSize specified via env var! Using default=0.");
+        logger().error("Invalid Subscribe BufferSize specified via env var! Using default ({}).",
+                       bufferSize);
     }
     return bufferSize;
 }
@@ -299,14 +318,16 @@ public:
                     DataPointValue::Failure::UNKNOWN_DATAPOINT);
             }
         }
-        m_asyncBrokerFacade->SubscribeById(
+
+        assert(!m_grpcSubscriptionCall || m_grpcSubscriptionCall->m_isComplete);
+        m_grpcSubscriptionCall = m_asyncBrokerFacade->SubscribeById(
             std::move(request),
             [this](auto&& update) { onUpdate(std::forward<decltype(update)>(update)); },
             [this](auto&& status) { onError(std::forward<decltype(status)>(status)); });
     }
 
     void onUpdate(const kuksa::val::v2::SubscribeByIdResponse& update) {
-        clearUpdateStatus(*m_datapointUpdates);
+        resetResubscribeDelay();
         const auto fieldsMap = update.entries();
         for (const auto& [id, dataPoint] : fieldsMap) {
             auto metadata = m_metadataStore->getById(id);
@@ -319,12 +340,85 @@ public:
             }
         }
         m_subscription->insertNewItem(DataPointReply(DataPointMap_t(*m_datapointUpdates)));
+        clearUpdateStatus(*m_datapointUpdates);
     }
 
     void onError(const grpc::Status& status) {
-        m_subscription->insertError(
-            Status(fmt::format("Subscribe failed: {}", status.error_message())));
-        m_isComplete = true;
+        switch (status.error_code()) {
+        case grpc::StatusCode::OK:
+        case grpc::StatusCode::UNAVAILABLE:
+            // The databroker ended the connection or became unavailable. This is most probably a
+            // temporary error, so we try to subscribe again
+            m_metadataStore->invalidate();
+            if (invalidateDataPointValues()) {
+                m_subscription->insertNewItem(DataPointReply(DataPointMap_t(*m_datapointUpdates)));
+                clearUpdateStatus(*m_datapointUpdates);
+            }
+            resubscribe();
+            break;
+        default:
+            // all other errors are rated unrecoverable, therefore retry does not make sense
+            m_subscription->insertError(Status(fmt::format(
+                "Subscribe failed: code={}, {}", static_cast<unsigned int>(status.error_code()),
+                status.error_message())));
+            m_isComplete = true;
+            break;
+        }
+    }
+
+    bool invalidateDataPointValues() {
+        bool anyValueUpdated = false;
+        for (const auto& path : m_signalPaths) {
+            auto dpValueIter = m_datapointUpdates->find(path);
+            if (dpValueIter == m_datapointUpdates->end()) {
+                m_datapointUpdates->emplace(std::make_pair(
+                    std::string{path}, std::make_shared<DataPointValue>(
+                                           DataPointValue::Type::INVALID, path, Timestamp{},
+                                           DataPointValue::Failure::NOT_AVAILABLE)));
+                anyValueUpdated = true;
+            } else {
+                auto dpValue = dpValueIter->second;
+                switch (dpValue->getFailure()) {
+                case DataPointValue::Failure::NOT_AVAILABLE:
+                case DataPointValue::Failure::UNKNOWN_DATAPOINT:
+                case DataPointValue::Failure::ACCESS_DENIED:
+                    // nothing to do
+                    break;
+                default:
+                    dpValue =
+                        std::make_shared<DataPointValue>(dpValue->getType(), path, Timestamp{},
+                                                         DataPointValue::Failure::NOT_AVAILABLE);
+                    anyValueUpdated = true;
+                    break;
+                }
+            }
+        }
+        return anyValueUpdated;
+    }
+
+    void resubscribe() {
+        logger().debug("PREPARE RESUBSCRIBE {}", m_signalPaths.front());
+        ThreadPool::getInstance()->enqueue(Job::create([this]() {
+            logger().debug("WAIT RESUBSCRIBE {} for {}", m_signalPaths.front(),
+                           m_resubscribeDelay.count());
+            const auto start = std::chrono::steady_clock::now();
+            std::this_thread::sleep_for(m_resubscribeDelay);
+            increaseResubscribeDelay();
+            const auto                          end  = std::chrono::steady_clock::now();
+            const std::chrono::duration<double> diff = end - start;
+            logger().debug("START RESUBSCRIBE {} after {} waiting", m_signalPaths.front(),
+                           diff.count());
+            subscribe();
+        }));
+    }
+
+    void resetResubscribeDelay() { m_resubscribeDelay = RESUBSCRIBE_DELAY_INITIAL; }
+
+    void increaseResubscribeDelay() {
+        m_resubscribeDelay *= RESUBSCRIBE_DELAY_FACTOR;
+        if (m_resubscribeDelay > RESUBSCRIBE_DELAY_MAX) {
+            m_resubscribeDelay = RESUBSCRIBE_DELAY_MAX;
+        }
     }
 
     [[nodiscard]] AsyncSubscriptionPtr_t<DataPointReply> getSubscription() const {
@@ -338,6 +432,8 @@ private:
     std::unique_ptr<MetadataRequester>                 m_metadataRequester;
     std::shared_ptr<AsyncSubscription<DataPointReply>> m_subscription;
     std::shared_ptr<DataPointMap_t>                    m_datapointUpdates;
+    std::shared_ptr<GrpcCall>                          m_grpcSubscriptionCall;
+    std::chrono::milliseconds m_resubscribeDelay{RESUBSCRIBE_DELAY_INITIAL};
 };
 
 } // namespace

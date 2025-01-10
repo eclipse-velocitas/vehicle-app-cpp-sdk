@@ -18,7 +18,7 @@
 #define VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERASYNCGRPCFACADE_H
 
 #include "sdk/grpc/AsyncGrpcFacade.h"
-#include "sdk/grpc/GrpcClient.h"
+#include "sdk/grpc/GrpcCall.h"
 
 #include "kuksa/val/v2/val.grpc.pb.h"
 
@@ -32,7 +32,7 @@ class Status;
 
 namespace velocitas::kuksa_val_v2 {
 
-class BrokerAsyncGrpcFacade : public AsyncGrpcFacade, GrpcClient {
+class BrokerAsyncGrpcFacade : public AsyncGrpcFacade {
 public:
     explicit BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel);
 
@@ -40,7 +40,7 @@ public:
                    std::function<void(const kuksa::val::v2::GetValuesResponse& reply)> replyHandler,
                    std::function<void(const grpc::Status& status)> errorHandler);
 
-    void SubscribeById(
+    std::shared_ptr<GrpcCall> SubscribeById(
         kuksa::val::v2::SubscribeByIdRequest                                     request,
         std::function<void(const kuksa::val::v2::SubscribeByIdResponse& update)> updateHandler,
         std::function<void(const grpc::Status& status)>                          errorHandler);
@@ -54,6 +54,31 @@ public:
         kuksa::val::v2::ListMetadataRequest                                    request,
         std::function<void(const kuksa::val::v2::ListMetadataResponse& reply)> replyHandler,
         std::function<void(const grpc::Status& status)>                        errorHandler);
+
+    template <typename TRequest, typename TResponse, typename TFunction>
+    void doSingleReponseCall(TRequest                                        request,
+                             std::function<void(const TResponse& response)>  responseHandler,
+                             std::function<void(const grpc::Status& status)> errorHandler) {
+        auto callData       = std::make_shared<GrpcSingleResponseCall<TRequest, TResponse>>();
+        callData->m_request = std::move(request);
+        applyContextModifier(*callData);
+
+        auto grpcResultHandler = [callData, responseHandler, errorHandler](grpc::Status status) {
+            try {
+                if (status.ok()) {
+                    responseHandler(callData->m_response);
+                } else {
+                    errorHandler(status);
+                };
+            } catch (std::exception& e) {
+                logger().error("GRPC: Exception occurred during \"BatchActuate\": {}", e.what());
+            }
+            callData->m_isComplete = true;
+        };
+        addActiveCall(callData);
+        TFunction(&callData->m_context, &callData->m_request, &callData->m_response,
+                  grpcResultHandler);
+    }
 
 private:
     std::unique_ptr<kuksa::val::v2::VAL::StubInterface> m_stub;
