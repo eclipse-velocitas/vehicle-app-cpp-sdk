@@ -21,6 +21,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -62,13 +63,18 @@ public:
     ThreadPool& operator=(ThreadPool&&)      = delete;
 
 private:
-    void threadLoop();
+    JobPtr_t getNextExecutableJob();
+    void     waitForPotentiallyExecutableJob() const;
+    void     threadLoop();
 
-    std::mutex               m_queueMutex;
-    std::condition_variable  m_cv;
-    std::queue<JobPtr_t>     m_jobs;
-    std::vector<std::thread> m_workerThreads;
-    std::atomic_bool         m_isRunning{true};
+    using QueueType =
+        std::priority_queue<JobPtr_t, std::deque<JobPtr_t>, decltype(lowerJobPriority)*>;
+
+    mutable std::mutex              m_queueMutex;
+    mutable std::condition_variable m_cv;
+    QueueType                       m_jobs;
+    std::vector<std::thread>        m_workerThreads;
+    std::atomic_bool                m_isRunning{true};
 };
 
 } // namespace velocitas

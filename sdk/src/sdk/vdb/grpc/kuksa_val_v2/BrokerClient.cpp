@@ -286,6 +286,14 @@ uint32_t getSubscribeBufferSize() {
     return bufferSize;
 }
 
+std::string getSignalPathAbstract(const std::vector<std::string>& signalPaths) {
+    auto abstract{signalPaths.front()};
+    if (signalPaths.size() > 1) {
+        abstract.append(", etc");
+    }
+    return abstract;
+}
+
 // ToDo: Making this class a GrpcCall to store active subscriptions is a bit "quick & dirty".
 // Please check for better solution before merging to main!
 class SubscriptionHandler : public GrpcCall {
@@ -349,6 +357,7 @@ public:
         case grpc::StatusCode::UNAVAILABLE:
             // The databroker ended the connection or became unavailable. This is most probably a
             // temporary error, so we try to subscribe again
+            logger().warn("Connection to databroker lost or failed");
             m_metadataStore->invalidate();
             if (invalidateDataPointValues()) {
                 m_subscription->insertNewItem(DataPointReply(DataPointMap_t(*m_datapointUpdates)));
@@ -377,7 +386,7 @@ public:
                                            DataPointValue::Failure::NOT_AVAILABLE)));
                 anyValueUpdated = true;
             } else {
-                auto dpValue = dpValueIter->second;
+                auto& dpValue = dpValueIter->second;
                 switch (dpValue->getFailure()) {
                 case DataPointValue::Failure::NOT_AVAILABLE:
                 case DataPointValue::Failure::UNKNOWN_DATAPOINT:
@@ -397,19 +406,17 @@ public:
     }
 
     void resubscribe() {
-        logger().debug("PREPARE RESUBSCRIBE {}", m_signalPaths.front());
-        ThreadPool::getInstance()->enqueue(Job::create([this]() {
-            logger().debug("WAIT RESUBSCRIBE {} for {}", m_signalPaths.front(),
-                           m_resubscribeDelay.count());
-            const auto start = std::chrono::steady_clock::now();
-            std::this_thread::sleep_for(m_resubscribeDelay);
-            increaseResubscribeDelay();
-            const auto                          end  = std::chrono::steady_clock::now();
-            const std::chrono::duration<double> diff = end - start;
-            logger().debug("START RESUBSCRIBE {} after {} waiting", m_signalPaths.front(),
-                           diff.count());
-            subscribe();
-        }));
+        logger().debug("Initiating re-subscribe of {} after {}ms",
+                       getSignalPathAbstract(m_signalPaths), m_resubscribeDelay.count());
+        ThreadPool::getInstance()->enqueue(Job::create(
+            [this, start = std::chrono::steady_clock::now()]() {
+                const std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
+                logger().debug("Try re-subscribing {} after {}s of waiting",
+                               getSignalPathAbstract(m_signalPaths), diff.count());
+                increaseResubscribeDelay();
+                subscribe();
+            },
+            m_resubscribeDelay));
     }
 
     void resetResubscribeDelay() { m_resubscribeDelay = RESUBSCRIBE_DELAY_INITIAL; }
