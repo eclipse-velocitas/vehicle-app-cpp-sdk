@@ -89,6 +89,33 @@ SampleApp::SampleApp()
                                                           "username", "password")) {}
 ```
 
+### Optimizing the gRPC communication channel settings
+
+For possible optimizations of the communication with the KUKSA Databroker you can define setting for 
+the used gRPC channel via so-called ChannelArguments as defined here: https://grpc.github.io/grpc/core/channel__arg__names_8h.html.
+
+You have to define those settings in a JSON based file and pass its filepath via environment varaiable
+`SDV_VDB_CHANNEL_CONFIG_PATH` to the Velocitas SDK based application. The JSON has this structure:
+
+```
+{
+    "channelArguments": {
+        "<name of channel arg>": <value - either string or integer>
+    }
+}
+```
+
+The possible names of channel arguments are as they are defined in the above linked page, for example:
+
+```
+{
+    "channelArguments": {
+        "grpc.http2.lookahead_bytes": 65536,
+        "grpc.default_authority": "Some authority defining string"
+    }
+}
+```
+
 ## Documentation
 * [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/)
 * [Vehicle App SDK Overview](https://eclipse.dev/velocitas/docs/concepts/development_model/vehicle_app_sdk/)
