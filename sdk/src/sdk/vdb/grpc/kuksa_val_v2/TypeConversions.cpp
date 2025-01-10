@@ -231,7 +231,7 @@ convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoin
 static const std::string SELECT_STATEMENT{"SELECT "}; // NOLINT(runtime/string)
 static const std::string WHERE_STATEMENT{" WHERE "};  // NOLINT(runtime/string)
 
-void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std::string& query) {
+std::vector<std::string> parseQuery(const std::string& query) {
     if (query.find(SELECT_STATEMENT) != 0) {
         throw std::runtime_error("Mallformed query not starting with \"SELECT \"!");
     }
@@ -240,6 +240,7 @@ void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std:
             "Queries (containing WHERE clauses) not allowd with kuksa.val.v2 API!");
     }
 
+    std::vector<std::string> signalPaths;
     for (std::string::size_type first{SELECT_STATEMENT.size()}, last{};
          (first = query.find_first_not_of(' ', first)) != std::string::npos; first = last + 1) {
         last = query.find_first_of(", ", first + 1);
@@ -247,12 +248,13 @@ void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std:
             last = query.length();
         }
         std::string path = query.substr(first, last - first);
-        request.add_signal_paths(std::move(path));
+        signalPaths.emplace_back(std::move(path));
     }
 
-    if (request.signal_paths().empty()) {
+    if (signalPaths.empty()) {
         throw std::runtime_error("Mallformed query selecting no signals!");
     }
+    return signalPaths;
 }
 
 } // namespace velocitas::kuksa_val_v2

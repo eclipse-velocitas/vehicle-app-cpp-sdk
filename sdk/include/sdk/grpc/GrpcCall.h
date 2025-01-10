@@ -37,83 +37,76 @@ public:
 };
 
 /**
- * @brief A GRPC call where a request is followed up by a single reply.
+ * @brief A GRPC call where a request is followed up by a single response.
  *
- * @tparam TRequestType The data type of the request.
- * @tparam TReplyType   The data type of the reply.
+ * @tparam TRequestType   The data type of the request.
+ * @tparam TResponseType  The data type of the (success) response.
  */
-template <class TRequestType, class TReplyType> class GrpcSingleResponseCall : public GrpcCall {
+template <class TRequestType, class TResponseType> class GrpcSingleResponseCall : public GrpcCall {
 public:
-    TRequestType m_request;
-    TReplyType   m_reply;
+    GrpcSingleResponseCall() = default;
+    explicit GrpcSingleResponseCall(TRequestType request)
+        : m_request(std::move(request)) {}
+    TRequestType  m_request;
+    TResponseType m_response;
 };
 
 /**
- * @brief A GRPC call where a request is followed up by multiple streamed replies.
+ * @brief A GRPC call where a request is followed up by multiple streamed responses.
  *
- * @tparam TRequestType The data type of the request.
- * @tparam TReplyType   The data type of the reply.
+ * @tparam TRequestType   The data type of the request.
+ * @tparam TResponseType  The data type of a single response.
  */
-template <class TRequestType, class TReplyType> class GrpcStreamingResponseCall : public GrpcCall {
-private:
-    class ReadReactor : public grpc::ClientReadReactor<TReplyType> {
-    public:
-        explicit ReadReactor(GrpcStreamingResponseCall& parent) // NOLINT
-            : m_parent(parent) {}
-
-        void OnReadDone(bool isOk) override {
-            if (isOk) {
-                try {
-                    m_onDataHandler(m_reply);
-                } catch (std::exception& e) {
-                    velocitas::logger().error(
-                        "GRPC: Exception occurred during \"GetDatapoints\": {}", e.what());
-                }
-                this->StartRead(&m_reply);
-            }
-        }
-
-        void OnDone(const grpc::Status& status) override {
-            m_onFinishHandler(status);
-            m_parent.m_isComplete = true;
-        }
-
-    private:
-        TReplyType                               m_reply;
-        std::function<void(const TReplyType&)>   m_onDataHandler;
-        std::function<void(const grpc::Status&)> m_onFinishHandler;
-        GrpcStreamingResponseCall&               m_parent;
-
-        friend class GrpcStreamingResponseCall;
-    };
-
+template <class TRequestType, class TResponseType>
+class GrpcStreamingResponseCall : public GrpcCall, private grpc::ClientReadReactor<TResponseType> {
 public:
-    GrpcStreamingResponseCall()
-        : m_readReactor(std::make_shared<ReadReactor>(*this)) {}
+    GrpcStreamingResponseCall() = default;
+    explicit GrpcStreamingResponseCall(TRequestType request)
+        : m_request(std::move(request)) {}
 
     GrpcStreamingResponseCall& startCall() {
-        m_readReactor->StartCall();
-        m_readReactor->StartRead(&m_readReactor->m_reply);
+        this->StartRead(&m_response);
+        this->StartCall();
         return *this;
     }
 
-    GrpcStreamingResponseCall& onData(std::function<void(const TReplyType&)> handler) {
-        m_readReactor->m_onDataHandler = handler;
+    GrpcStreamingResponseCall& onData(std::function<void(const TResponseType&)> handler) {
+        m_onResponseHandler = handler;
         return *this;
     }
 
     GrpcStreamingResponseCall& onFinish(std::function<void(const grpc::Status&)> handler) {
-        m_readReactor->m_onFinishHandler = handler;
+        m_onFinishHandler = handler;
         return *this;
     }
 
     TRequestType& getRequest() { return m_request; }
 
-    ReadReactor& getReactor() { return *(m_readReactor.get()); }
+    grpc::ClientReadReactor<TResponseType>& getReactor() { return *this; }
 
 private:
-    TRequestType                 m_request;
-    std::shared_ptr<ReadReactor> m_readReactor;
+    void OnReadDone(bool isOk) override {
+        if (isOk) {
+            try {
+                m_onResponseHandler(m_response);
+            } catch (const std::exception& e) {
+                velocitas::logger().error(
+                    "GrpcCall: Exception occurred during response handler notification: {}",
+                    e.what());
+            }
+            this->StartRead(&m_response);
+        }
+    }
+
+    void OnDone(const grpc::Status& status) override {
+        m_onFinishHandler(status);
+        m_isComplete = true;
+    }
+
+    TRequestType                              m_request;
+    TResponseType                             m_response;
+    std::function<void(const TResponseType&)> m_onResponseHandler;
+    std::function<void(const grpc::Status&)>  m_onFinishHandler;
 };
 
 } // namespace velocitas

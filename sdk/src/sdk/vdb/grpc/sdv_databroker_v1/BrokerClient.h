@@ -23,11 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace velocitas {
-
-class RecurringJob;
-
-namespace sdv_databroker_v1 {
+namespace velocitas::sdv_databroker_v1 {
 
 class BrokerAsyncGrpcFacade;
 
@@ -59,7 +55,6 @@ private:
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
 };
 
-} // namespace sdv_databroker_v1
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1
 
 #endif // VEHICLE_APP_SDK_BROKERCLIENT_H
