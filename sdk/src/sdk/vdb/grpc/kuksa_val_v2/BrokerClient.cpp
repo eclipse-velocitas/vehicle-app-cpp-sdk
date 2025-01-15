@@ -42,6 +42,8 @@ namespace velocitas::kuksa_val_v2 {
 
 namespace {
 
+const unsigned int DEFAULT_SUBSCRIBE_BUFFER_SIZE = 0;
+
 const std::chrono::milliseconds RESUBSCRIBE_DELAY_INITIAL{100};
 const std::chrono::milliseconds RESUBSCRIBE_DELAY_MAX{2000};
 const unsigned int              RESUBSCRIBE_DELAY_FACTOR{2};
@@ -233,12 +235,15 @@ public:
     }
 
     void onMetadataResponse(const kuksa::val::v2::ListMetadataResponse& response) {
-        assert(response.metadata_size() == 1);
-        if (response.metadata_size() != 0) {
+        if (response.metadata_size() == 1) {
             m_metadataStore->addMetadata(std::make_shared<Metadata>(
                 Metadata{*m_currentPath, response.metadata(0).id(), true}));
             getNextMetadata();
         } else {
+            logger().error("Requesting metadata of signal '{}' results in metadata for {} signals "
+                           "returned. Assuming the signal as 'unknown'.",
+                           *m_currentPath, response.metadata_size());
+            assert(response.metadata_size() == 1);
             onMetadataError(grpc::Status(grpc::StatusCode::NOT_FOUND, ""));
         }
     }
@@ -250,6 +255,7 @@ public:
                 std::make_shared<Metadata>(Metadata{*m_currentPath, 0, false}));
             getNextMetadata();
         } else {
+            // unexpected error -> stop requesting further metadata and return error to initiator
             m_currentPath = m_signalPaths.cend();
             m_onError(std::move(status));
         }
@@ -270,10 +276,12 @@ private:
 };
 
 uint32_t determineSubscribeBufferSize() {
-    uint32_t bufferSize = 0;
+    uint32_t bufferSize = DEFAULT_SUBSCRIBE_BUFFER_SIZE;
     try {
-        auto bufferSizeStr = getEnvVar("SDV_SUBSCRIBE_BUFFER_SIZE", "0");
-        bufferSize         = std::stoi(bufferSizeStr);
+        auto bufferSizeStr = getEnvVar("SDV_SUBSCRIBE_BUFFER_SIZE");
+        if (!bufferSizeStr.empty()) {
+            bufferSize = std::stoi(bufferSizeStr);
+        }
     } catch (...) {
         logger().error("Invalid Subscribe BufferSize specified via env var! Using default ({}).",
                        bufferSize);
@@ -315,7 +323,9 @@ public:
 
     void onMetadataPresent() {
         kuksa::val::v2::SubscribeByIdRequest request;
-        request.set_buffer_size(getSubscribeBufferSize());
+        if (getSubscribeBufferSize() != DEFAULT_SUBSCRIBE_BUFFER_SIZE) {
+            request.set_buffer_size(getSubscribeBufferSize());
+        }
         for (const auto& path : m_signalPaths) {
             auto metadata = m_metadataStore->getByPath(path);
             if (metadata->m_isKnown) {
@@ -376,7 +386,7 @@ public:
     }
 
     bool invalidateDataPointValues() {
-        bool anyValueUpdated = false;
+        bool anyValueInvalidated = false;
         for (const auto& path : m_signalPaths) {
             auto dpValueIter = m_datapointUpdates->find(path);
             if (dpValueIter == m_datapointUpdates->end()) {
@@ -384,7 +394,7 @@ public:
                     std::string{path}, std::make_shared<DataPointValue>(
                                            DataPointValue::Type::INVALID, path, Timestamp{},
                                            DataPointValue::Failure::NOT_AVAILABLE)));
-                anyValueUpdated = true;
+                anyValueInvalidated = true;
             } else {
                 auto& dpValue = dpValueIter->second;
                 switch (dpValue->getFailure()) {
@@ -397,12 +407,12 @@ public:
                     dpValue =
                         std::make_shared<DataPointValue>(dpValue->getType(), path, Timestamp{},
                                                          DataPointValue::Failure::NOT_AVAILABLE);
-                    anyValueUpdated = true;
+                    anyValueInvalidated = true;
                     break;
                 }
             }
         }
-        return anyValueUpdated;
+        return anyValueInvalidated;
     }
 
     void resubscribe() {
