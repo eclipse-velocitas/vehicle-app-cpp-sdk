@@ -243,7 +243,6 @@ public:
             logger().error("Requesting metadata of signal '{}' results in metadata for {} signals "
                            "returned. Assuming the signal as 'unknown'.",
                            *m_currentPath, response.metadata_size());
-            assert(response.metadata_size() == 1);
             onMetadataError(grpc::Status(grpc::StatusCode::NOT_FOUND, ""));
         }
     }
