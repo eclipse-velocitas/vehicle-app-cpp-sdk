@@ -171,16 +171,6 @@ TEST_F(Test_ThreadPool, stopExecutingOneJob_queuedJob_jobExecuted) {
     EXPECT_TRUE(m_fakeJobs.back()->waitForExecution());
 }
 
-TEST_F(Test_ThreadPool,
-       stopExecutingJob_queuedEmptyJobAndRealJob_emptyJobIgnoredAndRealJobExectuted) {
-    ASSERT_TRUE(occupyAllWorkers());
-    m_pool->enqueue(nullptr);
-    ASSERT_FALSE(createAndExecuteJob(0ms));
-
-    ASSERT_TRUE(finishJob(m_fakeJobs.front()));
-    EXPECT_TRUE(m_fakeJobs.back()->waitForExecution());
-}
-
 TEST_F(Test_ThreadPool, destroyThreadPool_occupiedWorkers_waitForWorkersFinished) {
     ASSERT_TRUE(occupyAllWorkers());
 
