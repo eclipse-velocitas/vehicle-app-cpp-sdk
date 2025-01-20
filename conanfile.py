@@ -24,6 +24,7 @@ from conans import ConanFile, tools
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
     license = "Apache-2.0"
+    implements = ["auto_shared_fpic"]
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
     # In general: Pin recipe revisions of dependencies having further dependencies to avoid build issues due to updated recipes
@@ -59,8 +60,6 @@ class VehicleAppCppSdkConan(ConanFile):
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
 
     exports = "version.txt"
 
@@ -88,9 +87,8 @@ class VehicleAppCppSdkConan(ConanFile):
             else:
                 raise FileNotFoundError("Missing version.txt!")
 
-
     def config_options(self):
-        if self.settings.os == "Linux":
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def layout(self):
