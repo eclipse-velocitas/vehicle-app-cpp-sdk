@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -39,8 +39,8 @@ class VehicleAppCppSdkConan(ConanFile):
         ("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
         ("nlohmann_json/3.11.2"),
         ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
-        ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
-        ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
+        ("paho-mqtt-c/1.3.13"),
+        ("paho-mqtt-cpp/1.4.0"),
         ("zlib/1.3")
     ]
     generators = "cmake"
@@ -76,7 +76,7 @@ class VehicleAppCppSdkConan(ConanFile):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
             else:
                 raise FileNotFoundError("Missing version.txt!")
-                
+
 
     def config_options(self):
         if self.settings.os == "Linux":
