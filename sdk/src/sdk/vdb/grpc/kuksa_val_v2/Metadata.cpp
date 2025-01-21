@@ -35,29 +35,39 @@ const unsigned int MAX_PARALLEL_REQUESTS{5};
 
 } // namespace
 
+struct Query {
+    std::set<std::string>                    m_pendingSignals;
+    std::function<void()>                    m_successCallback;
+    std::function<void(const grpc::Status&)> m_errorCallback;
+};
+
 class MetadataRequester {
 public:
-    MetadataRequester(std::shared_ptr<BrokerAsyncGrpcFacade>                  asyncBrokerFacade,
-                      std::function<void(std::shared_ptr<Metadata>&&)>        metadataCallback,
-                      std::function<void(const std::string&, grpc::Status&&)> errorCallback)
+    MetadataRequester(std::shared_ptr<BrokerAsyncGrpcFacade>           asyncBrokerFacade,
+                      std::function<void(std::shared_ptr<Metadata>&&)> metadataReceiver)
         : m_asyncBrokerFacade(std::move(asyncBrokerFacade))
-        , m_metadataCallback(std::move(metadataCallback))
-        , m_errorCallback(std::move(errorCallback)) {}
+        , m_metadataReceiver(std::move(metadataReceiver)) {}
 
-    void addSignalsToRequest(std::deque<std::string>&& signalsToRequest) {
+    void addQuery(Query&& query) {
         {
             std::unique_lock lock(m_mutex);
-            while (!signalsToRequest.empty()) {
-                addSignalToRequest(std::move(signalsToRequest.front()));
-                signalsToRequest.pop_front();
+            for (const auto& path : query.m_pendingSignals) {
+                addSignalToRequest(path);
             }
+            m_pendingQueries.push_back(std::move(query));
         }
-        checkToRequestMetadata();
+        requestMissingMetadata();
     }
 
-    void reset() {
-        std::unique_lock lock(m_mutex);
-        m_pendingSignals.clear();
+    void cancelQueries(grpc::StatusCode statusCode) {
+        std::deque<std::string> openQueries;
+        {
+            std::unique_lock lock(m_mutex);
+            m_pendingSignals.clear();
+            m_pendingQueries.swap(openQueries);
+        }
+        notifyQueryInitiators(std::move(openQueries),
+                              grpc::Status(statusCode, "Cache invalidation"));
     }
 
 private:
@@ -69,7 +79,7 @@ private:
         }
     }
 
-    void checkToRequestMetadata() {
+    void requestMissingMetadata() {
         std::string path;
         {
             std::unique_lock lock(m_mutex);
@@ -94,16 +104,16 @@ private:
                     std::unique_lock lock(m_mutex);
                     m_activeRequests.erase(path);
                 }
-                checkToRequestMetadata();
+                requestMissingMetadata();
 
-                if (response.metadata_size() != 0) {
-                    m_metadataCallback(std::make_shared<Metadata>(
+                if (response.metadata_size() == 1) {
+                    onMetadata(std::make_shared<Metadata>(
                         Metadata{path, response.metadata(0).id(), true}));
                 } else {
                     logger().warn(
                         "Databroker returned empty metadata list for {} -> assuming as 'unknown'",
                         path);
-                    m_metadataCallback(std::make_shared<Metadata>(Metadata{path, 0, false}));
+                    onMetadata(std::make_shared<Metadata>(Metadata{path, 0, false}));
                 }
             },
             [this, path](auto status) {
@@ -116,37 +126,95 @@ private:
                     std::unique_lock lock(m_mutex);
                     m_activeRequests.erase(path);
                 }
-                checkToRequestMetadata();
+                requestMissingMetadata();
                 if (status.error_code() == grpc::StatusCode::NOT_FOUND ||
                     status.error_code() == grpc::StatusCode::PERMISSION_DENIED) {
-                    m_metadataCallback(std::make_shared<Metadata>(Metadata{path, 0, false}));
+                    onMetadata(std::make_shared<Metadata>(Metadata{path, 0, false}));
                 } else if (status.error_code() != grpc::StatusCode::DEADLINE_EXCEEDED) {
-                    m_errorCallback(path, std::move(status));
+                    onError(path, std::move(status));
                 }
             });
     }
 
-    std::shared_ptr<BrokerAsyncGrpcFacade>                  m_asyncBrokerFacade;
-    std::function<void(std::shared_ptr<Metadata>&&)>        m_metadataCallback;
-    std::function<void(const std::string&, grpc::Status&&)> m_errorCallback;
+    std::deque<Query> withdrawFulfilledQueries(const std::string& path) {
+        std::deque<Query> fulfilledQueries;
+        {
+            std::unique_lock lock(m_mutex);
+            auto             queryIter = m_pendingQueries.begin();
+            while (queryIter != m_pendingQueries.end()) {
+                queryIter->m_pendingSignals.erase(path);
+                if (queryIter->m_pendingSignals.empty()) {
+                    fulfilledQueries.push_back(std::move(*queryIter));
+                    queryIter = m_pendingQueries.erase(queryIter);
+                } else {
+                    ++queryIter;
+                }
+            }
+        }
+        return fulfilledQueries;
+    }
+
+    void update(const std::shared_ptr<Metadata>& metadata) {
+        m_metadataReceiver(metadata);
+        auto fulfilledQueries = withdrawFulfilledQueries(metadata->m_path);
+        notifyQueryInitiators(std::move(fulfilledQueries));
+    }
+
+    std::deque<Query> withdrawAffectedQueries(const std::string& path) {
+        std::deque<Query> affectedQueries;
+        {
+            std::unique_lock lock(m_mutex);
+            auto             queryIter = m_pendingQueries.begin();
+            while (queryIter != m_pendingQueries.end()) {
+                if (queryIter->m_pendingSignals.count(path) > 0) {
+                    affectedQueries.push_back(std::move(*queryIter));
+                    queryIter = m_pendingQueries.erase(queryIter);
+                } else {
+                    ++queryIter;
+                }
+            }
+        }
+        return affectedQueries;
+    }
+
+    void onError(const std::string& path, grpc::Status&& status) {
+        auto affectedQueries = withdrawAffectedQueries(path);
+        notifyQueryInitiators(std::move(affectedQueries), std::move(status));
+    }
+
+    void notifyQueryInitiators(std::deque<Query>&& fulfilledQueries) const {
+        for (const auto& query : fulfilledQueries) {
+            try {
+                query.m_successCallback();
+            } catch (...) {
+                logger().error("Unknown exception catched while notifying query initiators");
+            }
+        }
+    }
+
+    void notifyQueryInitiators(std::deque<Query>&& affectedQueries, grpc::Status&& status) const {
+        for (const auto& query : affectedQueries) {
+            try {
+                query.m_errorCallback(std::move(status));
+            } catch (...) {
+                logger().error("Unknown exception catched while notifying query initiators");
+            }
+        }
+    }
+
+    std::shared_ptr<BrokerAsyncGrpcFacade>                m_asyncBrokerFacade;
+    std::function<void(const std::shared_ptr<Metadata>&)> m_metadataReceiver;
 
     std::mutex              m_mutex;
+    std::deque<Query>       m_pendingQueries;
     std::deque<std::string> m_pendingSignals;
     std::set<std::string>   m_activeRequests;
 };
 
-struct Query {
-    std::set<std::string>                    m_pendingSignals;
-    std::function<void()>                    m_successCallback;
-    std::function<void(const grpc::Status&)> m_errorCallback;
-};
-
 MetadataCache::MetadataCache(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade)
-    : m_metadataRequester(std::make_unique<MetadataRequester>(
-          asyncBrokerFacade,
-          [this](const auto& metadata) { onMetadata(std::forward<decltype(metadata)>(metadata)); },
-          [this](const auto& path, auto&& status) {
-              onError(std::forward<decltype(path)>(path), std::forward<decltype(status)>(status));
+    : m_metadataRequester(
+          std::make_unique<MetadataRequester>(asyncBrokerFacade, [this](const auto& metadata) {
+              onMetadata(std::forward<decltype(metadata)>(metadata));
           })) {}
 
 std::shared_ptr<Metadata> MetadataCache::getById(int32_t numericId) const {
@@ -183,11 +251,6 @@ MetadataCache::determineMissingSignals(const std::vector<std::string>& signalPat
     return missingSignals;
 }
 
-void MetadataCache::addQuery(Query&& query) {
-    std::unique_lock lock(m_mutex);
-    m_pendingQueries.push_back(std::move(query));
-}
-
 void MetadataCache::query(const std::vector<std::string>&          signalPaths,
                           std::function<void()>                    onSuccess,
                           std::function<void(const grpc::Status&)> onError) {
@@ -195,9 +258,9 @@ void MetadataCache::query(const std::vector<std::string>&          signalPaths,
     if (missingSignals.empty()) {
         onSuccess();
     } else {
-        addQuery(Query{std::set(missingSignals.cbegin(), missingSignals.cend()),
-                       std::move(onSuccess), std::move(onError)});
-        m_metadataRequester->addSignalsToRequest(std::move(missingSignals));
+        m_metadataRequester->addQuery(
+            Query{std::set(missingSignals.cbegin(), missingSignals.cend()), std::move(onSuccess),
+                  std::move(onError)});
     }
 }
 
@@ -205,84 +268,18 @@ void MetadataCache::invalidate(grpc::StatusCode statusCode) {
     std::deque<Query> openQueries;
     {
         std::unique_lock lock(m_mutex);
-        m_metadataRequester->reset();
+        m_metadataRequester->cancelQueries(statusCode);
         m_idMap.clear();
         m_pathMap.clear();
-        m_pendingQueries.swap(openQueries);
     }
-    notifyQueryInitiators(std::move(openQueries), grpc::Status(statusCode, "Cache invalidation"));
-}
-
-std::deque<Query> MetadataCache::withdrawFulfilledQueries(const std::string& path) {
-    std::deque<Query> fulfilledQueries;
-    auto              queryIter = m_pendingQueries.begin();
-    while (queryIter != m_pendingQueries.end()) {
-        queryIter->m_pendingSignals.erase(path);
-        if (queryIter->m_pendingSignals.empty()) {
-            fulfilledQueries.push_back(std::move(*queryIter));
-            queryIter = m_pendingQueries.erase(queryIter);
-        } else {
-            ++queryIter;
-        }
-    }
-    return fulfilledQueries;
 }
 
 void MetadataCache::onMetadata(const std::shared_ptr<Metadata>& metadata) {
     assert(metadata);
-    std::deque<Query> fulfilledQueries;
-    {
-        std::unique_lock lock(m_mutex);
-        m_pathMap[metadata->m_path] = metadata;
-        if (metadata->m_isKnown) {
-            m_idMap[metadata->m_id] = metadata;
-        }
-        fulfilledQueries = withdrawFulfilledQueries(metadata->m_path);
-    }
-    notifyQueryInitiators(std::move(fulfilledQueries));
-}
-
-std::deque<Query> MetadataCache::withdrawAffectedQueries(const std::string& path) {
-    std::deque<Query> affectedQueries;
-    auto              queryIter = m_pendingQueries.begin();
-    while (queryIter != m_pendingQueries.end()) {
-        if (queryIter->m_pendingSignals.count(path) > 0) {
-            affectedQueries.push_back(std::move(*queryIter));
-            queryIter = m_pendingQueries.erase(queryIter);
-        } else {
-            ++queryIter;
-        }
-    }
-    return affectedQueries;
-}
-
-void MetadataCache::onError(const std::string& path, grpc::Status&& status) {
-    std::deque<Query> affectedQueries;
-    {
-        std::unique_lock lock(m_mutex);
-        affectedQueries = withdrawAffectedQueries(path);
-    }
-    notifyQueryInitiators(std::move(affectedQueries), std::move(status));
-}
-
-void MetadataCache::notifyQueryInitiators(std::deque<Query>&& fulfilledQueries) const {
-    for (const auto& query : fulfilledQueries) {
-        try {
-            query.m_successCallback();
-        } catch (...) {
-            logger().error("Unknown exception catched while notifying query initiators");
-        }
-    }
-}
-
-void MetadataCache::notifyQueryInitiators(std::deque<Query>&& affectedQueries,
-                                          grpc::Status&&      status) const {
-    for (const auto& query : affectedQueries) {
-        try {
-            query.m_errorCallback(std::move(status));
-        } catch (...) {
-            logger().error("Unknown exception catched while notifying query initiators");
-        }
+    std::unique_lock lock(m_mutex);
+    m_pathMap[metadata->m_path] = metadata;
+    if (metadata->m_isKnown) {
+        m_idMap[metadata->m_id] = metadata;
     }
 }
 

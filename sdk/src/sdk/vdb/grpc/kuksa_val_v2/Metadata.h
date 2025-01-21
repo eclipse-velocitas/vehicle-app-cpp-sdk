@@ -17,7 +17,7 @@
 #ifndef VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_METADATA_H
 #define VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_METADATA_H
 
-#include <grpcpp/impl/status.h>
+#include <grpcpp/support/status_code_enum.h>
 
 #include <cstdint>
 #include <deque>
@@ -28,13 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace grpc {
-class Status;
-}
-
 namespace velocitas::kuksa_val_v2 {
-
-class BrokerAsyncGrpcFacade;
 
 struct Metadata {
     // enum class State {
@@ -51,8 +45,8 @@ struct Metadata {
     bool        m_isKnown{false};
 };
 
+class BrokerAsyncGrpcFacade;
 class MetadataRequester;
-struct Query;
 
 /**
  * Provides the Graph API to access vehicle signals via the kuksa.val.v2 API
@@ -70,22 +64,15 @@ public:
 
 private:
     void onMetadata(const std::shared_ptr<Metadata>& metadata);
-    void onError(const std::string& path, grpc::Status&& status);
     bool isPresent(const std::string& path) const;
-    void addQuery(Query&& query);
     std::deque<std::string>
-                      determineMissingSignals(const std::vector<std::string>& signalPaths) const;
-    std::deque<Query> withdrawFulfilledQueries(const std::string& path);
-    std::deque<Query> withdrawAffectedQueries(const std::string& path);
-    void              notifyQueryInitiators(std::deque<Query>&& fulfilledQueries) const;
-    void notifyQueryInitiators(std::deque<Query>&& affectedQueries, grpc::Status&& status) const;
+    determineMissingSignals(const std::vector<std::string>& signalPaths) const;
 
     const std::unique_ptr<MetadataRequester> m_metadataRequester;
 
     mutable std::shared_mutex                        m_mutex;
     std::map<int32_t, std::shared_ptr<Metadata>>     m_idMap;
     std::map<std::string, std::shared_ptr<Metadata>> m_pathMap;
-    std::deque<Query>                                m_pendingQueries;
 };
 
 } // namespace velocitas::kuksa_val_v2
