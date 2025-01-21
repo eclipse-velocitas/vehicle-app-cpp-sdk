@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -30,29 +30,18 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
-        ("abseil/20240116.2"),
-        ("bzip2/1.0.8"),
-        ("c-ares/1.34.1"),
-        ("cpr/1.11.0"),
-        ("fmt/11.0.2"),
-        ("grpc/1.67.1"),
-        ("libcap/2.69"),
-        ("libcurl/8.10.1"),
-        ("libmount/2.39.2"),
-        ("libselinux/3.6"),
-        ("libsystemd/255.10"),
-        ("libxcrypt/4.4.36"),
-        ("lz4/1.9.4"),
-        ("nlohmann_json/3.11.3"),
-        ("openssl/3.3.2"),
-        ("paho-mqtt-c/1.3.13"),
-        ("paho-mqtt-cpp/1.4.0"),
-        ("pcre2/10.42"),
-        ("protobuf/5.27.0"),
-        ("re2/20230301"),
-        ("xz_utils/5.4.5"),
-        ("zlib/1.3.1"),
-        ("zstd/1.5.5"),
+        ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
+        ("cpr/1.10.5"),
+        ("fmt/9.1.0"),
+        ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
+        ("grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce"),
+        ("grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d"),
+        ("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
+        ("nlohmann_json/3.11.2"),
+        ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
+        ("paho-mqtt-c/1.3.9@#0421671a9f4e8ccfa5fc678cfb160394"),
+        ("paho-mqtt-cpp/1.2.0@#cb70f45760e60655faa35251a394b1d2"),
+        ("zlib/1.3")
     ]
     generators = "cmake"
     author = "Robert Bosch GmbH"
@@ -87,7 +76,7 @@ class VehicleAppCppSdkConan(ConanFile):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
             else:
                 raise FileNotFoundError("Missing version.txt!")
-
+                
 
     def config_options(self):
         if self.settings.os == "Linux":
@@ -127,4 +116,4 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)
-        self.tool_requires("grpc/1.67.1")
+        self.tool_requires("grpc/1.50.1")
