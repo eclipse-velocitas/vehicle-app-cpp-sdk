@@ -322,7 +322,6 @@ void MetadataAgentImpl::query(
     const std::vector<std::string>&                                 signalNames,
     std::function<void(std::vector<std::shared_ptr<Metadata>>&&)>&& onSuccess,
     std::function<void(const grpc::Status&)>&&                      onError) {
-
     Query query(signalNames, std::move(onSuccess), std::move(onError));
     {
         std::unique_lock lock(m_mutex);
