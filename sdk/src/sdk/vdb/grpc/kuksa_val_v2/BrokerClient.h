@@ -20,6 +20,7 @@
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <memory>
+#include <string>
 
 namespace velocitas {
 
@@ -28,14 +29,14 @@ class GrpcClient;
 namespace kuksa_val_v2 {
 
 class BrokerAsyncGrpcFacade;
-class MetadataStore;
+class MetadataAgent;
 
 /**
  * Provides the Graph API to access vehicle signals via the kuksa.val.v2 API
  */
 class BrokerClient : public IVehicleDataBrokerClient {
 public:
-    explicit BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName);
+    BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName);
     explicit BrokerClient(const std::string& vdbserviceName);
 
     ~BrokerClient() override;
@@ -55,7 +56,7 @@ public:
 
 private:
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
-    std::shared_ptr<MetadataStore>         m_metadataStore;
+    std::shared_ptr<MetadataAgent>         m_metadataAgent;
     std::unique_ptr<GrpcClient>            m_activeCalls;
 };
 

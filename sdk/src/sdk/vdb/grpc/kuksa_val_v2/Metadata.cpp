@@ -16,14 +16,16 @@
 
 #include "Metadata.h"
 
+#include "sdk/Job.h"
 #include "sdk/Logger.h"
+#include "sdk/ThreadPool.h"
 #include "sdk/vdb/grpc/kuksa_val_v2/BrokerAsyncGrpcFacade.h"
 
 #include <algorithm>
 #include <deque>
 #include <limits>
-#include <mutex>
 #include <set>
+#include <shared_mutex>
 #include <stdexcept>
 #include <utility>
 
@@ -35,252 +37,397 @@ const unsigned int MAX_PARALLEL_REQUESTS{5};
 
 } // namespace
 
-struct Query {
-    std::set<std::string>                    m_pendingSignals;
-    std::function<void()>                    m_successCallback;
-    std::function<void(const grpc::Status&)> m_errorCallback;
-};
-
-class MetadataRequester {
+class Request {
 public:
-    MetadataRequester(std::shared_ptr<BrokerAsyncGrpcFacade>           asyncBrokerFacade,
-                      std::function<void(std::shared_ptr<Metadata>&&)> metadataReceiver)
-        : m_asyncBrokerFacade(std::move(asyncBrokerFacade))
-        , m_metadataReceiver(std::move(metadataReceiver)) {}
-
-    void addQuery(Query&& query) {
-        {
-            std::unique_lock lock(m_mutex);
-            for (const auto& path : query.m_pendingSignals) {
-                addSignalToRequest(path);
-            }
-            m_pendingQueries.push_back(std::move(query));
-        }
-        requestMissingMetadata();
+    static std::shared_ptr<Request>
+    create(const std::string&                            signalName,
+           const std::shared_ptr<BrokerAsyncGrpcFacade>& brokerFacade,
+           std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Metadata>&)>&&
+                                                                                       onMetadata,
+           std::function<void(const std::shared_ptr<Request>&, const grpc::Status&)>&& onError) {
+        auto request = std::shared_ptr<Request>(
+            new Request(signalName, std::move(onMetadata), std::move(onError)));
+        request->setThisPtr(request);
+        request->initiate(brokerFacade);
+        return request;
     }
 
-    void cancelQueries(grpc::StatusCode statusCode) {
-        std::deque<std::string> openQueries;
-        {
-            std::unique_lock lock(m_mutex);
-            m_pendingSignals.clear();
-            m_pendingQueries.swap(openQueries);
+    void                             cancel() { m_isCancelled = true; }
+    [[nodiscard]] bool               isCancelled() const { return m_isCancelled; }
+    [[nodiscard]] const std::string& getSignalName() const { return m_signalName; }
+
+private:
+    Request(std::string signalName,
+            std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Metadata>&)>&&
+                                                                                        onMetadata,
+            std::function<void(const std::shared_ptr<Request>&, const grpc::Status&)>&& onError)
+        : m_signalName(std::move(signalName))
+        , m_metadataCallback(std::move(onMetadata))
+        , m_errorCallback(std::move(onError)) {}
+
+    void initiate(const std::shared_ptr<BrokerAsyncGrpcFacade>& brokerFacade) {
+        ThreadPool::getInstance()->enqueue(Job::create([this, brokerFacade]() {
+            if (m_isCancelled) {
+                onError(grpc::Status(grpc::StatusCode::CANCELLED, ""));
+            } else {
+                kuksa::val::v2::ListMetadataRequest request;
+                request.set_root(m_signalName);
+                brokerFacade->ListMetadata(
+                    std::move(request),
+                    [this](const auto& response) {
+                        onResponse(std::forward<decltype(response)>(response));
+                    },
+                    [this](const auto& status) {
+                        onError(std::forward<decltype(status)>(status));
+                    });
+            }
+        }));
+    }
+
+    void setThisPtr(const std::shared_ptr<Request>& thisSharedPtr) { m_this = thisSharedPtr; }
+
+    void onResponse(const kuksa::val::v2::ListMetadataResponse& response) {
+        if (!m_isCancelled) {
+            if (response.metadata_size() == 1) {
+                m_metadataCallback(m_this, std::make_shared<Metadata>(Metadata{
+                                               m_signalName, response.metadata(0).id(), true}));
+            } else {
+                if (response.metadata_size() == 0) {
+                    logger().warn("Databroker returned empty metadata list for {} -> "
+                                  "assuming signal as 'unknown'",
+                                  m_signalName);
+                } else {
+                    logger().warn("Databroker returned multiple metadata entries for {} -> "
+                                  "assuming signal as 'unknown'",
+                                  m_signalName);
+                }
+                m_metadataCallback(m_this,
+                                   std::make_shared<Metadata>(Metadata{m_signalName, 0, false}));
+            }
+        } else {
+            m_errorCallback(m_this, grpc::Status(grpc::StatusCode::CANCELLED, ""));
         }
-        notifyQueryInitiators(std::move(openQueries),
-                              grpc::Status(statusCode, "Cache invalidation"));
+    };
+
+    void onError(const grpc::Status& status) {
+        if (!m_isCancelled) {
+            if (status.error_code() == grpc::StatusCode::NOT_FOUND ||
+                status.error_code() == grpc::StatusCode::PERMISSION_DENIED) {
+                m_metadataCallback(m_this,
+                                   std::make_shared<Metadata>(Metadata{m_signalName, 0, false}));
+            } else {
+                m_errorCallback(m_this, status);
+            }
+        } else {
+            m_errorCallback(m_this, grpc::Status(grpc::StatusCode::CANCELLED, ""));
+        }
+    }
+
+    const std::string        m_signalName;
+    std::shared_ptr<Request> m_this;
+    std::atomic<bool>        m_isCancelled{false};
+    std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Metadata>&)>
+                                                                              m_metadataCallback;
+    std::function<void(const std::shared_ptr<Request>&, const grpc::Status&)> m_errorCallback;
+};
+
+class MetadataCache {
+public:
+    void add(const std::shared_ptr<Metadata>& metadata) {
+        assert(metadata);
+        m_nameMap[metadata->m_signalName] = metadata;
+        if (metadata->m_isKnown) {
+            m_idMap[metadata->m_id] = metadata;
+        }
+    }
+
+    void clear() {
+        m_nameMap.clear();
+        m_idMap.clear();
+    }
+
+    [[nodiscard]] bool isPresent(const std::string& signalName) const {
+        return (m_nameMap.find(signalName) != m_nameMap.cend());
+    }
+
+    [[nodiscard]] std::shared_ptr<Metadata> getByName(const std::string& signalName) const {
+        if (auto metadata = m_nameMap.find(signalName); metadata != m_nameMap.end()) {
+            return metadata->second;
+        }
+        return {};
+    }
+
+    [[nodiscard]] std::shared_ptr<Metadata> getById(numeric_id_t numericId) const {
+        if (auto metadata = m_idMap.find(numericId); metadata != m_idMap.end()) {
+            return metadata->second;
+        }
+        return {};
     }
 
 private:
-    void addSignalToRequest(std::string&& path) {
-        if ((m_activeRequests.count(path) == 0) &&
-            (std::find(m_pendingSignals.cbegin(), m_pendingSignals.cend(), path) ==
-             m_pendingSignals.end())) {
-            m_pendingSignals.push_back(std::move(path));
-        }
-    }
-
-    void requestMissingMetadata() {
-        std::string path;
-        {
-            std::unique_lock lock(m_mutex);
-            if (!m_pendingSignals.empty() && (m_activeRequests.size() < MAX_PARALLEL_REQUESTS)) {
-                path = std::move(m_pendingSignals.front());
-                m_pendingSignals.pop_front();
-                m_activeRequests.insert(path);
-            }
-        }
-        if (!path.empty()) {
-            requestMetadata(path);
-        }
-    }
-
-    void requestMetadata(const std::string& path) {
-        kuksa::val::v2::ListMetadataRequest request;
-        request.set_root(path);
-        m_asyncBrokerFacade->ListMetadata(
-            std::move(request),
-            [this, path](auto&& response) {
-                {
-                    std::unique_lock lock(m_mutex);
-                    m_activeRequests.erase(path);
-                }
-                requestMissingMetadata();
-
-                if (response.metadata_size() == 1) {
-                    onMetadata(std::make_shared<Metadata>(
-                        Metadata{path, response.metadata(0).id(), true}));
-                } else {
-                    logger().warn(
-                        "Databroker returned empty metadata list for {} -> assuming as 'unknown'",
-                        path);
-                    onMetadata(std::make_shared<Metadata>(Metadata{path, 0, false}));
-                }
-            },
-            [this, path](auto status) {
-                if (status.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED) {
-                    // retry getting that metadata
-                    requestMetadata(path);
-                    return;
-                }
-                {
-                    std::unique_lock lock(m_mutex);
-                    m_activeRequests.erase(path);
-                }
-                requestMissingMetadata();
-                if (status.error_code() == grpc::StatusCode::NOT_FOUND ||
-                    status.error_code() == grpc::StatusCode::PERMISSION_DENIED) {
-                    onMetadata(std::make_shared<Metadata>(Metadata{path, 0, false}));
-                } else if (status.error_code() != grpc::StatusCode::DEADLINE_EXCEEDED) {
-                    onError(path, std::move(status));
-                }
-            });
-    }
-
-    std::deque<Query> withdrawFulfilledQueries(const std::string& path) {
-        std::deque<Query> fulfilledQueries;
-        {
-            std::unique_lock lock(m_mutex);
-            auto             queryIter = m_pendingQueries.begin();
-            while (queryIter != m_pendingQueries.end()) {
-                queryIter->m_pendingSignals.erase(path);
-                if (queryIter->m_pendingSignals.empty()) {
-                    fulfilledQueries.push_back(std::move(*queryIter));
-                    queryIter = m_pendingQueries.erase(queryIter);
-                } else {
-                    ++queryIter;
-                }
-            }
-        }
-        return fulfilledQueries;
-    }
-
-    void update(const std::shared_ptr<Metadata>& metadata) {
-        m_metadataReceiver(metadata);
-        auto fulfilledQueries = withdrawFulfilledQueries(metadata->m_path);
-        notifyQueryInitiators(std::move(fulfilledQueries));
-    }
-
-    std::deque<Query> withdrawAffectedQueries(const std::string& path) {
-        std::deque<Query> affectedQueries;
-        {
-            std::unique_lock lock(m_mutex);
-            auto             queryIter = m_pendingQueries.begin();
-            while (queryIter != m_pendingQueries.end()) {
-                if (queryIter->m_pendingSignals.count(path) > 0) {
-                    affectedQueries.push_back(std::move(*queryIter));
-                    queryIter = m_pendingQueries.erase(queryIter);
-                } else {
-                    ++queryIter;
-                }
-            }
-        }
-        return affectedQueries;
-    }
-
-    void onError(const std::string& path, grpc::Status&& status) {
-        auto affectedQueries = withdrawAffectedQueries(path);
-        notifyQueryInitiators(std::move(affectedQueries), std::move(status));
-    }
-
-    void notifyQueryInitiators(std::deque<Query>&& fulfilledQueries) const {
-        for (const auto& query : fulfilledQueries) {
-            try {
-                query.m_successCallback();
-            } catch (...) {
-                logger().error("Unknown exception catched while notifying query initiators");
-            }
-        }
-    }
-
-    void notifyQueryInitiators(std::deque<Query>&& affectedQueries, grpc::Status&& status) const {
-        for (const auto& query : affectedQueries) {
-            try {
-                query.m_errorCallback(std::move(status));
-            } catch (...) {
-                logger().error("Unknown exception catched while notifying query initiators");
-            }
-        }
-    }
-
-    std::shared_ptr<BrokerAsyncGrpcFacade>                m_asyncBrokerFacade;
-    std::function<void(const std::shared_ptr<Metadata>&)> m_metadataReceiver;
-
-    std::mutex              m_mutex;
-    std::deque<Query>       m_pendingQueries;
-    std::deque<std::string> m_pendingSignals;
-    std::set<std::string>   m_activeRequests;
+    std::map<std::string, std::shared_ptr<Metadata>>  m_nameMap;
+    std::map<numeric_id_t, std::shared_ptr<Metadata>> m_idMap;
 };
 
-MetadataCache::MetadataCache(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade)
-    : m_metadataRequester(
-          std::make_unique<MetadataRequester>(asyncBrokerFacade, [this](const auto& metadata) {
-              onMetadata(std::forward<decltype(metadata)>(metadata));
-          })) {}
-
-std::shared_ptr<Metadata> MetadataCache::getById(int32_t numericId) const {
-    std::shared_lock lock(m_mutex);
-    if (auto metadata = m_idMap.find(numericId); metadata != m_idMap.end()) {
-        return metadata->second;
+class Query {
+public:
+    Query(const std::vector<std::string>&                                 signalNames,
+          std::function<void(std::vector<std::shared_ptr<Metadata>>&&)>&& successCallback,
+          std::function<void(const grpc::Status&)>&&                      errorCallback)
+        : m_missingSignals(signalNames.cbegin(), signalNames.cend())
+        , m_successCallback(std::move(successCallback))
+        , m_errorCallback(std::move(errorCallback)) {
+        m_cachedMetadata.reserve(signalNames.size());
     }
-    return {};
-}
 
-std::shared_ptr<Metadata> MetadataCache::getByPath(const std::string& path) const {
-    std::shared_lock lock(m_mutex);
-    if (auto metadata = m_pathMap.find(path); metadata != m_pathMap.end()) {
-        return metadata->second;
-    }
-    return {};
-}
-
-bool MetadataCache::isPresent(const std::string& path) const {
-    return (m_pathMap.find(path) != m_pathMap.cend());
-}
-
-std::deque<std::string>
-MetadataCache::determineMissingSignals(const std::vector<std::string>& signalPaths) const {
-    std::deque<std::string> missingSignals;
-    {
-        std::shared_lock lock(m_mutex);
-        for (const auto& path : signalPaths) {
-            if (!isPresent(path)) {
-                missingSignals.push_back(path);
-            }
+    void addMetadata(const std::shared_ptr<Metadata>& metadata) {
+        auto numErased = m_missingSignals.erase(metadata->m_signalName);
+        if (numErased > 0) {
+            m_cachedMetadata.push_back(metadata);
         }
     }
-    return missingSignals;
-}
+    [[nodiscard]] bool isFulfilled() const { return m_missingSignals.empty(); }
+    [[nodiscard]] const std::set<std::string>& getMissingSignals() const {
+        return m_missingSignals;
+    }
 
-void MetadataCache::query(const std::vector<std::string>&          signalPaths,
-                          std::function<void()>                    onSuccess,
-                          std::function<void(const grpc::Status&)> onError) {
-    auto missingSignals = determineMissingSignals(signalPaths);
-    if (missingSignals.empty()) {
-        onSuccess();
-    } else {
-        m_metadataRequester->addQuery(
-            Query{std::set(missingSignals.cbegin(), missingSignals.cend()), std::move(onSuccess),
-                  std::move(onError)});
+    void notifyInitiator() {
+        assert(m_missingSignals.empty());
+        try {
+            m_successCallback(std::move(m_cachedMetadata));
+        } catch (const std::exception& e) {
+            logger().error("Exception catched while notifying metadata query success: ", e.what());
+        } catch (...) {
+            logger().error("Unknown exception catched while notifying metadata query success");
+        }
+    }
+
+    void notifyInitiator(const grpc::Status& status) {
+        try {
+            m_errorCallback(status);
+        } catch (const std::exception& e) {
+            logger().error("Exception catched while notifying metadata query error: ", e.what());
+        } catch (...) {
+            logger().error("Unknown exception catched while notifying metadata query error");
+        }
+    }
+
+private:
+    std::vector<std::shared_ptr<Metadata>>                        m_cachedMetadata;
+    std::set<std::string>                                         m_missingSignals;
+    std::function<void(std::vector<std::shared_ptr<Metadata>>&&)> m_successCallback;
+    std::function<void(const grpc::Status&)>                      m_errorCallback;
+};
+
+namespace {
+
+void notifyQueryInitiators(std::deque<Query>&& queries) {
+    for (auto& query : queries) {
+        query.notifyInitiator();
     }
 }
 
-void MetadataCache::invalidate(grpc::StatusCode statusCode) {
+void notifyQueryInitiators(std::deque<Query>&& queries, const grpc::Status& status) {
+    for (auto& query : queries) {
+        query.notifyInitiator(status);
+    }
+}
+
+} // namespace
+
+class MetadataAgentImpl {
+public:
+    explicit MetadataAgentImpl(std::shared_ptr<BrokerAsyncGrpcFacade> asyncBrokerFacade)
+        : m_asyncBrokerFacade(std::move(asyncBrokerFacade)) {}
+
+    void query(const std::vector<std::string>&                                 signalNames,
+               std::function<void(std::vector<std::shared_ptr<Metadata>>&&)>&& onSuccess,
+               std::function<void(const grpc::Status&)>&&                      onError);
+    void invalidate(grpc::StatusCode statusCode = grpc::StatusCode::UNAVAILABLE);
+
+    [[nodiscard]] std::shared_ptr<Metadata> getByNumericId(numeric_id_t numericId) const {
+        std::shared_lock lock(m_mutex);
+        return m_cache.getById(numericId);
+    }
+
+private:
+    void              addCachedMetadata(Query& query, const std::vector<std::string>& signalNames);
+    void              addQuery(Query&& query);
+    void              addSignalsToRequestQueue(const std::set<std::string>& signals);
+    void              addSignalToRequestQueue(const std::string& signalName);
+    bool              isSignalPartOfActiveRequests(const std::string& signalName) const;
+    void              triggerMetadataRequests();
+    void              updateActiveRequests(const std::shared_ptr<Request>& request);
+    std::deque<Query> updateQueriesAndExtractFulfilled(const std::shared_ptr<Metadata>& metadata);
+    std::deque<Query> extractAffectedQueries(const std::string& signalName);
+    void              cancelActiveRequests();
+
+    std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
+
+    mutable std::shared_mutex          m_mutex;
+    MetadataCache                      m_cache;
+    std::deque<Query>                  m_pendingQueries;
+    std::deque<std::string>            m_pendingSignals;
+    std::set<std::shared_ptr<Request>> m_activeRequests;
+};
+
+MetadataAgent::MetadataAgent(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade)
+    : m_pimpl(std::make_unique<MetadataAgentImpl>(asyncBrokerFacade)) {}
+
+MetadataAgent::~MetadataAgent() {}
+
+std::shared_ptr<Metadata> MetadataAgent::getByNumericId(numeric_id_t numericId) const {
+    return m_pimpl->getByNumericId(numericId);
+}
+
+void MetadataAgent::invalidate(const grpc::StatusCode& statusCode) {
+    m_pimpl->invalidate(statusCode);
+}
+
+void MetadataAgentImpl::cancelActiveRequests() {
+    for (const auto& request : m_activeRequests) {
+        request->cancel();
+    }
+}
+
+void MetadataAgentImpl::invalidate(grpc::StatusCode statusCode) {
+    logger().info("Invalidating signal metadata cache");
     std::deque<Query> openQueries;
     {
         std::unique_lock lock(m_mutex);
-        m_metadataRequester->cancelQueries(statusCode);
-        m_idMap.clear();
-        m_pathMap.clear();
+        m_cache.clear();
+        m_pendingQueries.swap(openQueries);
+        m_pendingSignals.clear();
+        cancelActiveRequests();
+    }
+    notifyQueryInitiators(std::move(openQueries), grpc::Status(statusCode, "Cache invalidation"));
+}
+
+void MetadataAgent::query(const std::vector<std::string>&                               signalNames,
+                          std::function<void(std::vector<std::shared_ptr<Metadata>>&&)> onSuccess,
+                          std::function<void(const grpc::Status&)>                      onError) {
+    m_pimpl->query(signalNames, std::move(onSuccess), std::move(onError));
+}
+
+void MetadataAgentImpl::addCachedMetadata(Query&                          query,
+                                          const std::vector<std::string>& signalNames) {
+    for (const auto& name : signalNames) {
+        if (auto metadata = m_cache.getByName(name)) {
+            query.addMetadata(metadata);
+        }
     }
 }
 
-void MetadataCache::onMetadata(const std::shared_ptr<Metadata>& metadata) {
-    assert(metadata);
-    std::unique_lock lock(m_mutex);
-    m_pathMap[metadata->m_path] = metadata;
-    if (metadata->m_isKnown) {
-        m_idMap[metadata->m_id] = metadata;
+void MetadataAgentImpl::query(
+    const std::vector<std::string>&                                 signalNames,
+    std::function<void(std::vector<std::shared_ptr<Metadata>>&&)>&& onSuccess,
+    std::function<void(const grpc::Status&)>&&                      onError) {
+
+    Query query(signalNames, std::move(onSuccess), std::move(onError));
+    {
+        std::unique_lock lock(m_mutex);
+        addCachedMetadata(query, signalNames);
+        if (!query.isFulfilled()) {
+            addQuery(std::move(query));
+            return;
+        }
     }
+    query.notifyInitiator();
+}
+
+void MetadataAgentImpl::addQuery(Query&& query) {
+    addSignalsToRequestQueue(query.getMissingSignals());
+    m_pendingQueries.push_back(std::move(query));
+    triggerMetadataRequests();
+}
+
+bool MetadataAgentImpl::isSignalPartOfActiveRequests(const std::string& signalName) const {
+    return std::any_of(
+        m_activeRequests.cbegin(), m_activeRequests.cend(),
+        [signalName](const auto& request) { return signalName == request->getSignalName(); });
+}
+
+void MetadataAgentImpl::addSignalToRequestQueue(const std::string& signalName) {
+    if (!isSignalPartOfActiveRequests(signalName) &&
+        (std::find(m_pendingSignals.cbegin(), m_pendingSignals.cend(), signalName) ==
+         m_pendingSignals.end())) {
+        m_pendingSignals.push_back(signalName);
+    }
+}
+
+void MetadataAgentImpl::addSignalsToRequestQueue(const std::set<std::string>& signals) {
+    for (const auto& signalName : signals) {
+        addSignalToRequestQueue(signalName);
+    }
+}
+
+void MetadataAgentImpl::triggerMetadataRequests() {
+    while (!m_pendingSignals.empty() && (m_activeRequests.size() < MAX_PARALLEL_REQUESTS)) {
+        m_activeRequests.insert(Request::create(
+            m_pendingSignals.front(), m_asyncBrokerFacade,
+            [this](const auto& request, const auto& metadata) {
+                assert(request && metadata);
+                std::deque<Query> fulfilledQueries;
+                {
+                    std::unique_lock lock(m_mutex);
+                    updateActiveRequests(request);
+                    if (!request->isCancelled()) {
+                        m_cache.add(metadata);
+                        fulfilledQueries = updateQueriesAndExtractFulfilled(metadata);
+                    }
+                }
+                notifyQueryInitiators(std::move(fulfilledQueries));
+            },
+            [this](const auto& request, const auto& status) {
+                assert(request);
+                std::deque<Query> affectedQueries;
+                {
+                    std::unique_lock lock(m_mutex);
+                    updateActiveRequests(request);
+                    if (!request->isCancelled()) {
+                        affectedQueries = extractAffectedQueries(request->getSignalName());
+                    }
+                }
+                notifyQueryInitiators(std::move(affectedQueries), status);
+            }));
+        m_pendingSignals.pop_front();
+    }
+}
+
+void MetadataAgentImpl::updateActiveRequests(const std::shared_ptr<Request>& request) {
+    size_t numErasedRequests = m_activeRequests.erase(request);
+    assert(numErasedRequests == 1);
+    triggerMetadataRequests();
+}
+
+std::deque<Query>
+MetadataAgentImpl::updateQueriesAndExtractFulfilled(const std::shared_ptr<Metadata>& metadata) {
+    std::deque<Query> fulfilledQueries;
+    auto              queryIter = m_pendingQueries.begin();
+    while (queryIter != m_pendingQueries.end()) {
+        queryIter->addMetadata(metadata);
+        if (queryIter->isFulfilled()) {
+            fulfilledQueries.push_back(std::move(*queryIter));
+            queryIter = m_pendingQueries.erase(queryIter);
+        } else {
+            ++queryIter;
+        }
+    }
+    return fulfilledQueries;
+}
+
+std::deque<Query> MetadataAgentImpl::extractAffectedQueries(const std::string& signalName) {
+    std::deque<Query> affectedQueries;
+    auto              queryIter = m_pendingQueries.begin();
+    while (queryIter != m_pendingQueries.end()) {
+        if (queryIter->getMissingSignals().count(signalName) > 0) {
+            affectedQueries.push_back(std::move(*queryIter));
+            queryIter = m_pendingQueries.erase(queryIter);
+        } else {
+            ++queryIter;
+        }
+    }
+    return affectedQueries;
 }
 
 } // namespace velocitas::kuksa_val_v2

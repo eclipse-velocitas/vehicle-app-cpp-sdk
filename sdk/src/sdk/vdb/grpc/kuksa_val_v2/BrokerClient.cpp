@@ -25,6 +25,7 @@
 #include "sdk/middleware/Middleware.h"
 #include "sdk/vdb/grpc/common/ChannelConfiguration.h"
 #include "sdk/vdb/grpc/kuksa_val_v2/BrokerAsyncGrpcFacade.h"
+#include "sdk/vdb/grpc/kuksa_val_v2/Metadata.h"
 #include "sdk/vdb/grpc/kuksa_val_v2/TypeConversions.h"
 
 #include <fmt/core.h>
@@ -57,12 +58,12 @@ int assertProtobufArrayLimits(size_t numElements) {
 
 } // namespace
 
-BrokerClient::BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName) {
+BrokerClient::BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName)
+    : m_asyncBrokerFacade(std::make_shared<BrokerAsyncGrpcFacade>(grpc::CreateCustomChannel(
+          vdbAddress, grpc::InsecureChannelCredentials(), getChannelArguments())))
+    , m_metadataAgent(std::make_shared<MetadataAgent>(m_asyncBrokerFacade))
+    , m_activeCalls(std::make_unique<GrpcClient>()) {
     logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
-    m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(grpc::CreateCustomChannel(
-        vdbAddress, grpc::InsecureChannelCredentials(), getChannelArguments()));
-    m_metadataStore     = std::make_shared<MetadataStore>();
-    m_activeCalls       = std::make_unique<GrpcClient>();
     Middleware::Metadata metadata = Middleware::getInstance().getMetadata(vdbServiceName);
     m_asyncBrokerFacade->setContextModifier([metadata](auto& context) {
         for (auto metadatum : metadata) {
@@ -77,37 +78,69 @@ BrokerClient::BrokerClient(const std::string& vdbServiceName)
 BrokerClient::~BrokerClient() {}
 
 AsyncResultPtr_t<DataPointReply>
-BrokerClient::getDatapoints(const std::vector<std::string>& paths) {
+BrokerClient::getDatapoints(const std::vector<std::string>& signalNames) {
     auto result = std::make_shared<AsyncResult<DataPointReply>>();
-
-    kuksa::val::v2::GetValuesRequest request;
-
-    auto& signalIds = *request.mutable_signal_ids();
-
-    signalIds.Reserve(assertProtobufArrayLimits(paths.size()));
-    for (const auto& path : paths) {
-        signalIds.Add()->set_path(path);
-    }
-
-    m_asyncBrokerFacade->GetValues(
-        std::move(request),
-        [result, paths](auto reply) {
-            const auto& dataPoints = reply.data_points();
-            if (dataPoints.size() == paths.size()) {
-                DataPointMap_t resultMap;
-                auto           path      = paths.cbegin();
-                auto           dataPoint = dataPoints.cbegin();
-                for (; path != paths.cend(); ++path, ++dataPoint) {
-                    resultMap[*path] = convertFromGrpcDataPoint(*path, *dataPoint);
+    m_metadataAgent->query(
+        signalNames,
+        [this, result](MetadataList_t&& metadataList) {
+            kuksa::val::v2::GetValuesRequest request;
+            auto&                            signalIds = *request.mutable_signal_ids();
+            signalIds.Reserve(assertProtobufArrayLimits(metadataList.size()));
+            size_t numRequestedSignals = 0;
+            for (const auto& metadata : metadataList) {
+                if (metadata->m_isKnown) {
+                    signalIds.Add()->set_id(metadata->m_id);
+                    ++numRequestedSignals;
                 }
-                result->insertResult(DataPointReply(std::move(resultMap)));
-            } else {
-                result->insertError(Status(fmt::format(
-                    "GetDatapoints: Mismatch in # returned data points (#req={}, #ret={})",
-                    paths.size(), dataPoints.size())));
             }
+            m_asyncBrokerFacade->GetValues(
+                std::move(request),
+                [result, metadataList, numRequestedSignals](auto reply) {
+                    DataPointMap_t resultMap;
+                    const auto&    dataPoints = reply.data_points();
+                    if (dataPoints.size() == numRequestedSignals) {
+                        auto dataPointIter = dataPoints.cbegin();
+                        for (const auto& metadata : metadataList) {
+                            if (metadata->m_isKnown) {
+                                assert(dataPointIter != dataPoints.cend());
+                                resultMap[metadata->m_signalName] = convertFromGrpcDataPoint(
+                                    metadata->m_signalName, *dataPointIter);
+                                ++dataPointIter;
+                            } else {
+                                resultMap[metadata->m_signalName] =
+                                    std::make_shared<DataPointValue>(
+                                        DataPointValue::Type::INVALID, metadata->m_signalName,
+                                        Timestamp{}, DataPointValue::Failure::UNKNOWN_DATAPOINT);
+                            }
+                        }
+                        result->insertResult(DataPointReply(std::move(resultMap)));
+                    } else {
+                        result->insertError(Status(fmt::format(
+                            "GetDatapoints: Mismatch in # returned data points (#req={}, #ret={})",
+                            numRequestedSignals, dataPoints.size())));
+                    }
+                },
+                [this, result, metadataList](auto status) {
+                    if (status.error_code() == grpc::StatusCode::UNAVAILABLE) {
+                        m_metadataAgent->invalidate(status.error_code());
+                        DataPointMap_t resultMap;
+                        for (const auto& metadata : metadataList) {
+                            resultMap[metadata->m_signalName] = std::make_shared<DataPointValue>(
+                                DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
+                                (metadata->m_isKnown ? DataPointValue::Failure::NOT_AVAILABLE
+                                                     : DataPointValue::Failure::UNKNOWN_DATAPOINT));
+                        }
+                        result->insertResult(DataPointReply(std::move(resultMap)));
+                    } else {
+                        result->insertError(Status(
+                            fmt::format("GetDatapoints failed: {}", status.error_message())));
+                    }
+                });
         },
-        [result](auto status) {
+        [this, result](const auto& status) {
+            if (status.error_code() == grpc::StatusCode::UNAVAILABLE) {
+                m_metadataAgent->invalidate(status.error_code());
+            }
             result->insertError(
                 Status(fmt::format("GetDatapoints failed: {}", status.error_message())));
         });
@@ -141,138 +174,12 @@ BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& 
     return result;
 }
 
-struct Metadata {
-    std::string m_path;
-    int32_t     m_id;
-    bool        m_isKnown{false};
-};
-
-class MetadataStore {
-public:
-    std::shared_ptr<Metadata> getById(int32_t id) const {
-        std::shared_lock lock(m_mutex);
-        if (auto metadata = m_idMap.find(id); metadata != m_idMap.end()) {
-            return metadata->second;
-        }
-        return {};
-    }
-
-    std::shared_ptr<Metadata> getByPath(const std::string& path) const {
-        std::shared_lock lock(m_mutex);
-        if (auto metadata = m_pathMap.find(path); metadata != m_pathMap.end()) {
-            return metadata->second;
-        }
-        return {};
-    }
-
-    void addMetadata(const std::shared_ptr<Metadata>& metadata) {
-        assert(metadata);
-        std::unique_lock lock(m_mutex);
-        m_pathMap[metadata->m_path] = metadata;
-        if (metadata->m_isKnown) {
-            m_idMap[metadata->m_id] = metadata;
-        }
-    }
-
-    void invalidate() {
-        std::unique_lock lock(m_mutex);
-        m_idMap.clear();
-        m_pathMap.clear();
-    }
-
-private:
-    mutable std::shared_mutex                        m_mutex;
-    std::map<int32_t, std::shared_ptr<Metadata>>     m_idMap;
-    std::map<std::string, std::shared_ptr<Metadata>> m_pathMap;
-};
-
 namespace {
-
 void clearUpdateStatus(DataPointMap_t& datapointMap) {
     for (const auto& [key, value] : datapointMap) {
         value->clearUpdateStatus();
     }
 }
-
-class MetadataRequester {
-public:
-    MetadataRequester(std::shared_ptr<BrokerAsyncGrpcFacade> asyncBrokerFacade,
-                      std::shared_ptr<MetadataStore>         metadataStore,
-                      std::vector<std::string> signalPaths, std::function<void()> onDone,
-                      std::function<void(grpc::Status)> onError)
-        : m_asyncBrokerFacade(std::move(asyncBrokerFacade))
-        , m_metadataStore(std::move(metadataStore))
-        , m_signalPaths(std::move(signalPaths))
-        , m_currentPath(m_signalPaths.cend())
-        , m_onDone(std::move(onDone))
-        , m_onError(std::move(onError)) {}
-
-    void getMetadata() {
-        assert(m_currentPath == m_signalPaths.cend());
-        m_currentPath = m_signalPaths.cbegin();
-        ensureMetadata();
-    }
-
-    void ensureMetadata() {
-        while (m_currentPath != m_signalPaths.cend() &&
-               m_metadataStore->getByPath(*m_currentPath)) {
-            ++m_currentPath;
-        }
-        if (m_currentPath != m_signalPaths.cend()) {
-            requestMetadata(*m_currentPath);
-        } else {
-            m_onDone();
-        }
-    }
-
-    void requestMetadata(const std::string& path) {
-        kuksa::val::v2::ListMetadataRequest request;
-        request.set_root(path);
-        m_asyncBrokerFacade->ListMetadata(
-            request,
-            [this](auto&& resp) { onMetadataResponse(std::forward<decltype(resp)>(resp)); },
-            [this](auto&& status) { onMetadataError(std::forward<decltype(status)>(status)); });
-    }
-
-    void onMetadataResponse(const kuksa::val::v2::ListMetadataResponse& response) {
-        if (response.metadata_size() == 1) {
-            m_metadataStore->addMetadata(std::make_shared<Metadata>(
-                Metadata{*m_currentPath, response.metadata(0).id(), true}));
-            getNextMetadata();
-        } else {
-            logger().error("Requesting metadata of signal '{}' results in metadata for {} signals "
-                           "returned. Assuming the signal as 'unknown'.",
-                           *m_currentPath, response.metadata_size());
-            onMetadataError(grpc::Status(grpc::StatusCode::NOT_FOUND, ""));
-        }
-    }
-
-    void onMetadataError(grpc::Status status) {
-        if (status.error_code() == grpc::StatusCode::NOT_FOUND ||
-            status.error_code() == grpc::StatusCode::PERMISSION_DENIED) {
-            m_metadataStore->addMetadata(
-                std::make_shared<Metadata>(Metadata{*m_currentPath, 0, false}));
-            getNextMetadata();
-        } else {
-            // unexpected error -> stop requesting further metadata and return error to initiator
-            m_currentPath = m_signalPaths.cend();
-            m_onError(std::move(status));
-        }
-    }
-
-    void getNextMetadata() {
-        ++m_currentPath;
-        ensureMetadata();
-    }
-
-private:
-    std::shared_ptr<BrokerAsyncGrpcFacade>   m_asyncBrokerFacade;
-    std::shared_ptr<MetadataStore>           m_metadataStore;
-    std::vector<std::string>                 m_signalPaths;
-    std::vector<std::string>::const_iterator m_currentPath;
-    std::function<void()>                    m_onDone;
-    std::function<void(grpc::Status)>        m_onError;
-};
 
 uint32_t determineSubscribeBufferSize() {
     uint32_t bufferSize = DEFAULT_SUBSCRIBE_BUFFER_SIZE;
@@ -301,37 +208,39 @@ std::string getSignalPathAbstract(const std::vector<std::string>& signalPaths) {
     return abstract;
 }
 
-// ToDo: Making this class a GrpcCall to store active subscriptions is a bit "quick & dirty".
-// Please check for better solution before merging to main!
+// ToDo: Making this class a GrpcCall to store active subscriptions is a bit "quick &
+// dirty". Please check for a better solution!
 class SubscriptionHandler : public GrpcCall {
 public:
     SubscriptionHandler(std::shared_ptr<BrokerAsyncGrpcFacade> asyncBrokerFacade,
-                        std::shared_ptr<MetadataStore>         metadataStore,
+                        std::shared_ptr<MetadataAgent>         metadataAgent,
                         std::vector<std::string>               signalPaths)
         : m_asyncBrokerFacade(std::move(asyncBrokerFacade))
-        , m_metadataStore(std::move(metadataStore))
+        , m_metadataAgent(std::move(metadataAgent))
         , m_signalPaths(std::move(signalPaths))
         , m_subscription(std::make_shared<AsyncSubscription<DataPointReply>>())
-        , m_datapointUpdates(std::make_shared<DataPointMap_t>()) {
-        m_metadataRequester = std::make_unique<MetadataRequester>(
-            m_asyncBrokerFacade, m_metadataStore, m_signalPaths, [this] { onMetadataPresent(); },
-            [this](auto&& status) { onError(std::forward<decltype(status)>(status)); });
+        , m_datapointUpdates(std::make_shared<DataPointMap_t>()) {}
+
+    void subscribe() {
+        m_metadataAgent->query(
+            m_signalPaths,
+            [this](auto&& metadataList) {
+                onMetadataPresent(std::forward<decltype(metadataList)>(metadataList));
+            },
+            [this](const auto& status) { onError(std::forward<decltype(status)>(status)); });
     }
 
-    void subscribe() { m_metadataRequester->getMetadata(); }
-
-    void onMetadataPresent() {
+    void onMetadataPresent(MetadataList_t&& metadataList) {
         kuksa::val::v2::SubscribeByIdRequest request;
         if (getSubscribeBufferSize() != DEFAULT_SUBSCRIBE_BUFFER_SIZE) {
             request.set_buffer_size(getSubscribeBufferSize());
         }
-        for (const auto& path : m_signalPaths) {
-            auto metadata = m_metadataStore->getByPath(path);
+        for (const auto& metadata : metadataList) {
             if (metadata->m_isKnown) {
                 request.add_signal_ids(metadata->m_id);
             } else {
-                (*m_datapointUpdates)[path] = std::make_shared<DataPointValue>(
-                    DataPointValue::Type::INVALID, path, Timestamp{},
+                (*m_datapointUpdates)[metadata->m_signalName] = std::make_shared<DataPointValue>(
+                    DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
                     DataPointValue::Failure::UNKNOWN_DATAPOINT);
             }
         }
@@ -347,11 +256,11 @@ public:
         resetResubscribeDelay();
         const auto fieldsMap = update.entries();
         for (const auto& [id, dataPoint] : fieldsMap) {
-            auto metadata = m_metadataStore->getById(id);
+            auto metadata = m_metadataAgent->getByNumericId(id);
             if (metadata) {
-                const auto& path            = metadata->m_path;
-                (*m_datapointUpdates)[path] = convertFromGrpcDataPoint(path, dataPoint);
-                logger().debug("onSubscriptionUpdate: signal id={}, path={} received.", id, path);
+                const auto& name            = metadata->m_signalName;
+                (*m_datapointUpdates)[name] = convertFromGrpcDataPoint(name, dataPoint);
+                logger().debug("onSubscriptionUpdate: signal id={}, path={} received.", id, name);
             } else {
                 logger().error("onSubscriptionUpdate: Unknown signal id={} received.", id);
             }
@@ -364,10 +273,10 @@ public:
         switch (status.error_code()) {
         case grpc::StatusCode::OK:
         case grpc::StatusCode::UNAVAILABLE:
-            // The databroker ended the connection or became unavailable. This is most probably a
-            // temporary error, so we try to subscribe again
+            // The databroker ended the connection or became unavailable. This is most
+            // probably a temporary error, so we try to subscribe again
             logger().warn("Connection to databroker lost or failed");
-            m_metadataStore->invalidate();
+            m_metadataAgent->invalidate();
             if (invalidateDataPointValues()) {
                 m_subscription->insertNewItem(DataPointReply(DataPointMap_t(*m_datapointUpdates)));
                 clearUpdateStatus(*m_datapointUpdates);
@@ -443,9 +352,8 @@ public:
 
 private:
     std::shared_ptr<BrokerAsyncGrpcFacade>             m_asyncBrokerFacade;
-    std::shared_ptr<MetadataStore>                     m_metadataStore;
+    std::shared_ptr<MetadataAgent>                     m_metadataAgent;
     std::vector<std::string>                           m_signalPaths;
-    std::unique_ptr<MetadataRequester>                 m_metadataRequester;
     std::shared_ptr<AsyncSubscription<DataPointReply>> m_subscription;
     std::shared_ptr<DataPointMap_t>                    m_datapointUpdates;
     std::shared_ptr<GrpcCall>                          m_grpcSubscriptionCall;
@@ -457,7 +365,7 @@ private:
 AsyncSubscriptionPtr_t<DataPointReply> BrokerClient::subscribe(const std::string& query) {
     auto signalPaths         = parseQuery(query);
     auto subscriptionHandler = std::make_shared<SubscriptionHandler>(
-        m_asyncBrokerFacade, m_metadataStore, std::move(signalPaths));
+        m_asyncBrokerFacade, m_metadataAgent, std::move(signalPaths));
     m_activeCalls->addActiveCall(subscriptionHandler);
     subscriptionHandler->subscribe();
     return subscriptionHandler->getSubscription();

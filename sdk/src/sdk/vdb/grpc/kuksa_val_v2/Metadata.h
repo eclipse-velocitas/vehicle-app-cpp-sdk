@@ -20,15 +20,19 @@
 #include <grpcpp/support/status_code_enum.h>
 
 #include <cstdint>
-#include <deque>
 #include <functional>
-#include <map>
 #include <memory>
-#include <shared_mutex>
 #include <string>
 #include <vector>
 
+namespace grpc {
+class Status;
+}
+
 namespace velocitas::kuksa_val_v2 {
+
+/** Numeric id type as used by the KUKSA Databroker for referencing signals */
+using numeric_id_t = int32_t;
 
 struct Metadata {
     // enum class State {
@@ -40,39 +44,63 @@ struct Metadata {
     // };
 
     // State       m_state{State::NOT_YET_GAINED};
-    std::string m_path;
-    int32_t     m_id{0};
-    bool        m_isKnown{false};
+    std::string  m_signalName;
+    numeric_id_t m_id{0};
+    bool         m_isKnown{false};
 };
 
+using MetadataPtr_t  = std::shared_ptr<Metadata>;
+using MetadataList_t = std::vector<MetadataPtr_t>;
+
+using SignalNameList_t = std::vector<std::string>;
+
 class BrokerAsyncGrpcFacade;
-class MetadataRequester;
+class MetadataAgentImpl;
 
 /**
- * Provides the Graph API to access vehicle signals via the kuksa.val.v2 API
+ * Provides access to (VSS) metadata hosted by the KUKSA Databroker.
+ *
+ * Maintaines a cache of previously returned metadata from the databroker.
  */
-class MetadataCache {
+class MetadataAgent {
 public:
-    explicit MetadataCache(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade);
+    explicit MetadataAgent(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade);
+    ~MetadataAgent();
 
-    void query(const std::vector<std::string>& signalPaths, std::function<void()> onSuccess,
+    /**
+     * @brief Asynchronously provides metadata for the passed set of signals.
+     *
+     * @param signalNames List of signal names to provide metadata for
+     * @param onSuccess This function is called once metadata for all requested signals is present.
+     * Be aware, that this can either happen immediately - i.e. before returning from this call - if
+     * all required signals are already present in the internal cache!
+     * @param onError This function is called if metadata not for all required signals can be
+     * gained, i.e. an unexpected error is occuring or the cache is invalidated while waiting for
+     * the requested metadata.
+     */
+    void query(const SignalNameList_t& signalNames, std::function<void(MetadataList_t&&)> onSuccess,
                std::function<void(const grpc::Status&)> onError);
-    void invalidate(grpc::StatusCode statusCode = grpc::StatusCode::UNAVAILABLE);
 
-    std::shared_ptr<Metadata> getById(int32_t id) const;
-    std::shared_ptr<Metadata> getByPath(const std::string& path) const;
+    /**
+     * @brief Invalidates the cached metadata. This needs to be called by clients when they get
+     * aware that the databroker was restarted.
+     *
+     * @param statusCode
+     */
+    void invalidate(const grpc::StatusCode& statusCode = grpc::StatusCode::UNAVAILABLE);
+
+    /**
+     * @brief Get metadata of a signal reference by its numeric id.
+     *
+     * @param mumericId Session-related (i.e. temporary) numeric id used by the databroker to
+     * reference a signal (besides its non-temporary path/name)
+     * @return std::shared_ptr<Metadata> Points to the metadata referenced by the numeric id. A
+     * nullptr is returned if the passed id is unknown.
+     */
+    [[nodiscard]] MetadataPtr_t getByNumericId(numeric_id_t mumericId) const;
 
 private:
-    void onMetadata(const std::shared_ptr<Metadata>& metadata);
-    bool isPresent(const std::string& path) const;
-    std::deque<std::string>
-    determineMissingSignals(const std::vector<std::string>& signalPaths) const;
-
-    const std::unique_ptr<MetadataRequester> m_metadataRequester;
-
-    mutable std::shared_mutex                        m_mutex;
-    std::map<int32_t, std::shared_ptr<Metadata>>     m_idMap;
-    std::map<std::string, std::shared_ptr<Metadata>> m_pathMap;
+    std::unique_ptr<MetadataAgentImpl> m_pimpl;
 };
 
 } // namespace velocitas::kuksa_val_v2
