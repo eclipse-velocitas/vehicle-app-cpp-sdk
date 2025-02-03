@@ -18,8 +18,6 @@
 
 #include "sdk/Logger.h"
 
-#include <fmt/core.h>
-
 #include <cassert>
 #include <string>
 

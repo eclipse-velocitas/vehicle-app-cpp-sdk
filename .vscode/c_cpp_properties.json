@@ -3,9 +3,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/sdk/include"
+                "${workspaceFolder}/sdk/include",
+                "/home/vscode/.conan2/p/b",
+                "/home/vscode/.conan2/p/b/fmt96be83f684756/p/include"
             ],
-            "defines": [ ],
+            "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "c++11",

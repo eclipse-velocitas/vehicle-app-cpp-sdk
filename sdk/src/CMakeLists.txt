@@ -13,7 +13,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set(TARGET_NAME "vehicle-app-sdk")
+
 find_package(fmt REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(absl REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(PahoMqttCpp REQUIRED)
+find_package(eclipse-paho-mqtt-c REQUIRED)
+
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp
     sdk/Model.cpp
@@ -43,10 +51,19 @@ add_library(${TARGET_NAME}
     sdk/vdb/grpc/sdv_databroker_v1/BrokerClient.cpp
     sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.cpp
 )
+#message("FMT_INcludedir:${fmt_INCLUDE_DIR}")
+
 include_directories(
     ${CMAKE_BINARY_DIR}/gens
     ../include
     .
+    ${fmt_INCLUDE_DIR}
+    ${nlohmann_json_INCLUDE_DIR}
+    ${gRPC_INCLUDE_DIR}
+    ${absl_INCLUDE_DIR}
+    ${protobuf_INCLUDE_DIR}
+    ${PahoMqttCpp_INCLUDE_DIR}
+    ${eclipse-paho-mqtt-c_INCLUDE_DIR}
 )
 
     # find_package(cpr)
@@ -54,8 +71,6 @@ include_directories(
     # find_package(gRPC)
     # find_package(grpc-proto)
     # find_package(nlohmann_json)
-    # find_package(PahoMqttCpp)
-    # find_package(eclipse-paho-mqtt-c)
     # find_package(protobuf)
     # find_package(ZLIB)
 

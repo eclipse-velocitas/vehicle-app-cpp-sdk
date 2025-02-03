@@ -19,12 +19,6 @@ from conan.tools.files import copy
 import subprocess
 import os
 import re
-import subprocess
-
-from conan.tools.cmake import cmake_layout
-from conans import ConanFile, tools
-
-
 
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
@@ -36,28 +30,12 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
         ("abseil/20240116.2"),
-        ("bzip2/1.0.8"),
-        ("c-ares/1.34.1"),
-        ("cpr/1.11.0"),
-        ("fmt/11.0.2"),
+        ("fmt/11.1.1"),
         ("grpc/1.67.1"),
-        ("libcap/2.69"),
-        ("libcurl/8.10.1"),
-        ("libmount/2.39.2"),
-        ("libselinux/3.6"),
-        ("libsystemd/255.10"),
-        ("libxcrypt/4.4.36"),
-        ("lz4/1.9.4"),
         ("nlohmann_json/3.11.3"),
-        ("openssl/3.3.2"),
         ("paho-mqtt-c/1.3.13"),
         ("paho-mqtt-cpp/1.4.0"),
-        ("pcre2/10.42"),
-        ("protobuf/5.27.0"),
-        ("re2/20230301"),
-        ("xz_utils/5.4.5"),
         ("zlib/1.3.1"),
-        ("zstd/1.5.5"),
     ]
     generators = "CMakeToolchain","CMakeDeps"
     author = "Robert Bosch GmbH"
@@ -124,9 +102,10 @@ class VehicleAppCppSdkConan(ConanFile):
             f"cd .. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
 
     def package(self):
-        self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
-        self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
+        subprocess.call("pwd", shell=True)
+        copy(self, "*.h", src="../sdk/include", dst="include", keep_path=True)
+        copy(self, "*.h", src="../build/gens", dst="include", keep_path=True)
+        copy(self, "*.a", src="../build/lib", dst="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.includedirs = ["include"]
