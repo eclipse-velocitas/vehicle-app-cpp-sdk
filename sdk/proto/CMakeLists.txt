@@ -13,10 +13,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 file(GLOB_RECURSE PROTO_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.proto)
-set(CMAKE_FIND_DEBUG_MODE 1)
+
+message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
+message("CMAKE_PREFIX_PATH: " ${CMAKE_PREFIX_PATH})
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
-find_package(absl REQUIRED)
+#find_package(absl REQUIRED)
 
 find_program(_gRPC_PROTOBUF_PROTOC_EXECUTABLE protoc REQUIRED
 PATHS ${protobuf_INCLUDE_DIR}/../bin

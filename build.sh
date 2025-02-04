@@ -128,18 +128,18 @@ mkdir -p build && cd build
 # is generated and holds these paths. This allows us to always use the protoc and grpc cpp plugin
 # of the build system.
 BUILD_TOOLS_PATH=""
-CONAN_BUILD_TOOLS_PATHS=$(sed '/^PATH=/!d;s/PATH=//g;s/,/\n/g' ./conanbuildinfo.txt | tr -d '[]'\" )
-while read -r p; do
-  if [[ ! -z "${p// }" ]]; then
-    BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"
-  fi
-done < <(echo "$CONAN_BUILD_TOOLS_PATHS")
+# CONAN_BUILD_TOOLS_PATHS=$(sed '/^PATH=/!d;s/PATH=//g;s/,/\n/g' ./conanbuildinfo.txt | tr -d '[]'\" )
+# while read -r p; do
+#   if [[ ! -z "${p// }" ]]; then
+#     BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"
+#   fi
+# done < <(echo "$CONAN_BUILD_TOOLS_PATHS")
 
 XCOMPILE_TOOLCHAIN_FILE=""
-if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
-  echo "Setting up cross compilation toolchain..."
-  XCOMPILE_TOOLCHAIN_FILE="-DCMAKE_TOOLCHAIN_FILE=../cmake/${BUILD_ARCH}_to_${HOST_ARCH}.cmake"
-fi
+# if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
+#   echo "Setting up cross compilation toolchain..."
+#   XCOMPILE_TOOLCHAIN_FILE="-DCMAKE_TOOLCHAIN_FILE=../cmake/${BUILD_ARCH}_to_${HOST_ARCH}.cmake"
+# fi
 
 # Configure CMake and build the project.
 cmake --no-warn-unused-cli \
@@ -152,7 +152,7 @@ cmake --no-warn-unused-cli \
   -B../build \
   -G Ninja \
   -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-  -DBUILD_TOOLS_PATH:STRING="${BUILD_TOOLS_PATH}" \
-  ${XCOMPILE_TOOLCHAIN_FILE} ..
+  -DCMAKE_TOOLCHAIN_FILE="/workspaces/vehicle-app-cpp-sdk/build/Debug/generators/conan_toolchain.cmake" \
+  ..
 cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} --
 cd ..

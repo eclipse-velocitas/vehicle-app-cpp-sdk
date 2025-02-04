@@ -12,13 +12,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from conan import ConanFile
-from conan.tools.layout import basic_layout
-from conan.tools.cmake import cmake_layout
-from conan.tools.files import copy
-import subprocess
 import os
 import re
+import subprocess
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy
+
 
 class VehicleAppCppSdkConan(ConanFile):
     name = "vehicle-app-sdk"
@@ -37,34 +38,75 @@ class VehicleAppCppSdkConan(ConanFile):
         ("paho-mqtt-cpp/1.4.0"),
         ("zlib/1.3.1"),
     ]
-    generators = "CMakeToolchain","CMakeDeps"
+    # generators = "CMakeToolchain","CMakeDeps"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "STATIC_BUILD": [True, False],
+        "SDK_BUILD_EXAMPLES": [True, False],
+        "SDK_BUILD_TESTS": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "STATIC_BUILD": False,
+        "SDK_BUILD_EXAMPLES": False,
+        "SDK_BUILD_TESTS": False,
+    }
 
     exports = "version.txt"
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
+    exports_sources = (
+        ".scripts/common.sh",
+        "build.sh",
+        "install_dependencies.sh",
+        "CMakeLists.txt",
+        "sdk/*",
+        "examples/*",
+        "conanfile.py",
+        ".conan/profiles/*",
+        "version.txt",
+    )
 
     def set_version(self):
         try:
-            tag = subprocess.run(["git", "tag", "--points-at", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
-            version=""
+            tag = (
+                subprocess.run(
+                    ["git", "tag", "--points-at", "HEAD"], capture_output=True
+                )
+                .stdout.strip()
+                .decode("utf-8")
+            )
+            version = ""
             if tag:
                 version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
                 if version_tag_pattern.match(tag):
-                    tag = tag[1:] # cut off initial v if a semver tag
+                    tag = tag[1:]  # cut off initial v if a semver tag
                 version = tag
 
             # if no tag, use branch name or commit hash
             if not version:
-                version = subprocess.run(["git", "symbolic-ref", "-q", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+                version = (
+                    subprocess.run(
+                        ["git", "symbolic-ref", "-q", "--short", "HEAD"],
+                        capture_output=True,
+                    )
+                    .stdout.strip()
+                    .decode("utf-8")
+                )
             if not version:
-                version = subprocess.run(["git", "rev-parse", "--short", "HEAD"],capture_output=True).stdout.strip().decode("utf-8")
+                version = (
+                    subprocess.run(
+                        ["git", "rev-parse", "--short", "HEAD"], capture_output=True
+                    )
+                    .stdout.strip()
+                    .decode("utf-8")
+                )
 
             # / is not allowed in conan version
             version = version.replace("/", ".")
@@ -77,46 +119,58 @@ class VehicleAppCppSdkConan(ConanFile):
             else:
                 raise FileNotFoundError("Missing version.txt!")
 
-
     def config_options(self):
-        if self.settings.os == "Linux":
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def layout(self):
-        basic_layout(self, src_folder="sdk")
+        # basic_layout(self, src_folder="sdk")
+        cmake_layout(self, src_folder=".")
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    # def source(self):
+    #     get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        #tc = CMakeToolchain(self)
-        # tc.generate()
-        # commented out since we rely on our build script to set up cmake
-        pass
+        # This generates "conan_toolchain.cmake" in self.generators_folder
+        tc = CMakeToolchain(self, generator="Ninja")
+        tc.absolute_paths = True
+        tc.cache_variables["STATIC_BUILD"] = self.options.STATIC_BUILD
+        tc.cache_variables["SDK_BUILD_EXAMPLES"] = self.options.SDK_BUILD_EXAMPLES
+        tc.cache_variables["SDK_BUILD_TESTS"] = self.options.SDK_BUILD_TESTS
+        tc.generate()
+
+        # This generates "foo-config.cmake" and "bar-config.cmake" in self.generators_folder
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
-        build_type = self.settings.get_safe(
-            "build_type", default="Release").lower()
-        option = "-r" if build_type == "release" else "-d"
-        subprocess.call(
-            f"cd .. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
+        # build_type = self.settings.get_safe("build_type", default="Release").lower()
+        # option = "-r" if build_type == "release" else "-d"
+        # print(f"env: {os.environ}")
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+        # subprocess.call(
+        #    f"cd .. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True, env=os.environ)
 
     def package(self):
         subprocess.call("pwd", shell=True)
         copy(self, "*.h", src="../sdk/include", dst="include", keep_path=True)
         copy(self, "*.h", src="../build/gens", dst="include", keep_path=True)
         copy(self, "*.a", src="../build/lib", dst="lib", keep_path=False)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.includedirs = ["include"]
         self.cpp_info.libdirs = ["lib"]
         self.cpp_info.bindirs = ["bin"]
-        self.cpp_info.libs = ["vehicle-app-sdk",
-                              "vehicle-app-sdk-generated-grpc"]
+        self.cpp_info.builddirs = ["cmake"]
+        self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
 
     def imports(self):
-        self.copy("license*", src=".", dst="./licenses",
-                  folder=True, ignore_case=True)
+        self.copy("license*", src=".", dst="./licenses", folder=True, ignore_case=True)
 
     def build_requirements(self):
         # 'build' context (protoc.exe will be available)

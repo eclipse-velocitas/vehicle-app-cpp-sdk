@@ -117,4 +117,4 @@ conan install \
     -pr:a .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \
-    -of ./build .
+    .

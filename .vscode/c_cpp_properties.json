@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/sdk/include",
                 "/home/vscode/.conan2/p/b",
-                "/home/vscode/.conan2/p/b/fmt96be83f684756/p/include"
+                "/home/vscode/.conan2/p/b/*/p/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
