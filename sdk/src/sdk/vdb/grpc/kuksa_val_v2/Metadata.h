@@ -78,8 +78,9 @@ public:
      * gained, i.e. an unexpected error is occuring or the cache is invalidated while waiting for
      * the requested metadata.
      */
-    void query(const SignalNameList_t& signalNames, std::function<void(MetadataList_t&&)> onSuccess,
-               std::function<void(const grpc::Status&)> onError);
+    void query(const SignalNameList_t&                    signalNames,
+               std::function<void(MetadataList_t&&)>&&    onSuccess,
+               std::function<void(const grpc::Status&)>&& onError);
 
     /**
      * @brief Invalidates the cached metadata. This needs to be called by clients when they get
@@ -94,7 +95,7 @@ public:
      *
      * @param mumericId Session-related (i.e. temporary) numeric id used by the databroker to
      * reference a signal (besides its non-temporary path/name)
-     * @return std::shared_ptr<Metadata> Points to the metadata referenced by the numeric id. A
+     * @return MetadataPtr_t Points to the metadata referenced by the numeric id. A
      * nullptr is returned if the passed id is unknown.
      */
     [[nodiscard]] MetadataPtr_t getByNumericId(numeric_id_t mumericId) const;

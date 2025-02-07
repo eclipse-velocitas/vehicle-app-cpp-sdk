@@ -33,7 +33,6 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
-#include <deque>
 #include <limits>
 #include <shared_mutex>
 #include <stdexcept>
@@ -95,46 +94,11 @@ BrokerClient::getDatapoints(const std::vector<std::string>& signalNames) {
             }
             m_asyncBrokerFacade->GetValues(
                 std::move(request),
-                [result, metadataList, numRequestedSignals](auto reply) {
-                    DataPointMap_t resultMap;
-                    const auto&    dataPoints = reply.data_points();
-                    if (dataPoints.size() == numRequestedSignals) {
-                        auto dataPointIter = dataPoints.cbegin();
-                        for (const auto& metadata : metadataList) {
-                            if (metadata->m_isKnown) {
-                                assert(dataPointIter != dataPoints.cend());
-                                resultMap[metadata->m_signalName] = convertFromGrpcDataPoint(
-                                    metadata->m_signalName, *dataPointIter);
-                                ++dataPointIter;
-                            } else {
-                                resultMap[metadata->m_signalName] =
-                                    std::make_shared<DataPointValue>(
-                                        DataPointValue::Type::INVALID, metadata->m_signalName,
-                                        Timestamp{}, DataPointValue::Failure::UNKNOWN_DATAPOINT);
-                            }
-                        }
-                        result->insertResult(DataPointReply(std::move(resultMap)));
-                    } else {
-                        result->insertError(Status(fmt::format(
-                            "GetDatapoints: Mismatch in # returned data points (#req={}, #ret={})",
-                            numRequestedSignals, dataPoints.size())));
-                    }
+                [this, result, metadataList, numRequestedSignals](auto response) {
+                    onGetValuesResponse(response, metadataList, numRequestedSignals, result);
                 },
                 [this, result, metadataList](auto status) {
-                    if (status.error_code() == grpc::StatusCode::UNAVAILABLE) {
-                        m_metadataAgent->invalidate(status.error_code());
-                        DataPointMap_t resultMap;
-                        for (const auto& metadata : metadataList) {
-                            resultMap[metadata->m_signalName] = std::make_shared<DataPointValue>(
-                                DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
-                                (metadata->m_isKnown ? DataPointValue::Failure::NOT_AVAILABLE
-                                                     : DataPointValue::Failure::UNKNOWN_DATAPOINT));
-                        }
-                        result->insertResult(DataPointReply(std::move(resultMap)));
-                    } else {
-                        result->insertError(Status(
-                            fmt::format("GetDatapoints failed: {}", status.error_message())));
-                    }
+                    onGetValuesError(status, metadataList, result);
                 });
         },
         [this, result](const auto& status) {
@@ -145,6 +109,52 @@ BrokerClient::getDatapoints(const std::vector<std::string>& signalNames) {
                 Status(fmt::format("GetDatapoints failed: {}", status.error_message())));
         });
     return result;
+}
+
+void BrokerClient::onGetValuesResponse(const kuksa::val::v2::GetValuesResponse& response,
+                                       const MetadataList_t&                    metadataList,
+                                       const size_t                             numRequestedSignals,
+                                       const AsyncResultPtr_t<DataPointReply>&  result) {
+    DataPointMap_t resultMap;
+    const auto&    dataPoints = response.data_points();
+    if (dataPoints.size() == numRequestedSignals) {
+        auto dataPointIter = dataPoints.cbegin();
+        for (const auto& metadata : metadataList) {
+            if (metadata->m_isKnown) {
+                assert(dataPointIter != dataPoints.cend());
+                resultMap[metadata->m_signalName] =
+                    convertFromGrpcDataPoint(metadata->m_signalName, *dataPointIter);
+                ++dataPointIter;
+            } else {
+                resultMap[metadata->m_signalName] = std::make_shared<DataPointValue>(
+                    DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
+                    DataPointValue::Failure::UNKNOWN_DATAPOINT);
+            }
+        }
+        result->insertResult(DataPointReply(std::move(resultMap)));
+    } else {
+        result->insertError(Status(fmt::format("GetDatapoints: Mismatch in # returned data "
+                                               "points (#req={}, #ret={})",
+                                               numRequestedSignals, dataPoints.size())));
+    }
+}
+
+void BrokerClient::onGetValuesError(const grpc::Status& status, const MetadataList_t& metadataList,
+                                    const AsyncResultPtr_t<DataPointReply>& result) {
+    if (status.error_code() == grpc::StatusCode::UNAVAILABLE) {
+        m_metadataAgent->invalidate(status.error_code());
+        DataPointMap_t resultMap;
+        for (const auto& metadata : metadataList) {
+            resultMap[metadata->m_signalName] = std::make_shared<DataPointValue>(
+                DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
+                (metadata->m_isKnown ? DataPointValue::Failure::NOT_AVAILABLE
+                                     : DataPointValue::Failure::UNKNOWN_DATAPOINT));
+        }
+        result->insertResult(DataPointReply(std::move(resultMap)));
+    } else {
+        result->insertError(
+            Status(fmt::format("GetDatapoints failed: {}", status.error_message())));
+    }
 }
 
 AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t>
@@ -166,10 +176,15 @@ BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& 
         std::move(batchRequest),
         [result](const kuksa::val::v2::BatchActuateResponse& reply) {
             // Everything went fine, return empty map
+            result->insertResult(SetErrorMap_t());
         },
-        [result](auto status) {
+        [this, result](auto status) {
+            if (status.error_code() == grpc::StatusCode::UNAVAILABLE) {
+                m_metadataAgent->invalidate(status.error_code());
+            }
             result->insertError(
-                Status(fmt::format("SetDatapoints failed: {}", status.error_message())));
+                Status(fmt::format("SetDatapoints failed: {} --- Error details: {}",
+                                   status.error_message(), status.error_details())));
         });
     return result;
 }
