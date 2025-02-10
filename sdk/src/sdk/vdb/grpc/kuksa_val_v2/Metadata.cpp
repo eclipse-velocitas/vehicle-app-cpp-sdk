@@ -38,11 +38,11 @@ const unsigned int MAX_PARALLEL_REQUESTS{5};
 class Request {
 public:
     static std::shared_ptr<Request>
-    create(const std::string&                                                           signalName,
+    create(const std::string&                                                           signalPath,
            std::function<void(const std::shared_ptr<Request>&, const MetadataPtr_t&)>&& onMetadata,
            std::function<void(const std::shared_ptr<Request>&, const grpc::Status&)>&&  onError) {
         auto request = std::shared_ptr<Request>(
-            new Request(signalName, std::move(onMetadata), std::move(onError)));
+            new Request(signalPath, std::move(onMetadata), std::move(onError)));
         request->setThisPtr(request);
         return request;
     }
@@ -56,7 +56,7 @@ public:
                 thisPtr->onError(grpc::Status(grpc::StatusCode::CANCELLED, ""));
             } else {
                 kuksa::val::v2::ListMetadataRequest request;
-                request.set_root(thisPtr->m_signalName);
+                request.set_root(thisPtr->m_signalPath);
                 brokerFacade->ListMetadata(
                     std::move(request),
                     [thisPtr](const auto& response) {
@@ -71,13 +71,13 @@ public:
 
     void                             cancel() { m_isCancelled = true; }
     [[nodiscard]] bool               isCancelled() const { return m_isCancelled; }
-    [[nodiscard]] const std::string& getSignalName() const { return m_signalName; }
+    [[nodiscard]] const std::string& getSignalPath() const { return m_signalPath; }
 
 private:
-    Request(std::string                                                                  signalName,
+    Request(std::string                                                                  signalPath,
             std::function<void(const std::shared_ptr<Request>&, const MetadataPtr_t&)>&& onMetadata,
             std::function<void(const std::shared_ptr<Request>&, const grpc::Status&)>&&  onError)
-        : m_signalName(std::move(signalName))
+        : m_signalPath(std::move(signalPath))
         , m_metadataCallback(std::move(onMetadata))
         , m_errorCallback(std::move(onError)) {}
 
@@ -89,19 +89,19 @@ private:
             if (response.metadata_size() == 1) {
                 m_metadataCallback(getThisPtr(),
                                    std::make_shared<Metadata>(
-                                       Metadata{m_signalName, response.metadata(0).id(), true}));
+                                       Metadata{m_signalPath, response.metadata(0).id(), true}));
             } else {
                 if (response.metadata_size() == 0) {
                     logger().warn("Databroker returned empty metadata list for {} -> "
                                   "assuming signal as 'unknown'",
-                                  m_signalName);
+                                  m_signalPath);
                 } else {
                     logger().warn("Databroker returned multiple metadata entries for {} -> "
                                   "assuming signal as 'unknown'",
-                                  m_signalName);
+                                  m_signalPath);
                 }
                 m_metadataCallback(getThisPtr(),
-                                   std::make_shared<Metadata>(Metadata{m_signalName, 0, false}));
+                                   std::make_shared<Metadata>(Metadata{m_signalPath, 0, false}));
             }
         } else {
             m_errorCallback(getThisPtr(), grpc::Status(grpc::StatusCode::CANCELLED, ""));
@@ -113,7 +113,7 @@ private:
             if (status.error_code() == grpc::StatusCode::NOT_FOUND ||
                 status.error_code() == grpc::StatusCode::PERMISSION_DENIED) {
                 m_metadataCallback(getThisPtr(),
-                                   std::make_shared<Metadata>(Metadata{m_signalName, 0, false}));
+                                   std::make_shared<Metadata>(Metadata{m_signalPath, 0, false}));
             } else {
                 m_errorCallback(getThisPtr(), status);
             }
@@ -122,7 +122,7 @@ private:
         }
     }
 
-    const std::string                                                          m_signalName;
+    const std::string                                                          m_signalPath;
     std::weak_ptr<Request>                                                     m_this;
     std::atomic<bool>                                                          m_isCancelled{false};
     std::function<void(const std::shared_ptr<Request>&, const MetadataPtr_t&)> m_metadataCallback;
@@ -133,23 +133,23 @@ class MetadataCache {
 public:
     void add(const MetadataPtr_t& metadata) {
         assert(metadata);
-        m_nameMap[metadata->m_signalName] = metadata;
+        m_pathMap[metadata->m_signalPath] = metadata;
         if (metadata->m_isKnown) {
             m_idMap[metadata->m_id] = metadata;
         }
     }
 
     void clear() {
-        m_nameMap.clear();
+        m_pathMap.clear();
         m_idMap.clear();
     }
 
-    [[nodiscard]] bool isPresent(const std::string& signalName) const {
-        return (m_nameMap.find(signalName) != m_nameMap.cend());
+    [[nodiscard]] bool isPresent(const std::string& signalPath) const {
+        return (m_pathMap.find(signalPath) != m_pathMap.cend());
     }
 
-    [[nodiscard]] MetadataPtr_t getByName(const std::string& signalName) const {
-        if (auto metadata = m_nameMap.find(signalName); metadata != m_nameMap.end()) {
+    [[nodiscard]] MetadataPtr_t getByPath(const std::string& signalPath) const {
+        if (auto metadata = m_pathMap.find(signalPath); metadata != m_pathMap.end()) {
             return metadata->second;
         }
         return {};
@@ -163,23 +163,23 @@ public:
     }
 
 private:
-    std::map<std::string, MetadataPtr_t>  m_nameMap;
+    std::map<std::string, MetadataPtr_t>  m_pathMap;
     std::map<numeric_id_t, MetadataPtr_t> m_idMap;
 };
 
 class Query {
 public:
-    Query(const SignalNameList_t&                    signalNames,
+    Query(const SignalPathList_t&                    signalPaths,
           std::function<void(MetadataList_t&&)>&&    successCallback,
           std::function<void(const grpc::Status&)>&& errorCallback)
-        : m_missingSignals(signalNames.cbegin(), signalNames.cend())
+        : m_missingSignals(signalPaths.cbegin(), signalPaths.cend())
         , m_successCallback(std::move(successCallback))
         , m_errorCallback(std::move(errorCallback)) {
-        m_cachedMetadata.reserve(signalNames.size());
+        m_cachedMetadata.reserve(signalPaths.size());
     }
 
     void addMetadata(const MetadataPtr_t& metadata) {
-        auto numErased = m_missingSignals.erase(metadata->m_signalName);
+        auto numErased = m_missingSignals.erase(metadata->m_signalPath);
         if (numErased > 0) {
             m_cachedMetadata.push_back(metadata);
         }
@@ -236,7 +236,7 @@ public:
     explicit MetadataAgentImpl(std::shared_ptr<BrokerAsyncGrpcFacade> asyncBrokerFacade)
         : m_asyncBrokerFacade(std::move(asyncBrokerFacade)) {}
 
-    void query(const SignalNameList_t&                    signalNames,
+    void query(const SignalPathList_t&                    signalPaths,
                std::function<void(MetadataList_t&&)>&&    onSuccess,
                std::function<void(const grpc::Status&)>&& onError) override;
     void invalidate(grpc::StatusCode statusCode) override;
@@ -247,15 +247,15 @@ public:
     }
 
 private:
-    void              addCachedMetadata(Query& query, const SignalNameList_t& signalNames);
+    void              addCachedMetadata(Query& query, const SignalPathList_t& signalPaths);
     void              addQuery(Query&& query);
     void              addSignalsToRequestQueue(const std::set<std::string>& signals);
-    void              addSignalToRequestQueue(const std::string& signalName);
-    bool              isSignalPartOfActiveRequests(const std::string& signalName) const;
+    void              addSignalToRequestQueue(const std::string& signalPath);
+    bool              isSignalPartOfActiveRequests(const std::string& signalPath) const;
     void              triggerMetadataRequests();
     void              updateActiveRequests(const std::shared_ptr<Request>& request);
     std::deque<Query> updateQueriesAndExtractFulfilled(const MetadataPtr_t& metadata);
-    std::deque<Query> extractAffectedQueries(const std::string& signalName);
+    std::deque<Query> extractAffectedQueries(const std::string& signalPath);
     void              cancelActiveRequests();
 
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
@@ -291,21 +291,21 @@ void MetadataAgentImpl::invalidate(grpc::StatusCode statusCode) {
     notifyQueryInitiators(std::move(openQueries), grpc::Status(statusCode, "Cache invalidation"));
 }
 
-void MetadataAgentImpl::addCachedMetadata(Query& query, const SignalNameList_t& signalNames) {
-    for (const auto& name : signalNames) {
-        if (auto metadata = m_cache.getByName(name)) {
+void MetadataAgentImpl::addCachedMetadata(Query& query, const SignalPathList_t& signalPaths) {
+    for (const auto& path : signalPaths) {
+        if (auto metadata = m_cache.getByPath(path)) {
             query.addMetadata(metadata);
         }
     }
 }
 
-void MetadataAgentImpl::query(const SignalNameList_t&                    signalNames,
+void MetadataAgentImpl::query(const SignalPathList_t&                    signalPaths,
                               std::function<void(MetadataList_t&&)>&&    onSuccess,
                               std::function<void(const grpc::Status&)>&& onError) {
-    Query query(signalNames, std::move(onSuccess), std::move(onError));
+    Query query(signalPaths, std::move(onSuccess), std::move(onError));
     {
         std::unique_lock lock(m_mutex);
-        addCachedMetadata(query, signalNames);
+        addCachedMetadata(query, signalPaths);
         if (!query.isFulfilled()) {
             addQuery(std::move(query));
             return;
@@ -320,23 +320,23 @@ void MetadataAgentImpl::addQuery(Query&& query) {
     triggerMetadataRequests();
 }
 
-bool MetadataAgentImpl::isSignalPartOfActiveRequests(const std::string& signalName) const {
+bool MetadataAgentImpl::isSignalPartOfActiveRequests(const std::string& signalPath) const {
     return std::any_of(
         m_activeRequests.cbegin(), m_activeRequests.cend(),
-        [signalName](const auto& request) { return signalName == request->getSignalName(); });
+        [signalPath](const auto& request) { return signalPath == request->getSignalPath(); });
 }
 
-void MetadataAgentImpl::addSignalToRequestQueue(const std::string& signalName) {
-    if (!isSignalPartOfActiveRequests(signalName) &&
-        (std::find(m_pendingSignals.cbegin(), m_pendingSignals.cend(), signalName) ==
+void MetadataAgentImpl::addSignalToRequestQueue(const std::string& signalPath) {
+    if (!isSignalPartOfActiveRequests(signalPath) &&
+        (std::find(m_pendingSignals.cbegin(), m_pendingSignals.cend(), signalPath) ==
          m_pendingSignals.end())) {
-        m_pendingSignals.push_back(signalName);
+        m_pendingSignals.push_back(signalPath);
     }
 }
 
 void MetadataAgentImpl::addSignalsToRequestQueue(const std::set<std::string>& signals) {
-    for (const auto& signalName : signals) {
-        addSignalToRequestQueue(signalName);
+    for (const auto& signalPath : signals) {
+        addSignalToRequestQueue(signalPath);
     }
 }
 
@@ -364,7 +364,7 @@ void MetadataAgentImpl::triggerMetadataRequests() {
                     std::unique_lock lock(m_mutex);
                     updateActiveRequests(request);
                     if (!request->isCancelled()) {
-                        affectedQueries = extractAffectedQueries(request->getSignalName());
+                        affectedQueries = extractAffectedQueries(request->getSignalPath());
                     }
                 }
                 notifyQueryInitiators(std::move(affectedQueries), status);
@@ -397,11 +397,11 @@ MetadataAgentImpl::updateQueriesAndExtractFulfilled(const MetadataPtr_t& metadat
     return fulfilledQueries;
 }
 
-std::deque<Query> MetadataAgentImpl::extractAffectedQueries(const std::string& signalName) {
+std::deque<Query> MetadataAgentImpl::extractAffectedQueries(const std::string& signalPath) {
     std::deque<Query> affectedQueries;
     auto              queryIter = m_pendingQueries.begin();
     while (queryIter != m_pendingQueries.end()) {
-        if (queryIter->getMissingSignals().count(signalName) > 0) {
+        if (queryIter->getMissingSignals().count(signalPath) > 0) {
             affectedQueries.push_back(std::move(*queryIter));
             queryIter = m_pendingQueries.erase(queryIter);
         } else {

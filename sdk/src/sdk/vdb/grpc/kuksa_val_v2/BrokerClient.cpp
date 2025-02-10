@@ -77,10 +77,10 @@ BrokerClient::BrokerClient(const std::string& vdbServiceName)
 BrokerClient::~BrokerClient() {}
 
 AsyncResultPtr_t<DataPointReply>
-BrokerClient::getDatapoints(const std::vector<std::string>& signalNames) {
+BrokerClient::getDatapoints(const std::vector<std::string>& signalPaths) {
     auto result = std::make_shared<AsyncResult<DataPointReply>>();
     m_metadataAgent->query(
-        signalNames,
+        signalPaths,
         [this, result](MetadataList_t&& metadataList) {
             kuksa::val::v2::GetValuesRequest request;
             auto&                            signalIds = *request.mutable_signal_ids();
@@ -122,12 +122,12 @@ void BrokerClient::onGetValuesResponse(const kuksa::val::v2::GetValuesResponse& 
         for (const auto& metadata : metadataList) {
             if (metadata->m_isKnown) {
                 assert(dataPointIter != dataPoints.cend());
-                resultMap[metadata->m_signalName] =
-                    convertFromGrpcDataPoint(metadata->m_signalName, *dataPointIter);
+                resultMap[metadata->m_signalPath] =
+                    convertFromGrpcDataPoint(metadata->m_signalPath, *dataPointIter);
                 ++dataPointIter;
             } else {
-                resultMap[metadata->m_signalName] = std::make_shared<DataPointValue>(
-                    DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
+                resultMap[metadata->m_signalPath] = std::make_shared<DataPointValue>(
+                    DataPointValue::Type::INVALID, metadata->m_signalPath, Timestamp{},
                     DataPointValue::Failure::UNKNOWN_DATAPOINT);
             }
         }
@@ -145,8 +145,8 @@ void BrokerClient::onGetValuesError(const grpc::Status& status, const MetadataLi
         m_metadataAgent->invalidate(status.error_code());
         DataPointMap_t resultMap;
         for (const auto& metadata : metadataList) {
-            resultMap[metadata->m_signalName] = std::make_shared<DataPointValue>(
-                DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
+            resultMap[metadata->m_signalPath] = std::make_shared<DataPointValue>(
+                DataPointValue::Type::INVALID, metadata->m_signalPath, Timestamp{},
                 (metadata->m_isKnown ? DataPointValue::Failure::NOT_AVAILABLE
                                      : DataPointValue::Failure::UNKNOWN_DATAPOINT));
         }
@@ -254,8 +254,8 @@ public:
             if (metadata->m_isKnown) {
                 request.add_signal_ids(metadata->m_id);
             } else {
-                (*m_datapointUpdates)[metadata->m_signalName] = std::make_shared<DataPointValue>(
-                    DataPointValue::Type::INVALID, metadata->m_signalName, Timestamp{},
+                (*m_datapointUpdates)[metadata->m_signalPath] = std::make_shared<DataPointValue>(
+                    DataPointValue::Type::INVALID, metadata->m_signalPath, Timestamp{},
                     DataPointValue::Failure::UNKNOWN_DATAPOINT);
             }
         }
@@ -273,9 +273,10 @@ public:
         for (const auto& [id, dataPoint] : fieldsMap) {
             auto metadata = m_metadataAgent->getByNumericId(id);
             if (metadata) {
-                const auto& name            = metadata->m_signalName;
-                (*m_datapointUpdates)[name] = convertFromGrpcDataPoint(name, dataPoint);
-                logger().debug("onSubscriptionUpdate: signal id={}, path={} received.", id, name);
+                const auto& path            = metadata->m_signalPath;
+                (*m_datapointUpdates)[path] = convertFromGrpcDataPoint(path, dataPoint);
+                logger().debug("onSubscriptionUpdate: signal id={}, signal path={} received.", id,
+                               path);
             } else {
                 logger().error("onSubscriptionUpdate: Unknown signal id={} received.", id);
             }

@@ -44,7 +44,7 @@ struct Metadata {
     // };
 
     // State       m_state{State::NOT_YET_GAINED};
-    std::string  m_signalName;
+    std::string  m_signalPath;
     numeric_id_t m_id{0};
     bool         m_isKnown{false};
 };
@@ -52,7 +52,7 @@ struct Metadata {
 using MetadataPtr_t  = std::shared_ptr<Metadata>;
 using MetadataList_t = std::vector<MetadataPtr_t>;
 
-using SignalNameList_t = std::vector<std::string>;
+using SignalPathList_t = std::vector<std::string>;
 
 class BrokerAsyncGrpcFacade;
 
@@ -69,7 +69,7 @@ public:
     /**
      * @brief Asynchronously provides metadata for the passed set of signals.
      *
-     * @param signalNames List of signal names to provide metadata for
+     * @param signalPaths List of signal paths to provide metadata for
      * @param onSuccess This function is called once metadata for all requested signals is present.
      * Be aware, that this can either happen immediately - i.e. before returning from this call - if
      * all required signals are already present in the internal cache!
@@ -77,7 +77,7 @@ public:
      * gained, i.e. an unexpected error is occuring or the cache is invalidated while waiting for
      * the requested metadata.
      */
-    virtual void query(const SignalNameList_t&                    signalNames,
+    virtual void query(const SignalPathList_t&                    signalPaths,
                        std::function<void(MetadataList_t&&)>&&    onSuccess,
                        std::function<void(const grpc::Status&)>&& onError) = 0;
 
