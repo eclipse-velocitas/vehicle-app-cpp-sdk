@@ -60,7 +60,7 @@ int assertProtobufArrayLimits(size_t numElements) {
 BrokerClient::BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName)
     : m_asyncBrokerFacade(std::make_shared<BrokerAsyncGrpcFacade>(grpc::CreateCustomChannel(
           vdbAddress, grpc::InsecureChannelCredentials(), getChannelArguments())))
-    , m_metadataAgent(std::make_shared<MetadataAgent>(m_asyncBrokerFacade))
+    , m_metadataAgent(MetadataAgent::create(m_asyncBrokerFacade))
     , m_activeCalls(std::make_unique<GrpcClient>()) {
     logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
     Middleware::Metadata metadata = Middleware::getInstance().getMetadata(vdbServiceName);

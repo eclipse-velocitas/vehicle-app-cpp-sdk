@@ -231,17 +231,17 @@ void notifyQueryInitiators(std::deque<Query>&& queries, const grpc::Status& stat
 
 } // namespace
 
-class MetadataAgentImpl {
+class MetadataAgentImpl : public MetadataAgent {
 public:
     explicit MetadataAgentImpl(std::shared_ptr<BrokerAsyncGrpcFacade> asyncBrokerFacade)
         : m_asyncBrokerFacade(std::move(asyncBrokerFacade)) {}
 
     void query(const SignalNameList_t&                    signalNames,
                std::function<void(MetadataList_t&&)>&&    onSuccess,
-               std::function<void(const grpc::Status&)>&& onError);
-    void invalidate(grpc::StatusCode statusCode = grpc::StatusCode::UNAVAILABLE);
+               std::function<void(const grpc::Status&)>&& onError) override;
+    void invalidate(grpc::StatusCode statusCode) override;
 
-    [[nodiscard]] MetadataPtr_t getByNumericId(numeric_id_t numericId) const {
+    [[nodiscard]] MetadataPtr_t getByNumericId(numeric_id_t numericId) const override {
         std::shared_lock lock(m_mutex);
         return m_cache.getById(numericId);
     }
@@ -267,17 +267,9 @@ private:
     std::set<std::shared_ptr<Request>> m_activeRequests;
 };
 
-MetadataAgent::MetadataAgent(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade)
-    : m_pimpl(std::make_unique<MetadataAgentImpl>(asyncBrokerFacade)) {}
-
-MetadataAgent::~MetadataAgent() {}
-
-MetadataPtr_t MetadataAgent::getByNumericId(numeric_id_t numericId) const {
-    return m_pimpl->getByNumericId(numericId);
-}
-
-void MetadataAgent::invalidate(const grpc::StatusCode& statusCode) {
-    m_pimpl->invalidate(statusCode);
+std::shared_ptr<MetadataAgent>
+MetadataAgent::create(const std::shared_ptr<BrokerAsyncGrpcFacade>& brokerFacade) {
+    return std::make_shared<MetadataAgentImpl>(brokerFacade);
 }
 
 void MetadataAgentImpl::cancelActiveRequests() {
@@ -297,12 +289,6 @@ void MetadataAgentImpl::invalidate(grpc::StatusCode statusCode) {
         cancelActiveRequests();
     }
     notifyQueryInitiators(std::move(openQueries), grpc::Status(statusCode, "Cache invalidation"));
-}
-
-void MetadataAgent::query(const SignalNameList_t&                    signalNames,
-                          std::function<void(MetadataList_t&&)>&&    onSuccess,
-                          std::function<void(const grpc::Status&)>&& onError) {
-    m_pimpl->query(signalNames, std::move(onSuccess), std::move(onError));
 }
 
 void MetadataAgentImpl::addCachedMetadata(Query& query, const SignalNameList_t& signalNames) {

@@ -55,7 +55,6 @@ using MetadataList_t = std::vector<MetadataPtr_t>;
 using SignalNameList_t = std::vector<std::string>;
 
 class BrokerAsyncGrpcFacade;
-class MetadataAgentImpl;
 
 /**
  * Provides access to (VSS) metadata hosted by the KUKSA Databroker.
@@ -64,8 +63,8 @@ class MetadataAgentImpl;
  */
 class MetadataAgent {
 public:
-    explicit MetadataAgent(const std::shared_ptr<BrokerAsyncGrpcFacade>& asyncBrokerFacade);
-    ~MetadataAgent();
+    static std::shared_ptr<MetadataAgent> create(const std::shared_ptr<BrokerAsyncGrpcFacade>&);
+    virtual ~MetadataAgent() = default;
 
     /**
      * @brief Asynchronously provides metadata for the passed set of signals.
@@ -78,9 +77,9 @@ public:
      * gained, i.e. an unexpected error is occuring or the cache is invalidated while waiting for
      * the requested metadata.
      */
-    void query(const SignalNameList_t&                    signalNames,
-               std::function<void(MetadataList_t&&)>&&    onSuccess,
-               std::function<void(const grpc::Status&)>&& onError);
+    virtual void query(const SignalNameList_t&                    signalNames,
+                       std::function<void(MetadataList_t&&)>&&    onSuccess,
+                       std::function<void(const grpc::Status&)>&& onError) = 0;
 
     /**
      * @brief Invalidates the cached metadata. This needs to be called by clients when they get
@@ -88,7 +87,7 @@ public:
      *
      * @param statusCode
      */
-    void invalidate(const grpc::StatusCode& statusCode = grpc::StatusCode::UNAVAILABLE);
+    virtual void invalidate(grpc::StatusCode statusCode = grpc::StatusCode::UNAVAILABLE) = 0;
 
     /**
      * @brief Get metadata of a signal reference by its numeric id.
@@ -98,10 +97,7 @@ public:
      * @return MetadataPtr_t Points to the metadata referenced by the numeric id. A
      * nullptr is returned if the passed id is unknown.
      */
-    [[nodiscard]] MetadataPtr_t getByNumericId(numeric_id_t mumericId) const;
-
-private:
-    std::unique_ptr<MetadataAgentImpl> m_pimpl;
+    [[nodiscard]] virtual MetadataPtr_t getByNumericId(numeric_id_t mumericId) const = 0;
 };
 
 } // namespace velocitas::kuksa_val_v2
