@@ -17,7 +17,7 @@ import re
 import subprocess
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy
 
 
@@ -38,7 +38,7 @@ class VehicleAppCppSdkConan(ConanFile):
         ("paho-mqtt-cpp/1.4.0"),
         ("zlib/1.3.1"),
     ]
-    # generators = "CMakeToolchain","CMakeDeps"
+    generators = "CMakeDeps"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
@@ -46,16 +46,24 @@ class VehicleAppCppSdkConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "STATIC_BUILD": [True, False],
-        "SDK_BUILD_EXAMPLES": [True, False],
-        "SDK_BUILD_TESTS": [True, False],
+        "STATIC_BUILD": ["ON", "OFF"],
+        "SDK_BUILD_EXAMPLES": ["ON", "OFF"],
+        "SDK_BUILD_TESTS": ["ON", "OFF"],
+        "COVERAGE": ["ON", "OFF"],
+        "BUILD_TARGET": ["ANY"],
+        "BUILD_ARCH": ["ANY"],
+        "HOST_ARCH": ["ANY"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "STATIC_BUILD": False,
-        "SDK_BUILD_EXAMPLES": False,
-        "SDK_BUILD_TESTS": False,
+        "STATIC_BUILD": "OFF",
+        "SDK_BUILD_EXAMPLES": "OFF",
+        "SDK_BUILD_TESTS": "OFF",
+        "COVERAGE": "OFF",
+        "BUILD_TARGET": "all",
+        "BUILD_ARCH": os.uname().machine,
+        "HOST_ARCH": os.uname().machine,
     }
 
     exports = "version.txt"
@@ -132,26 +140,30 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def generate(self):
         # This generates "conan_toolchain.cmake" in self.generators_folder
+        cxx_flags = []
+        cxx_flags.append("-g")
+        if self.settings.build_type == "Debug":
+            cxx_flags.append("-O0")
+        else:
+            cxx_flags.append("-O3")
+            cxx_flags.append("-s")
+
+        if self.options.COVERAGE:
+            cxx_flags.append("--coverage")
+
         tc = CMakeToolchain(self, generator="Ninja")
         tc.absolute_paths = True
+        tc.variables["CMAKE_EXPORT_COMPILE_COMMANDS"] = "ON"
         tc.cache_variables["STATIC_BUILD"] = self.options.STATIC_BUILD
         tc.cache_variables["SDK_BUILD_EXAMPLES"] = self.options.SDK_BUILD_EXAMPLES
         tc.cache_variables["SDK_BUILD_TESTS"] = self.options.SDK_BUILD_TESTS
+        tc.extra_cxxflags = cxx_flags
         tc.generate()
 
-        # This generates "foo-config.cmake" and "bar-config.cmake" in self.generators_folder
-        deps = CMakeDeps(self)
-        deps.generate()
-
     def build(self):
-        # build_type = self.settings.get_safe("build_type", default="Release").lower()
-        # option = "-r" if build_type == "release" else "-d"
-        # print(f"env: {os.environ}")
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-        # subprocess.call(
-        #    f"cd .. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True, env=os.environ)
 
     def package(self):
         subprocess.call("pwd", shell=True)
@@ -168,6 +180,7 @@ class VehicleAppCppSdkConan(ConanFile):
         self.cpp_info.bindirs = ["bin"]
         self.cpp_info.builddirs = ["cmake"]
         self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
+        self.cpp_info.set_property("cmake_target_name", "cojson::cojson")
 
     def imports(self):
         self.copy("license*", src=".", dst="./licenses", folder=True, ignore_case=True)

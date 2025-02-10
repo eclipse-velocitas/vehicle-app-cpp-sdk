@@ -5,6 +5,8 @@
     },
     "include": [
         "build/gcc-11-armv8-gnu17-release/generators/CMakePresets.json",
-        "/workspaces/vehicle-app-cpp-sdk/test_package/build/gcc-11-armv8-gnu17-release/generators/CMakePresets.json"
+        "/workspaces/vehicle-app-cpp-sdk/test_package/build/gcc-11-armv8-gnu17-release/generators/CMakePresets.json",
+        "/workspaces/vehicle-app-cpp-sdk/test_package/build/gcc-11-armv8-gnu17-debug-static/generators/CMakePresets.json",
+        "/workspaces/vehicle-app-cpp-sdk/test_package/build/gcc-11-armv8-gnu17-release-static/generators/CMakePresets.json"
     ]
 }

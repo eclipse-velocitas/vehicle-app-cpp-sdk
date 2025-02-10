@@ -39,7 +39,6 @@ add_executable(${TARGET_NAME}
 
 add_dependencies(${TARGET_NAME}
     vehicle-app-sdk
-    #${CONANDEPS_LEGACY}
 )
 
 target_link_libraries(${TARGET_NAME}
@@ -49,11 +48,13 @@ target_link_libraries(${TARGET_NAME}
 
 include(GoogleTest)
 
+find_package(fmt REQUIRED)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
     ${CMAKE_CURRENT_SOURCE_DIR}/../model
     ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${fmt_INCLUDE_DIR}
 )
 
 if(NOT CMAKE_TOOLCHAIN_FILE)

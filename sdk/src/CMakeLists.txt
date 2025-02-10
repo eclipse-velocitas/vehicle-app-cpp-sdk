@@ -51,7 +51,6 @@ add_library(${TARGET_NAME}
     sdk/vdb/grpc/sdv_databroker_v1/BrokerClient.cpp
     sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.cpp
 )
-#message("FMT_INcludedir:${fmt_INCLUDE_DIR}")
 
 include_directories(
     ${CMAKE_BINARY_DIR}/gens
@@ -66,14 +65,6 @@ include_directories(
     ${eclipse-paho-mqtt-c_INCLUDE_DIR}
 )
 
-    # find_package(cpr)
-    # find_package(fmt)
-    # find_package(gRPC)
-    # find_package(grpc-proto)
-    # find_package(nlohmann_json)
-    # find_package(protobuf)
-    # find_package(ZLIB)
-
 add_dependencies(${TARGET_NAME}
     vehicle-app-sdk-generated-grpc
 )
@@ -81,3 +72,4 @@ add_dependencies(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk-generated-grpc
 )
+set_target_properties(vehicle-app-sdk PROPERTIES OUTPUT_NAME "vehicle-app-sdk")

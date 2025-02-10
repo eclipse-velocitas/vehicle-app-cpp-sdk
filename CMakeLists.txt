@@ -23,7 +23,7 @@ set(SDK_BUILD_EXAMPLES  ON CACHE BOOL "Build the SDK examples.")
 set(STATIC_BUILD        OFF CACHE BOOL "Build all targets with external dependencies linked in statically.")
 
 set(CMAKE_CXX_STANDARD 17)
-message("TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include
 )

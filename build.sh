@@ -37,7 +37,7 @@ Arguments:
 "
 }
 
-BUILD_VARIANT=debug
+BUILD_VARIANT=Debug
 BUILD_ARCH=$(arch)
 HOST_ARCH=${BUILD_ARCH}
 BUILD_TARGET=all
@@ -51,11 +51,11 @@ POSITIONAL_ARGS=()
 while [[ $# -gt 0 ]]; do
   case $1 in
     -d|--debug)
-      BUILD_VARIANT="debug"
+      BUILD_VARIANT="Debug"
       shift
       ;;
     -r|--release)
-      BUILD_VARIANT="release"
+      BUILD_VARIANT="Release"
       shift
       ;;
     -t|--target)
@@ -121,38 +121,14 @@ if [ "${GEN_COVERAGE}" == "ON" ]; then
   CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"
 fi
 
-mkdir -p build && cd build
-
-# Expose the PATH of the build-time requirements from Conan to CMake - this is NOT handled by
-# any of Conan's CMake generators at the moment, hence we parse the conanbuildinfo.txt which
-# is generated and holds these paths. This allows us to always use the protoc and grpc cpp plugin
-# of the build system.
-BUILD_TOOLS_PATH=""
-# CONAN_BUILD_TOOLS_PATHS=$(sed '/^PATH=/!d;s/PATH=//g;s/,/\n/g' ./conanbuildinfo.txt | tr -d '[]'\" )
-# while read -r p; do
-#   if [[ ! -z "${p// }" ]]; then
-#     BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"
-#   fi
-# done < <(echo "$CONAN_BUILD_TOOLS_PATHS")
-
-XCOMPILE_TOOLCHAIN_FILE=""
-# if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
-#   echo "Setting up cross compilation toolchain..."
-#   XCOMPILE_TOOLCHAIN_FILE="-DCMAKE_TOOLCHAIN_FILE=../cmake/${BUILD_ARCH}_to_${HOST_ARCH}.cmake"
-# fi
-
-# Configure CMake and build the project.
-cmake --no-warn-unused-cli \
-  -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-  -DCMAKE_BUILD_TYPE:STRING=${BUILD_VARIANT} \
-  -DSTATIC_BUILD:BOOL=${STATIC_BUILD} \
-  -DSDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES} \
-  -DSDK_BUILD_TESTS=${SDK_BUILD_TESTS} \
-  -S.. \
-  -B../build \
-  -G Ninja \
-  -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-  -DCMAKE_TOOLCHAIN_FILE="/workspaces/vehicle-app-cpp-sdk/build/Debug/generators/conan_toolchain.cmake" \
-  ..
-cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} --
-cd ..
+mkdir -p build
+conan build . \
+  -s build_type=${BUILD_VARIANT} \
+  -o:a="&:STATIC_BUILD=${STATIC_BUILD}" \
+  -o:a="&:SDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES}" \
+  -o:a="&:SDK_BUILD_TESTS=${SDK_BUILD_TESTS}" \
+  -o:a="&:COVERAGE=${GEN_COVERAGE}" \
+  -o:a="&:BUILD_TARGET=${BUILD_TARGET}" \
+  -o:a="&:BUILD_ARCH=${BUILD_ARCH}" \
+  -o:a="&:HOST_ARCH=${HOST_ARCH}"\
+  --build missing

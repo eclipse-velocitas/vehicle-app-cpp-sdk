@@ -19,9 +19,14 @@ add_executable(${TARGET_NAME}
     src/PerformanceTestApp.cpp
 )
 
+find_package(fmt REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
 include_directories(
     ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${fmt_INCLUDE_DIR}
+    ${nlohmann_json_INCLUDE_DIR}
 )
 
 add_dependencies(${TARGET_NAME}

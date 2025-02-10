@@ -18,8 +18,12 @@ add_executable(${TARGET_NAME}
     src/SetDataPointsApp.cpp
 )
 
+find_package(fmt REQUIRED)
+find_package(nlohmann_json REQUIRED)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${fmt_INCLUDE_DIR}
+    ${nlohmann_json_INCLUDE_DIR}
 )
 
 target_link_libraries(${TARGET_NAME}

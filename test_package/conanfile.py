@@ -26,6 +26,28 @@ class VehicleAppSdkTest(ConanFile):
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
 
     settings = "os", "compiler", "build_type", "arch"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "STATIC_BUILD": ["ON", "OFF"],
+        "SDK_BUILD_EXAMPLES": ["ON", "OFF"],
+        "SDK_BUILD_TESTS": ["ON", "OFF"],
+        "COVERAGE": ["ON", "OFF"],
+        "BUILD_TARGET": ["ANY"],
+        "BUILD_ARCH": ["ANY"],
+        "HOST_ARCH": ["ANY"],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "STATIC_BUILD": "OFF",
+        "SDK_BUILD_EXAMPLES": "OFF",
+        "SDK_BUILD_TESTS": "OFF",
+        "COVERAGE": "OFF",
+        "BUILD_TARGET": "all",
+        "BUILD_ARCH": os.uname().machine,
+        "HOST_ARCH": os.uname().machine,
+    }
 
     generators = "CMakeDeps"
 
