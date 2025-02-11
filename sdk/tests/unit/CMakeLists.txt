@@ -41,20 +41,23 @@ add_dependencies(${TARGET_NAME}
     vehicle-app-sdk
 )
 
+find_package(fmt REQUIRED)
+find_package(PahoMqttCpp REQUIRED)
+find_package(eclipse-paho-mqtt-c REQUIRED)
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
     gmock
+    fmt::fmt
+    PahoMqttCpp::paho-mqttpp3-static
 )
 
 include(GoogleTest)
 
-find_package(fmt REQUIRED)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
     ${CMAKE_CURRENT_SOURCE_DIR}/../model
     ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
-    ${fmt_INCLUDE_DIR}
 )
 
 if(NOT CMAKE_TOOLCHAIN_FILE)

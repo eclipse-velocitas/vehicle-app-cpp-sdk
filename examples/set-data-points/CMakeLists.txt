@@ -20,6 +20,8 @@ add_executable(${TARGET_NAME}
 
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(PahoMqttCpp REQUIRED)
+find_package(eclipse-paho-mqtt-c REQUIRED)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${fmt_INCLUDE_DIR}
@@ -28,4 +30,6 @@ include_directories(
 
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
+    fmt::fmt
+    PahoMqttCpp::paho-mqttpp3-static nlohmann_json::nlohmann_json
 )
