@@ -72,4 +72,3 @@ add_dependencies(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk-generated-grpc
 )
-set_target_properties(vehicle-app-sdk PROPERTIES OUTPUT_NAME "vehicle-app-sdk")

@@ -167,11 +167,27 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package(self):
         subprocess.call("pwd", shell=True)
-        copy(self, "*.h", src="../sdk/include", dst="include", keep_path=True)
-        copy(self, "*.h", src="../build/gens", dst="include", keep_path=True)
-        copy(self, "*.a", src="../build/lib", dst="lib", keep_path=False)
-        cmake = CMake(self)
-        cmake.install()
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "sdk/include"),
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=True,
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.build_folder, "gens"),
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=True,
+        )
+        copy(
+            self,
+            "*.a",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
@@ -180,7 +196,6 @@ class VehicleAppCppSdkConan(ConanFile):
         self.cpp_info.bindirs = ["bin"]
         self.cpp_info.builddirs = ["cmake"]
         self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
-        self.cpp_info.set_property("cmake_target_name", "cojson::cojson")
 
     def imports(self):
         self.copy("license*", src=".", dst="./licenses", folder=True, ignore_case=True)

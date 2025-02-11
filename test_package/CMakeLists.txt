@@ -16,13 +16,17 @@ cmake_minimum_required(VERSION 3.16)
 
 project(test_package CXX)
 
-find_package(vehicle-app-sdk CONFIG REQUIRED)
+find_package(vehicle-app-sdk REQUIRED)
 
 if(NOT vehicle-app-sdk_FOUND)
     message(FATAL_ERROR "This project can only be built with a 'conan create' command in the parent directory!")
 endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
+
+include_directories(${vehicle-app-sdk_INCLUDE_DIRS})
+
+
 target_link_libraries(${PROJECT_NAME}
-    vehicle-app-sdk
+    vehicle-app-sdk::vehicle-app-sdk
 )
