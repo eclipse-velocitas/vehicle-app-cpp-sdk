@@ -35,15 +35,6 @@ namespace velocitas::kuksa_val_v2 {
 using numeric_id_t = int32_t;
 
 struct Metadata {
-    // enum class State {
-    //     NOT_YET_GAINED,
-    //     AVAILABLE,
-    //     UNKNOWN_SIGNAL,
-    //     PERMISSION_DENIED,
-    //     INCOMPATIBLE,
-    // };
-
-    // State       m_state{State::NOT_YET_GAINED};
     std::string  m_signalPath;
     numeric_id_t m_id{0};
     bool         m_isKnown{false};

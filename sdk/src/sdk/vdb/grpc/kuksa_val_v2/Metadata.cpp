@@ -249,7 +249,7 @@ public:
 private:
     void              addCachedMetadata(Query& query, const SignalPathList_t& signalPaths);
     void              addQuery(Query&& query);
-    void              addSignalsToRequestQueue(const std::set<std::string>& signals);
+    void              addSetOfSignalToRequestQueue(const std::set<std::string>& signals);
     void              addSignalToRequestQueue(const std::string& signalPath);
     bool              isSignalPartOfActiveRequests(const std::string& signalPath) const;
     void              triggerMetadataRequests();
@@ -315,7 +315,7 @@ void MetadataAgentImpl::query(const SignalPathList_t&                    signalP
 }
 
 void MetadataAgentImpl::addQuery(Query&& query) {
-    addSignalsToRequestQueue(query.getMissingSignals());
+    addSetOfSignalToRequestQueue(query.getMissingSignals());
     m_pendingQueries.push_back(std::move(query));
     triggerMetadataRequests();
 }
@@ -334,7 +334,7 @@ void MetadataAgentImpl::addSignalToRequestQueue(const std::string& signalPath) {
     }
 }
 
-void MetadataAgentImpl::addSignalsToRequestQueue(const std::set<std::string>& signals) {
+void MetadataAgentImpl::addSetOfSignalToRequestQueue(const std::set<std::string>& signals) {
     for (const auto& signalPath : signals) {
         addSignalToRequestQueue(signalPath);
     }
