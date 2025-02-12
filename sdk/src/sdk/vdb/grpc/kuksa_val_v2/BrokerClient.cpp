@@ -157,6 +157,20 @@ void BrokerClient::onGetValuesError(const grpc::Status& status, const MetadataLi
     }
 }
 
+namespace {
+const std::string errorMessagePart1 = "Provider for vss_id ";
+const std::string errorMessagePart2 = " not available";
+
+// The databroker indicates a missing provider of at least one of the addressed signals with the
+// error message "Provider for vss_id <some id> not available".
+bool isSignalProviderUnavailable(const grpc::Status& status) {
+    auto part1Pos = status.error_message().find(errorMessagePart1);
+    return (part1Pos != std::string::npos) &&
+           (status.error_message().find(errorMessagePart2, part1Pos + errorMessagePart1.length()) !=
+            std::string::npos);
+}
+} // namespace
+
 AsyncResultPtr_t<IVehicleDataBrokerClient::SetErrorMap_t>
 BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& datapoints) {
     auto result = std::make_shared<AsyncResult<SetErrorMap_t>>();
@@ -181,7 +195,12 @@ BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& 
         },
         [this, result](auto status) {
             if (status.error_code() == grpc::StatusCode::UNAVAILABLE) {
-                m_metadataAgent->invalidate(status.error_code());
+                // The error code UNAVAILABLE is also used by the databroker to indicate that the
+                // provider of at least one of the addressed signals is missing. This situation
+                // shall not lead to cache invalidation.
+                if (!isSignalProviderUnavailable(status)) {
+                    m_metadataAgent->invalidate(status.error_code());
+                }
             }
             result->insertError(
                 Status(fmt::format("SetDatapoints failed: {} --- Error details: {}",
