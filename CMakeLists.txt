@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.16)
 message("SDK_BUILD_TESTS: ${SDK_BUILD_TESTS}")
 message("SDK_BUILD_EXAMPLES: ${SDK_BUILD_EXAMPLES}")
 message("STATIC_BUILD: ${STATIC_BUILD}")
-set(SDK_STANDALONE      ON CACHE BOOL "Build the SDK in standalone mode.")
+
 set(SDK_BUILD_TESTS     ON CACHE BOOL "Build the SDK tests.")
 set(SDK_BUILD_EXAMPLES  ON CACHE BOOL "Build the SDK examples.")
 
@@ -28,38 +28,22 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include
 )
 
-if(SDK_STANDALONE)
-    # set the project name
-    project(VehicleAppCppSdk CXX)
+# set the project name
+project(VehicleAppCppSdk CXX)
 
-    if(STATIC_BUILD)
-        set(BUILD_SHARED_LIBS OFF)
-        set(CMAKE_EXE_LINKER_FLAGS "-static")
-    endif()
+if(STATIC_BUILD)
+    set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
-    set(BUILD_EXAMPLES CACHE BOOL true)
-    set(BUILD_TESTS CACHE BOOL true)
 
-    find_program(CCACHE_FOUND ccache)
+find_program(CCACHE_FOUND ccache)
 
-    if(CCACHE_FOUND)
-        message("Found ccache installation")
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    endif()
+if(CCACHE_FOUND)
+    message("Found ccache installation")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif()
 
-    # use conan for dependency management
-    # set(CONAN_BUILD_INFO_FILE ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-
-    # if(NOT EXISTS ${CONAN_BUILD_INFO_FILE})
-    #     message(FATAL_ERROR "Conan build info file missing. Did you run install_dependencies.sh first?")
-    #     return()
-    # else()
-    #include(${CMAKE_BINARY_DIR}/generators/conan_toolchain.cmake)
-    #include(${CMAKE_BINARY_DIR}/build/Release/generators/conandeps_legacy.cmake)
-    #include(build/build/Release/generators/cmakedeps_macros.cmake)
-    #     conan_basic_setup(TARGETS)
-    # endif()
-endif(SDK_STANDALONE)
 
 if(SDK_BUILD_TESTS)
     enable_testing()

@@ -33,6 +33,7 @@ Arguments:
 --cov                            Generates coverage information.
 -s, --static                     Links all dependencies statically.
 -x, --cross <arch>               Cross compiles for the specified architecture.
+-j <num_jobs>                    Number of parallel jobs to use for building. (default: 2)
 -h, --help                       Shows this help.
 "
 }
@@ -45,6 +46,8 @@ STATIC_BUILD=OFF
 SDK_BUILD_EXAMPLES=ON
 SDK_BUILD_TESTS=ON
 GEN_COVERAGE=OFF
+WHICH_DEPS_TO_BUILD="missing"
+NUM_JOBS=2
 
 POSITIONAL_ARGS=()
 
@@ -61,6 +64,10 @@ while [[ $# -gt 0 ]]; do
     -t|--target)
       BUILD_TARGET="$2"
       shift
+      shift
+      ;;
+    --build-all-deps)
+      WHICH_DEPS_TO_BUILD="*"
       shift
       ;;
     -s|--static)
@@ -87,6 +94,11 @@ while [[ $# -gt 0 ]]; do
     -h|--help)
       print_help
       exit 0
+      shift
+      ;;
+    -j)
+      NUM_JOBS="$2"
+      shift
       shift
       ;;
     -*|--*)
@@ -123,6 +135,7 @@ fi
 
 mkdir -p build
 conan build . \
+  -pr:a .conan/profiles/linux_${BUILD_VARIANT} \
   -s build_type=${BUILD_VARIANT} \
   -o:a="&:STATIC_BUILD=${STATIC_BUILD}" \
   -o:a="&:SDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES}" \
@@ -130,5 +143,6 @@ conan build . \
   -o:a="&:COVERAGE=${GEN_COVERAGE}" \
   -o:a="&:BUILD_TARGET=${BUILD_TARGET}" \
   -o:a="&:BUILD_ARCH=${BUILD_ARCH}" \
-  -o:a="&:HOST_ARCH=${HOST_ARCH}"\
-  --build missing
+  -o:a="&:HOST_ARCH=${HOST_ARCH}" \
+  --build $WHICH_DEPS_TO_BUILD \
+  -c tools.build:jobs=$NUM_JOBS

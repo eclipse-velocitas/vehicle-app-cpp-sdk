@@ -128,20 +128,30 @@ class VehicleAppCppSdkConan(ConanFile):
                 raise FileNotFoundError("Missing version.txt!")
 
     def config_options(self):
+        # self.options.shared = self.options.STATIC_BUILD == "OFF"
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def layout(self):
-        # basic_layout(self, src_folder="sdk")
-        cmake_layout(self, src_folder=".")
+    def configure(self):
+        self.options["grpc"].csharp_ext = False
+        self.options["grpc"].php_plugin = False
+        self.options["grpc"].node_plugin = False
+        self.options["grpc"].otel_plugin = False
+        self.options["grpc"].ruby_plugin = False
+        self.options["grpc"].csharp_plugin = False
+        self.options["grpc"].python_plugin = False
+        self.options["grpc"].objective_c_plugin = False
+        self.options["grpc"].fPIC = True
+        # self.options["grpc"].shared = True
+        # self.options["protobuf"].shared = True
 
-    # def source(self):
-    #     get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    def layout(self):
+        cmake_layout(self, src_folder=".")
 
     def generate(self):
         # This generates "conan_toolchain.cmake" in self.generators_folder
         cxx_flags = []
-        cxx_flags.append("-g")
+        # cxx_flags.append("-g")
         if self.settings.build_type == "Debug":
             cxx_flags.append("-O0")
         else:
@@ -166,7 +176,6 @@ class VehicleAppCppSdkConan(ConanFile):
         cmake.build()
 
     def package(self):
-        subprocess.call("pwd", shell=True)
         copy(
             self,
             "*.h",
