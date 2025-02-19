@@ -46,11 +46,11 @@ WHICH_DEPS_TO_BUILD="missing"
 while [[ $# -gt 0 ]]; do
   case $1 in
     -d|--debug)
-      BUILD_VARIANT="debug"
+      BUILD_VARIANT="Debug"
       shift
       ;;
     -r|--release)
-      BUILD_VARIANT="release"
+      BUILD_VARIANT="Release"
       shift
       ;;
     --build-all-deps)
@@ -107,14 +107,14 @@ if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   export CC=$target_host-$cc_compiler
   export CXX=$target_host-$cxx_compiler
 
-  XCOMPILE_PROFILE="-pr:b .conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
+  XCOMPILE_PROFILE="-pr:b .conan/profiles/linux_${BUILD_VARIANT}"
 fi
 
 # Enable Conan revision handling to enable pinning googleapis recipe revision (see conanfile.py)
 export CONAN_REVISIONS_ENABLED=1
 
 conan install \
-    -pr:a .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
+    -pr:a .conan/profiles/linux_${BUILD_VARIANT} \
     ${XCOMPILE_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \
     .
