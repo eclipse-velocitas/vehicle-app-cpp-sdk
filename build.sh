@@ -19,6 +19,8 @@
 
 set -e
 
+source ./.scripts/common.sh
+
 function print_help() {
   echo "Build targets of the project
 ============================================================================
@@ -39,7 +41,7 @@ Arguments:
 }
 
 BUILD_VARIANT=Debug
-BUILD_ARCH=$(arch)
+BUILD_ARCH=$( get_valid_cross_compile_architecture $(arch) )
 HOST_ARCH=${BUILD_ARCH}
 BUILD_TARGET=all
 STATIC_BUILD=OFF
@@ -83,7 +85,12 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -x|--cross)
-      HOST_ARCH="$2"
+      HOST_ARCH=$( get_valid_cross_compile_architecture "$2" )
+
+      if [ "$?" -eq 1 ]; then
+        echo "Invalid cross-compile architecture '$2'!"
+        exit 1
+      fi
       shift
       shift
       ;;
@@ -135,8 +142,9 @@ fi
 
 mkdir -p build
 conan build . \
-  -pr:a .conan/profiles/linux_${BUILD_VARIANT} \
-  -s build_type=${BUILD_VARIANT} \
+  -pr:h .conan/profiles/linux_${HOST_ARCH} \
+  -pr:b .conan/profiles/linux_${BUILD_ARCH} \
+  -s:a build_type=${BUILD_VARIANT} \
   -o:a="&:STATIC_BUILD=${STATIC_BUILD}" \
   -o:a="&:SDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES}" \
   -o:a="&:SDK_BUILD_TESTS=${SDK_BUILD_TESTS}" \
