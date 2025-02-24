@@ -39,7 +39,7 @@ Arguments:
 }
 
 BUILD_VARIANT="Debug"
-BUILD_ARCH=$(arch)
+BUILD_ARCH=$( get_valid_cross_compile_architecture $(arch) )
 HOST_ARCH=${BUILD_ARCH}
 WHICH_DEPS_TO_BUILD="missing"
 
@@ -58,7 +58,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -x|--cross)
-      HOST_ARCH=$( get_valid_cross_compile_architecute "$2" )
+      HOST_ARCH=$( get_valid_cross_compile_architecture "$2" )
 
       if [ "$?" -eq 1 ]; then
         echo "Invalid cross-compile architecture '$2'!"
@@ -115,6 +115,7 @@ export CONAN_REVISIONS_ENABLED=1
 
 conan install \
     -pr:a .conan/profiles/linux_${BUILD_VARIANT} \
-    ${XCOMPILE_PROFILE} \
+    -s:h arch=${HOST_ARCH} \
+    -s:b arch=${BUILD_ARCH} \
     --build "${WHICH_DEPS_TO_BUILD}" \
     .

@@ -142,7 +142,7 @@ conan build . \
   -o:a="&:SDK_BUILD_TESTS=${SDK_BUILD_TESTS}" \
   -o:a="&:COVERAGE=${GEN_COVERAGE}" \
   -o:a="&:BUILD_TARGET=${BUILD_TARGET}" \
-  -o:a="&:BUILD_ARCH=${BUILD_ARCH}" \
-  -o:a="&:HOST_ARCH=${HOST_ARCH}" \
+  -s:h arch=${HOST_ARCH} \
+  -s:b arch=${BUILD_ARCH} \
   --build $WHICH_DEPS_TO_BUILD \
   -c tools.build:jobs=$NUM_JOBS

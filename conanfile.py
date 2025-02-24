@@ -51,8 +51,6 @@ class VehicleAppCppSdkConan(ConanFile):
         "SDK_BUILD_TESTS": ["ON", "OFF"],
         "COVERAGE": ["ON", "OFF"],
         "BUILD_TARGET": ["ANY"],
-        "BUILD_ARCH": ["ANY"],
-        "HOST_ARCH": ["ANY"],
     }
     default_options = {
         "shared": False,
@@ -62,8 +60,6 @@ class VehicleAppCppSdkConan(ConanFile):
         "SDK_BUILD_TESTS": "OFF",
         "COVERAGE": "OFF",
         "BUILD_TARGET": "all",
-        "BUILD_ARCH": os.uname().machine,
-        "HOST_ARCH": os.uname().machine,
     }
 
     exports = "version.txt"
