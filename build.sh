@@ -127,13 +127,13 @@ mkdir -p build && cd build
 # any of Conan's CMake generators at the moment, hence we parse the conanbuildinfo.txt which
 # is generated and holds these paths. This allows us to always use the protoc and grpc cpp plugin
 # of the build system.
-BUILD_TOOLS_PATH=""
-CONAN_BUILD_TOOLS_PATHS=$(sed '/^PATH=/!d;s/PATH=//g;s/,/\n/g' ./conanbuildinfo.txt | tr -d '[]'\" )
-while read -r p; do
-  if [[ ! -z "${p// }" ]]; then
-    BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"
-  fi
-done < <(echo "$CONAN_BUILD_TOOLS_PATHS")
+# BUILD_TOOLS_PATH=""
+# CONAN_BUILD_TOOLS_PATHS=$(sed '/^PATH=/!d;s/PATH=//g;s/,/\n/g' ./conanbuildinfo.txt | tr -d '[]'\" )
+# while read -r p; do
+#   if [[ ! -z "${p// }" ]]; then
+#     BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"
+#   fi
+# done < <(echo "$CONAN_BUILD_TOOLS_PATHS")
 
 XCOMPILE_TOOLCHAIN_FILE=""
 if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
@@ -152,7 +152,7 @@ cmake --no-warn-unused-cli \
   -B../build \
   -G Ninja \
   -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-  -DBUILD_TOOLS_PATH:STRING="${BUILD_TOOLS_PATH}" \
+  -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_toolchain.cmake \
   ${XCOMPILE_TOOLCHAIN_FILE} ..
-cmake --build . --config ${BUILD_VARIANT} --target ${BUILD_TARGET} --
+cmake --build . -v --config ${BUILD_VARIANT} --target ${BUILD_TARGET}
 cd ..
