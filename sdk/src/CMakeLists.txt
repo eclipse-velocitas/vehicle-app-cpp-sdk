@@ -14,6 +14,14 @@
 
 set(TARGET_NAME "vehicle-app-sdk")
 
+find_package(fmt REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(PahoMqttCpp REQUIRED)
+find_package(eclipse-paho-mqtt-c REQUIRED)
+find_package(protobuf REQUIRED)
+find_package(absl REQUIRED)
+
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp
     sdk/Model.cpp
@@ -47,8 +55,13 @@ add_library(${TARGET_NAME}
 )
 
 include_directories(
-    ${CMAKE_BINARY_DIR}/gens
-    ../include
+    ${fmt_INCLUDE_DIR}
+    ${nlohmann_json_INCLUDE_DIR}
+    ${gRPC_INCLUDE_DIR}
+    ${absl_INCLUDE_DIR}
+    ${protobuf_INCLUDE_DIR}
+    ${PahoMqttCpp_INCLUDE_DIR}
+    ${eclipse-paho-mqtt-c_INCLUDE_DIR}
     .
 )
 
@@ -57,9 +70,9 @@ add_dependencies(${TARGET_NAME}
 )
 
 target_link_libraries(${TARGET_NAME}
-    CONAN_PKG::grpc
-    CONAN_PKG::fmt
-    CONAN_PKG::paho-mqtt-cpp
-    CONAN_PKG::nlohmann_json
+    gRPC::grpc++
+    fmt::fmt
+    PahoMqttCpp::paho-mqttpp3-static
+    nlohmann_json::nlohmann_json
     vehicle-app-sdk-generated-grpc
 )
