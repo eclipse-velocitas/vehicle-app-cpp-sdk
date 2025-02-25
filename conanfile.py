@@ -16,8 +16,9 @@ import os
 import re
 import subprocess
 
-from conan.tools.cmake import cmake_layout
-from conans import ConanFile, tools
+from conan import ConanFile
+from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.scm import Git
 
 
 
@@ -54,7 +55,7 @@ class VehicleAppCppSdkConan(ConanFile):
         ("zlib/1.3.1"),
         ("zstd/1.5.5"),
     ]
-    generators = "cmake"
+    generators = "CMakeDeps", "CMakeToolchain"
     author = "Robert Bosch GmbH"
 
     # Binary configuration
@@ -69,7 +70,7 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def set_version(self):
         try:
-            git = tools.Git(folder=".")
+            git = Git(folder=".")
             tag = git.get_tag()
             if tag is not None:
                 version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
@@ -111,7 +112,7 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package(self):
         self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.h", src="../build/gens", dst="include", keep_path=True)
+        self.copy("*.h", src="../build/sdk/proto", dst="include", keep_path=True)
         self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
 
     def package_info(self):

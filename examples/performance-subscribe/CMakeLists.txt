@@ -20,12 +20,7 @@ add_executable(${TARGET_NAME}
 )
 
 include_directories(
-    ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-add_dependencies(${TARGET_NAME}
-    vehicle-app-sdk
 )
 
 target_link_libraries(${TARGET_NAME}

@@ -12,7 +12,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-include_directories(example_model)
+find_package(fmt CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+
+include_directories(
+    ${fmt_INCLUDE_DIR}
+    ${nlohmann_json_INCLUDE_DIR}
+    example_model
+)
 
 # Currently only adding examples that can be tested without additional velocitas code generation
 

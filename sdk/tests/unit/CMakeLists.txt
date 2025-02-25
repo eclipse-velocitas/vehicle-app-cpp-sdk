@@ -14,6 +14,10 @@
 
 set(TARGET_NAME "sdk_utests")
 
+find_package(fmt CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
+find_package(protobuf CONFIG REQUIRED)
+
 add_executable(${TARGET_NAME}
     testmain.cpp
     AsyncResult_tests.cpp
@@ -37,10 +41,6 @@ add_executable(${TARGET_NAME}
     vdb/grpc/sdv_databroker_v1/BrokerClient_tests.cpp
 )
 
-add_dependencies(${TARGET_NAME}
-    vehicle-app-sdk
-)
-
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
     gmock
@@ -49,9 +49,12 @@ target_link_libraries(${TARGET_NAME}
 include(GoogleTest)
 
 include_directories(
+    ${fmt_INCLUDE_DIR}
+    ${absl_INCLUDE_DIR}
+    ${protobuf_INCLUDE_DIR}
+    ${gRPC_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
     ${CMAKE_CURRENT_SOURCE_DIR}/../model
-    ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
 )
 

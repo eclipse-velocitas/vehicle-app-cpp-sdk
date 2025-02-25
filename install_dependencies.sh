@@ -92,7 +92,8 @@ echo "Building deps      ${WHICH_DEPS_TO_BUILD}"
 
 mkdir -p build
 
-XCOMPILE_PROFILE=""
+HOST_PROFILE=".conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT}"
+BUILD_PROFILE=${HOST_PROFILE}
 
 if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   echo "Setting up cross compilation toolchain..."
@@ -107,15 +108,12 @@ if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   export CC=$target_host-$cc_compiler
   export CXX=$target_host-$cxx_compiler
 
-  XCOMPILE_PROFILE="-pr:b .conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
+  BUILD_PROFILE=".conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
 fi
 
-# Enable Conan revision handling to enable pinning googleapis recipe revision (see conanfile.py)
-export CONAN_REVISIONS_ENABLED=1
-
 conan install \
-    -pr:h .conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT} \
-    ${XCOMPILE_PROFILE} \
+    -pr:h ${HOST_PROFILE} \
+    -pr:b ${BUILD_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \
-    -of ./build \
-    -if ./build .
+    -of . \
+    .
