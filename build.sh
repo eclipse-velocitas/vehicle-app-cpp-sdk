@@ -152,5 +152,5 @@ conan build . \
   -o:a="&:BUILD_TARGET=${BUILD_TARGET}" \
   -s:h arch=${HOST_ARCH} \
   -s:b arch=${BUILD_ARCH} \
-  --build $WHICH_DEPS_TO_BUILD \
+  --build=$WHICH_DEPS_TO_BUILD \
   -c tools.build:jobs=$NUM_JOBS

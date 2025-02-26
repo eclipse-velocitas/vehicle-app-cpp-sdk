@@ -17,6 +17,7 @@ import re
 import subprocess
 
 from conan import ConanFile
+from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy
 
@@ -142,7 +143,13 @@ class VehicleAppCppSdkConan(ConanFile):
         # self.options["protobuf"].shared = True
 
     def layout(self):
-        cmake_layout(self, src_folder=".")
+        cmake_layout(
+            self,
+            src_folder=".",
+            build_folder="build"
+            if not cross_building(self)
+            else f"build-{self.settings.arch}",
+        )
 
     def generate(self):
         # This generates "conan_toolchain.cmake" in self.generators_folder

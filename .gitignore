@@ -49,7 +49,7 @@
 *.pyc
 
 # CMake
-build
+build*/
 CMakeUserPresets.json
 
 # Mac files

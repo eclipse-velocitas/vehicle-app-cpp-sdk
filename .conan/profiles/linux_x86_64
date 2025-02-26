@@ -8,3 +8,6 @@ compiler.libcxx=libstdc++11
 CC=x86_64-linux-gnu-gcc
 CXX=x86_64-linux-gnu-g++
 LD=x86_64-linux-gnu-ld
+
+[conf]
+tools.cmake.cmaketoolchain:user_toolchain = ["/workspaces/vehicle-app-cpp-sdk/cmake/x86_64.cmake"]
