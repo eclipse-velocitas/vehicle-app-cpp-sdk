@@ -15,7 +15,7 @@
 |fasteners|0.19|Apache 2.0|
 |filelock|3.17.0|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.6.7|MIT|
+|identify|2.6.8|MIT|
 |idna|3.10|BSD|
 |jinja2|3.1.5|BSD|
 |lxml|5.3.1|New BSD|
