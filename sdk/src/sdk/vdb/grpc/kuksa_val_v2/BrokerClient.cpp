@@ -158,8 +158,8 @@ void BrokerClient::onGetValuesError(const grpc::Status& status, const MetadataLi
 }
 
 namespace {
-const std::string errorMessagePart1 = "Provider for vss_id ";
-const std::string errorMessagePart2 = " not available";
+const std::string errorMessagePart1 = "Provider for vss_id "; // NOLINT(runtime/string)
+const std::string errorMessagePart2 = " not available";       // NOLINT(runtime/string)
 
 // The databroker indicates a missing provider of at least one of the addressed signals with the
 // error message "Provider for vss_id <some id> not available".
