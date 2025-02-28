@@ -39,6 +39,7 @@ add_library(${TARGET_NAME}
     sdk/vdb/grpc/common/TypeConversions.cpp
     sdk/vdb/grpc/kuksa_val_v2/BrokerAsyncGrpcFacade.cpp
     sdk/vdb/grpc/kuksa_val_v2/BrokerClient.cpp
+    sdk/vdb/grpc/kuksa_val_v2/Metadata.cpp
     sdk/vdb/grpc/kuksa_val_v2/TypeConversions.cpp
     sdk/vdb/grpc/sdv_databroker_v1/BrokerAsyncGrpcFacade.cpp
     sdk/vdb/grpc/sdv_databroker_v1/BrokerClient.cpp

@@ -116,7 +116,7 @@ The possible names of channel arguments are as they are defined in the above lin
 }
 ```
 
-The buffer size for subscribe requests to the databroker can be set via environment variable `SDV_SUBSCRIBE_BUFFER_SIZE` (default is 0).
+The buffer size for subscribe requests to the databroker can be set via environment variable `SDV_SUBSCRIBE_BUFFER_SIZE`. If not set it defaults to 0, whose meaning is described in the [interface definition (proto) of the databroker](sdk/proto/kuksa/val/v2/val.proto).
 
 ## Documentation
 * [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/)
