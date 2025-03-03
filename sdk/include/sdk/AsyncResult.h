@@ -57,7 +57,7 @@ private:
  */
 struct VoidResult {};
 
-enum class CallState { ONGOING, CANCELLING, COMPLETED, FAILED };
+enum class CallState { ONGOING, CANCELING, COMPLETED, FAILED };
 
 /**
  * @brief Single result of an asynchronous operation which provides
