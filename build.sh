@@ -150,5 +150,5 @@ conan build . \
   -s:h arch=${HOST_ARCH} \
   -s:b arch=${BUILD_ARCH} \
   --build=$WHICH_DEPS_TO_BUILD \
-  "${CUSTOM_TOOLCHAIN}" \
+  ${CUSTOM_TOOLCHAIN} \
   -c tools.build:jobs=$NUM_JOBS
