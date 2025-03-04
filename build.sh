@@ -130,14 +130,11 @@ echo "Build SDK examples ${SDK_BUILD_EXAMPLES}"
 echo "Static build       ${STATIC_BUILD}"
 echo "Coverage           ${GEN_COVERAGE}"
 
-CMAKE_CXX_FLAGS="-g -O0"
-
-if [ "${BUILD_VARIANT}" == "release" ]; then
-    CMAKE_CXX_FLAGS="-s -g -O3"
-fi
-
-if [ "${GEN_COVERAGE}" == "ON" ]; then
-  CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"
+CUSTOM_TOOLCHAIN=""
+if [ $HOST_ARCH != $BUILD_ARCH ]; then
+  echo "Cross compiling for ${HOST_ARCH}"
+  CUSTOM_TOOLCHAIN="-c tools.cmake.cmaketoolchain:user_toolchain=['/workspaces/vehicle-app-cpp-sdk/cmake/${HOST_ARCH}.cmake']"
+  echo "Using custom toolchain file: ${CUSTOM_TOOLCHAIN}"
 fi
 
 mkdir -p build
@@ -153,4 +150,5 @@ conan build . \
   -s:h arch=${HOST_ARCH} \
   -s:b arch=${BUILD_ARCH} \
   --build=$WHICH_DEPS_TO_BUILD \
+  "${CUSTOM_TOOLCHAIN}" \
   -c tools.build:jobs=$NUM_JOBS

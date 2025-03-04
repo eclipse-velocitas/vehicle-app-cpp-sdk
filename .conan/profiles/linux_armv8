@@ -8,6 +8,3 @@ compiler.libcxx=libstdc++11
 CC=aarch64-linux-gnu-gcc
 CXX=aarch64-linux-gnu-g++
 LD=aarch64-linux-gnu-ld
-
-[conf]
-tools.cmake.cmaketoolchain:user_toolchain =["/workspaces/vehicle-app-cpp-sdk/cmake/armv8.cmake"]
