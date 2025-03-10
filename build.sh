@@ -37,7 +37,7 @@ Arguments:
 "
 }
 
-BUILD_VARIANT=debug
+BUILD_VARIANT=Debug
 BUILD_ARCH=$(arch)
 HOST_ARCH=${BUILD_ARCH}
 BUILD_TARGET=all
@@ -51,11 +51,11 @@ POSITIONAL_ARGS=()
 while [[ $# -gt 0 ]]; do
   case $1 in
     -d|--debug)
-      BUILD_VARIANT="debug"
+      BUILD_VARIANT="Debug"
       shift
       ;;
     -r|--release)
-      BUILD_VARIANT="release"
+      BUILD_VARIANT="Release"
       shift
       ;;
     -t|--target)
@@ -153,6 +153,7 @@ cmake --no-warn-unused-cli \
   -G Ninja \
   -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
   -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_toolchain.cmake \
-  ${XCOMPILE_TOOLCHAIN_FILE} ..
+  ..
+  # ${XCOMPILE_TOOLCHAIN_FILE} ..
 cmake --build . -v --config ${BUILD_VARIANT} --target ${BUILD_TARGET}
 cd ..
