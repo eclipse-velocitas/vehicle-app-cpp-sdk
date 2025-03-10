@@ -22,6 +22,9 @@ set(STATIC_BUILD        OFF CACHE BOOL "Build all targets with external dependen
 
 set(CMAKE_CXX_STANDARD 17)
 
+# find_package(fmt CONFIG REQUIRED)
+# find_package(nlohmann_json CONFIG REQUIRED)
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include
 )

@@ -90,30 +90,12 @@ echo "Build arch         ${BUILD_ARCH}"
 echo "Host arch          ${HOST_ARCH}"
 echo "Building deps      ${WHICH_DEPS_TO_BUILD}"
 
-mkdir -p build
-
 HOST_PROFILE=".conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT}"
-BUILD_PROFILE=${HOST_PROFILE}
+BUILD_PROFILE=".conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
 
-if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
-  echo "Setting up cross compilation toolchain..."
-
-  toolchain=/usr/bin/${HOST_ARCH}-linux-gnu
-  target_host=${HOST_ARCH}-linux-gnu
-  cc_compiler=gcc
-  cxx_compiler=g++
-
-  export CONAN_CMAKE_FIND_ROOT_PATH=$toolchain
-  export CONAN_CMAKE_SYSROOT=$toolchain
-  export CC=$target_host-$cc_compiler
-  export CXX=$target_host-$cxx_compiler
-
-  BUILD_PROFILE=".conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
-fi
-
+mkdir -p build
 conan install \
     -pr:h ${HOST_PROFILE} \
     -pr:b ${BUILD_PROFILE} \
     --build "${WHICH_DEPS_TO_BUILD}" \
-    -of . \
     .

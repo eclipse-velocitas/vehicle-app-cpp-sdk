@@ -5,3 +5,8 @@ compiler=gcc
 compiler.version=11
 compiler.libcxx=libstdc++11
 build_type=Release
+
+[buildenv]
+CC=aarch64-linux-gnu-gcc-11
+CXX=aarch64-linux-gnu-g++-11
+LD=aarch64-linux-gnu-ld

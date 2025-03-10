@@ -14,6 +14,16 @@
 
 set(TARGET_NAME "example-seatadjusterapp")
 
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+message(STATUS "------------------------------------------------------------------------------------------------------")
+message(STATUS "${CMAKE_CURRENT_LIST_DIR}")
+message(STATUS "------------------------------------------------------------------------------------------------------")
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+message(STATUS "------------------------------------------------------------------------------------------------------")
+
 add_executable(${TARGET_NAME}
     src/SeatAdjusterApp.cpp
 )

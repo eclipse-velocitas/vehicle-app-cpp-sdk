@@ -17,6 +17,7 @@ import re
 import subprocess
 
 from conan import ConanFile
+from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.scm import Git
 
@@ -57,6 +58,7 @@ class VehicleAppCppSdkConan(ConanFile):
     exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "cmake/*", "version.txt"
 
     def set_version(self):
+        print("########################## set_version ##########################")
         try:
             git = Git(folder=".")
             tag = git.get_tag()
@@ -79,19 +81,28 @@ class VehicleAppCppSdkConan(ConanFile):
 
 
     def config_options(self):
-        if self.settings.os == "Linux":
-            del self.options.fPIC
+        print("########################## config_options ##########################")
+        if self.settings.get_safe("os") == "Windows":
+            self.options.rm_safe("fPIC")
 
-    def layout(self):
-        cmake_layout(self, src_folder="sdk")
+    def configure(self):
+        print("########################## configure ##########################")
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def generate(self):
-        #tc = CMakeToolchain(self)
-        # tc.generate()
-        # commented out since we rely on our build script to set up cmake
-        pass
+        print("########################## generate ##########################")
+
+    def layout(self):
+        print("########################## layout ##########################")
+        cmake_layout(
+            self, 
+            src_folder="sdk",
+            build_folder="build" if not cross_building(self) else f"build_{self.settings.os}_{self.settings.arch}",
+        )
 
     def build(self):
+        print("########################## build ##########################")
         build_type = self.settings.get_safe(
             "build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
@@ -102,11 +113,13 @@ class VehicleAppCppSdkConan(ConanFile):
             f"cd ../.. && ./install_dependencies.sh -x {arch} && ./build.sh {option} -x {arch} --no-examples --no-tests", shell=True)
 
     def package(self):
+        print("########################## package ##########################")
         self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
         self.copy("*.h", src="../build/sdk/proto", dst="include", keep_path=True)
         self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
 
     def package_info(self):
+        print("########################## package_info ##########################")
         self.cpp_info.includedirs = ["include"]
         self.cpp_info.libdirs = ["lib"]
         self.cpp_info.bindirs = ["bin"]
@@ -114,9 +127,12 @@ class VehicleAppCppSdkConan(ConanFile):
                               "vehicle-app-sdk-generated-grpc"]
 
     def imports(self):
+        print("########################## imports ##########################")
         self.copy("license*", src=".", dst="./licenses",
                   folder=True, ignore_case=True)
 
     def build_requirements(self):
+        print("########################## build_requirements ##########################")
         # 'build' context (protoc.exe will be available)
-        self.tool_requires("grpc/1.50.1")
+        self.tool_requires("grpc/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
