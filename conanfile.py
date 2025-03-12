@@ -87,6 +87,14 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def configure(self):
         print("########################## configure ##########################")
+        self.options["grpc"].csharp_ext = False
+        self.options["grpc"].php_plugin = False
+        self.options["grpc"].node_plugin = False
+        self.options["grpc"].otel_plugin = False
+        self.options["grpc"].ruby_plugin = False
+        self.options["grpc"].csharp_plugin = False
+        self.options["grpc"].python_plugin = False
+        self.options["grpc"].objective_c_plugin = False
         if self.options.shared:
             self.options.rm_safe("fPIC")
 

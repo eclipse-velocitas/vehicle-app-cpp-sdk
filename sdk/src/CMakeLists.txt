@@ -14,13 +14,13 @@
 
 set(TARGET_NAME "vehicle-app-sdk")
 
-find_package(fmt REQUIRED)
-find_package(gRPC REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(PahoMqttCpp REQUIRED)
-find_package(eclipse-paho-mqtt-c REQUIRED)
-find_package(protobuf REQUIRED)
-find_package(absl REQUIRED)
+# find_package(fmt REQUIRED)
+# find_package(gRPC REQUIRED)
+# find_package(nlohmann_json REQUIRED)
+# find_package(PahoMqttCpp REQUIRED)
+# find_package(eclipse-paho-mqtt-c REQUIRED)
+# find_package(protobuf REQUIRED)
+# find_package(absl REQUIRED)
 
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp

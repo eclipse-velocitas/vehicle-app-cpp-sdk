@@ -14,9 +14,9 @@
 
 set(TARGET_NAME "sdk_utests")
 
-find_package(fmt CONFIG REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
-find_package(protobuf CONFIG REQUIRED)
+# find_package(fmt CONFIG REQUIRED)
+# find_package(gRPC CONFIG REQUIRED)
+# find_package(protobuf CONFIG REQUIRED)
 
 add_executable(${TARGET_NAME}
     testmain.cpp

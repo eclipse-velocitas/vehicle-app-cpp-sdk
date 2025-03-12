@@ -22,8 +22,15 @@ set(STATIC_BUILD        OFF CACHE BOOL "Build all targets with external dependen
 
 set(CMAKE_CXX_STANDARD 17)
 
-# find_package(fmt CONFIG REQUIRED)
-# find_package(nlohmann_json CONFIG REQUIRED)
+project(VehicleAppCppSdk CXX)
+
+find_package(fmt REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(PahoMqttCpp REQUIRED)
+find_package(eclipse-paho-mqtt-c REQUIRED)
+find_package(protobuf REQUIRED)
+find_package(absl REQUIRED)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include
@@ -31,7 +38,7 @@ include_directories(
 
 if(SDK_STANDALONE)
     # set the project name
-    project(VehicleAppCppSdk CXX)
+#    project(VehicleAppCppSdk CXX)
 
     if(STATIC_BUILD)
         set(BUILD_SHARED_LIBS OFF)
