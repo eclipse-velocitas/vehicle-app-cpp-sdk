@@ -80,8 +80,8 @@
 #     list(APPEND PROTO_HDRS ${OUTPUT_FILE_PATH_PB_HDR})
 # endforeach()
 
-find_package(gRPC CONFIG REQUIRED)
-find_package(Protobuf REQUIRED)
+# find_package(gRPC CONFIG REQUIRED)
+# find_package(Protobuf REQUIRED)
 
 set(TARGET_NAME "vehicle-app-sdk-generated-grpc")
 
