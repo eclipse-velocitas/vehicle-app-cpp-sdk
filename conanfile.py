@@ -28,33 +28,13 @@ class VehicleAppCppSdkConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
-    # In general: Pin recipe revisions of dependencies having further dependencies to avoid build issues due to updated recipes
-    # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
-    # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
         ("abseil/20240116.2"),
-        ("bzip2/1.0.8"),
-        ("c-ares/1.34.1"),
-        ("cpr/1.11.0"),
-        ("fmt/11.0.2"),
+        ("fmt/11.1.1"),
         ("grpc/1.67.1"),
-        ("libcap/2.69"),
-        ("libcurl/8.10.1"),
-        ("libmount/2.39.2"),
-        ("libselinux/3.6"),
-        ("libsystemd/255.10"),
-        ("libxcrypt/4.4.36"),
-        ("lz4/1.9.4"),
         ("nlohmann_json/3.11.3"),
-        ("openssl/3.3.2"),
         ("paho-mqtt-c/1.3.13"),
         ("paho-mqtt-cpp/1.4.0"),
-        ("pcre2/10.42"),
-        ("protobuf/5.27.0"),
-        ("re2/20230301"),
-        ("xz_utils/5.4.5"),
-        ("zlib/1.3.1"),
-        ("zstd/1.5.5"),
     ]
     generators = "CMakeDeps", "CMakeToolchain"
     author = "Robert Bosch GmbH"
@@ -72,20 +52,20 @@ class VehicleAppCppSdkConan(ConanFile):
     def set_version(self):
         print("########################## set_version ##########################")
         try:
-            git = Git(folder=".")
-            tag = git.get_tag()
-            if tag is not None:
+            git = Git(self, folder=".")
+            tag = git.run("tag --points-at HEAD").strip()
+            if tag:
                 version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
                 if version_tag_pattern.match(tag):
                     tag = tag[1:] # cut off initial v if a semver tag
 
-            version = tag if tag is not None else git.get_branch()
-            if version == "HEAD (no branch)":
-                version = git.get_commit()
-            self.version = version.replace("/", "_")
+            version = tag if tag else git.run("symbolic-ref -q --short HEAD").strip()
+            if not version:
+                version = git.get_commit(repository=True)
+            self.version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(self.version)
         except:
-            print("Not a git repository, reading version from static file...")
+            print("Maybe not a git repository, reading version from static file...")
             if os.path.isfile("./version.txt"):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
             else:
@@ -99,19 +79,16 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def configure(self):
         print("########################## configure ##########################")
-        self.options["grpc"].csharp_ext = False
-        self.options["grpc"].php_plugin = False
-        self.options["grpc"].node_plugin = False
-        self.options["grpc"].otel_plugin = False
-        self.options["grpc"].ruby_plugin = False
-        self.options["grpc"].csharp_plugin = False
-        self.options["grpc"].python_plugin = False
-        self.options["grpc"].objective_c_plugin = False
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def generate(self):
-        print("########################## generate ##########################")
+    def requirements(self):
+        print("########################## requirements ##########################")
+
+    def build_requirements(self):
+        print("########################## build_requirements ##########################")
+        # 'build' context (protoc.exe will be available)
+        self.tool_requires("grpc/<host_version>")
 
     def layout(self):
         print("########################## layout ##########################")
@@ -120,6 +97,9 @@ class VehicleAppCppSdkConan(ConanFile):
             src_folder="sdk",
             build_folder="build" if not cross_building(self) else f"build_{self.settings.os}_{self.settings.arch}",
         )
+
+    def generate(self):
+        print("########################## generate ##########################")
 
     def build(self):
         print("########################## build ##########################")
@@ -147,9 +127,3 @@ class VehicleAppCppSdkConan(ConanFile):
         print("########################## imports ##########################")
         self.copy("license*", src=".", dst="./licenses",
                   folder=True, ignore_case=True)
-
-    def build_requirements(self):
-        print("########################## build_requirements ##########################")
-        # 'build' context (protoc.exe will be available)
-        self.tool_requires("grpc/<host_version>")
-        self.tool_requires("protobuf/<host_version>")

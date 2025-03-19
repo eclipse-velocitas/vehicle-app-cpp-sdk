@@ -14,24 +14,26 @@
 
 set(TARGET_NAME "example-seatadjusterapp")
 
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-message(STATUS "------------------------------------------------------------------------------------------------------")
-message(STATUS "${CMAKE_CURRENT_LIST_DIR}")
-message(STATUS "------------------------------------------------------------------------------------------------------")
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-message(STATUS "------------------------------------------------------------------------------------------------------")
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# message(STATUS "------------------------------------------------------------------------------------------------------")
+# message(STATUS "${CMAKE_CURRENT_LIST_DIR}")
+# message(STATUS "------------------------------------------------------------------------------------------------------")
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+# message(STATUS "------------------------------------------------------------------------------------------------------")
 
 add_executable(${TARGET_NAME}
     src/SeatAdjusterApp.cpp
 )
 
-include_directories(
+target_include_directories(${TARGET_NAME}
+    PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
+    example_model
 )

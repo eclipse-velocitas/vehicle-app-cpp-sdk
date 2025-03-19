@@ -12,18 +12,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set(TARGET_NAME "example-set-data-points")
+set(TARGET_NAME "example_model")
 
-add_executable(${TARGET_NAME}
-    src/SetDataPointsApp.cpp
-)
+add_library(${TARGET_NAME} INTERFACE)
 
-target_include_directories(${TARGET_NAME}
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(${TARGET_NAME}
-    vehicle-app-sdk
-    example_model
-)
+target_include_directories(${TARGET_NAME} INTERFACE .)

@@ -32,10 +32,6 @@ find_package(eclipse-paho-mqtt-c REQUIRED)
 find_package(protobuf REQUIRED)
 find_package(absl REQUIRED)
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include
-)
-
 if(SDK_STANDALONE)
     # set the project name
 #    project(VehicleAppCppSdk CXX)

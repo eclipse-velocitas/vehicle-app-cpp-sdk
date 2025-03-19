@@ -19,10 +19,12 @@ add_executable(${TARGET_NAME}
     src/PerformanceTestApp.cpp
 )
 
-include_directories(
+target_include_directories(${TARGET_NAME}
+    PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
+    example_model
 )
