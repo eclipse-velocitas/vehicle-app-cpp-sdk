@@ -12,24 +12,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-#find_package(fmt CONFIG REQUIRED)
-#find_package(nlohmann_json CONFIG REQUIRED)
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# message(STATUS "------------------------------------------------------------------------------------------------------")
+# message(STATUS "${CMAKE_CURRENT_LIST_DIR}")
+# message(STATUS "------------------------------------------------------------------------------------------------------")
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+# message(STATUS "------------------------------------------------------------------------------------------------------")
 
-include_directories(
-    ${fmt_INCLUDE_DIR}
-    ${nlohmann_json_INCLUDE_DIR}
-    example_model
-)
-
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-message(STATUS "------------------------------------------------------------------------------------------------------")
-message(STATUS "${CMAKE_CURRENT_LIST_DIR}")
-message(STATUS "------------------------------------------------------------------------------------------------------")
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-message(STATUS "------------------------------------------------------------------------------------------------------")
+add_subdirectory(example_model)
 
 # Currently only adding examples that can be tested without additional velocitas code generation
 

@@ -14,14 +14,6 @@
 
 set(TARGET_NAME "vehicle-app-sdk")
 
-# find_package(fmt REQUIRED)
-# find_package(gRPC REQUIRED)
-# find_package(nlohmann_json REQUIRED)
-# find_package(PahoMqttCpp REQUIRED)
-# find_package(eclipse-paho-mqtt-c REQUIRED)
-# find_package(protobuf REQUIRED)
-# find_package(absl REQUIRED)
-
 add_library(${TARGET_NAME}
     sdk/VehicleApp.cpp
     sdk/Model.cpp
@@ -54,8 +46,11 @@ add_library(${TARGET_NAME}
     sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.cpp
 )
 
-include_directories(
+target_include_directories(${TARGET_NAME}
+    PUBLIC
+    ../include
     ${fmt_INCLUDE_DIR}
+    PRIVATE
     ${nlohmann_json_INCLUDE_DIR}
     ${gRPC_INCLUDE_DIR}
     ${absl_INCLUDE_DIR}
@@ -65,9 +60,9 @@ include_directories(
     .
 )
 
-add_dependencies(${TARGET_NAME}
-    vehicle-app-sdk-generated-grpc
-)
+# add_dependencies(${TARGET_NAME}
+#     vehicle-app-sdk-generated-grpc
+# )
 
 target_link_libraries(${TARGET_NAME}
     gRPC::grpc++
