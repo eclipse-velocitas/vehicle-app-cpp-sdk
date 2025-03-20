@@ -44,8 +44,7 @@ template <typename TTimeBase> TTimeBase getTimestamp() {
 } // anonymous namespace
 
 PerformanceTestApp::PerformanceTestApp(std::vector<std::string> signalList)
-    : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
-                 velocitas::IPubSubClient::createInstance("PerformanceTestApp"))
+    : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"))
     , m_signalList{std::move(signalList)} {}
 
 void PerformanceTestApp::onStart() {

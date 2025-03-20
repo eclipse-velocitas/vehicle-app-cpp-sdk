@@ -41,7 +41,9 @@ void VehicleApp::run() {
     Middleware::getInstance().start();
     Middleware::getInstance().waitUntilReady();
 
-    m_pubSubClient->connect();
+    if (m_pubSubClient) {
+        m_pubSubClient->connect();
+    }
     onStart();
     {
         std::unique_lock lk(m_stopWaitMutex);
@@ -60,18 +62,24 @@ void VehicleApp::stop() {
     logger().info("Stopping app ...");
 
     onStop();
-    m_pubSubClient->disconnect();
+    if (m_pubSubClient) {
+        m_pubSubClient->disconnect();
+    }
     Middleware::getInstance().stop();
 
     {
-        std::unique_lock lk(m_stopWaitMutex);
+        std::unique_lock lock(m_stopWaitMutex);
         m_isRunning = false;
         m_stopWaitCV.notify_all();
     }
 }
 
 AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::string& topic) {
-    return m_pubSubClient->subscribeTopic(topic);
+    if (m_pubSubClient) {
+        return m_pubSubClient->subscribeTopic(topic);
+    }
+    logger().error("subscribeToTopic(...) disfunctional: App has no PubSubClient instantiated");
+    return {};
 }
 
 AsyncResultPtr_t<DataPointReply>
@@ -98,7 +106,11 @@ AsyncSubscriptionPtr_t<DataPointReply> VehicleApp::subscribeDataPoints(const std
 }
 
 void VehicleApp::publishToTopic(const std::string& topic, const std::string& data) {
-    m_pubSubClient->publishOnTopic(topic, data);
+    if (m_pubSubClient) {
+        m_pubSubClient->publishOnTopic(topic, data);
+    } else {
+        logger().error("publishToTopic(...) ignored: App has no PubSubClient instantiated");
+    }
 }
 
 std::shared_ptr<IVehicleDataBrokerClient> VehicleApp::getVehicleDataBrokerClient() {
