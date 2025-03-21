@@ -24,11 +24,10 @@ add_library(${TARGET_NAME} STATIC
 
 target_include_directories(${TARGET_NAME}
     PUBLIC
+    ${absl_INCLUDE_DIRS}
+    ${protobuf_INCLUDE_DIRS}
+    ${gRPC_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
-    PRIVATE
-    ${absl_INCLUDE_DIR}
-    ${protobuf_INCLUDE_DIR}
-    ${gRPC_INCLUDE_DIR}
 )
 
 target_link_libraries(${TARGET_NAME}

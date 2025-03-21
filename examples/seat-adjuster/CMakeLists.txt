@@ -36,4 +36,5 @@ target_include_directories(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
     example_model
+    nlohmann_json::nlohmann_json
 )

@@ -24,6 +24,16 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(VehicleAppCppSdk CXX)
 
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# message(STATUS "------------------------------------------------------------------------------------------------------")
+# message(STATUS "${CMAKE_CURRENT_LIST_DIR}")
+# message(STATUS "------------------------------------------------------------------------------------------------------")
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+# message(STATUS "------------------------------------------------------------------------------------------------------")
+
 find_package(fmt REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(nlohmann_json REQUIRED)
