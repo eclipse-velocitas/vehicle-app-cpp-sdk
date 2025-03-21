@@ -37,8 +37,9 @@ Arguments:
 "
 }
 
-BUILD_VARIANT=Debug
+BUILD_TYPE=Debug
 BUILD_ARCH=$(arch)
+HOST_OS=Linux
 HOST_ARCH=${BUILD_ARCH}
 BUILD_TARGET=all
 STATIC_BUILD=OFF
@@ -51,11 +52,11 @@ POSITIONAL_ARGS=()
 while [[ $# -gt 0 ]]; do
   case $1 in
     -d|--debug)
-      BUILD_VARIANT="Debug"
+      BUILD_TYPE="Debug"
       shift
       ;;
     -r|--release)
-      BUILD_VARIANT="Release"
+      BUILD_TYPE="Release"
       shift
       ;;
     -t|--target)
@@ -102,7 +103,7 @@ done
 
 echo "CMake version      "`cmake --version`
 echo "Conan version      "`conan --version`
-echo "Build variant      ${BUILD_VARIANT}"
+echo "Build type         ${BUILD_TYPE}"
 echo "Build arch         ${BUILD_ARCH}"
 echo "Host arch          ${HOST_ARCH}"
 echo "Build target       ${BUILD_TARGET}"
@@ -113,7 +114,7 @@ echo "Coverage           ${GEN_COVERAGE}"
 
 CMAKE_CXX_FLAGS="-g -O0"
 
-if [ "${BUILD_VARIANT}" == "release" ]; then
+if [ "${BUILD_TYPE}" == "Release" ]; then
     CMAKE_CXX_FLAGS="-s -g -O3"
 fi
 
@@ -121,39 +122,27 @@ if [ "${GEN_COVERAGE}" == "ON" ]; then
   CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"
 fi
 
-mkdir -p build && cd build
-
-# Expose the PATH of the build-time requirements from Conan to CMake - this is NOT handled by
-# any of Conan's CMake generators at the moment, hence we parse the conanbuildinfo.txt which
-# is generated and holds these paths. This allows us to always use the protoc and grpc cpp plugin
-# of the build system.
-# BUILD_TOOLS_PATH=""
-# CONAN_BUILD_TOOLS_PATHS=$(sed '/^PATH=/!d;s/PATH=//g;s/,/\n/g' ./conanbuildinfo.txt | tr -d '[]'\" )
-# while read -r p; do
-#   if [[ ! -z "${p// }" ]]; then
-#     BUILD_TOOLS_PATH="$BUILD_TOOLS_PATH;$p"
-#   fi
-# done < <(echo "$CONAN_BUILD_TOOLS_PATHS")
-
+BUILD_FOLDER=build
 XCOMPILE_TOOLCHAIN_FILE=""
 if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
   echo "Setting up cross compilation toolchain..."
+  BUILD_FOLDER=build-${HOST_OS}-${HOST_ARCH}
   XCOMPILE_TOOLCHAIN_FILE="-DCMAKE_TOOLCHAIN_FILE=../cmake/${BUILD_ARCH}_to_${HOST_ARCH}.cmake"
 fi
+BUILD_FOLDER=${BUILD_FOLDER}/${BUILD_TYPE}
 
 # Configure CMake and build the project.
 cmake --no-warn-unused-cli \
   -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-  -DCMAKE_BUILD_TYPE:STRING=${BUILD_VARIANT} \
+  -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
   -DSTATIC_BUILD:BOOL=${STATIC_BUILD} \
   -DSDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES} \
   -DSDK_BUILD_TESTS=${SDK_BUILD_TESTS} \
-  -S.. \
-  -B../build \
+  -S . \
+  -B ${BUILD_FOLDER} \
   -G Ninja \
   -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-  -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_toolchain.cmake \
-  ..
+  -DCMAKE_TOOLCHAIN_FILE=${BUILD_FOLDER}/generators/conan_toolchain.cmake \
+  .
   # ${XCOMPILE_TOOLCHAIN_FILE} ..
-cmake --build . -v --config ${BUILD_VARIANT} --target ${BUILD_TARGET}
-cd ..
+cmake --build ${BUILD_FOLDER} -v --config ${BUILD_TYPE} --target ${BUILD_TARGET}

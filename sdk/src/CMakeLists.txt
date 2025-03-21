@@ -48,21 +48,17 @@ add_library(${TARGET_NAME}
 
 target_include_directories(${TARGET_NAME}
     PUBLIC
+    ${fmt_INCLUDE_DIRS}
+    ${absl_INCLUDE_DIRS}
+    ${gRPC_INCLUDE_DIRS}
     ../include
-    ${fmt_INCLUDE_DIR}
     PRIVATE
-    ${nlohmann_json_INCLUDE_DIR}
-    ${gRPC_INCLUDE_DIR}
-    ${absl_INCLUDE_DIR}
-    ${protobuf_INCLUDE_DIR}
-    ${PahoMqttCpp_INCLUDE_DIR}
-    ${eclipse-paho-mqtt-c_INCLUDE_DIR}
+    ${nlohmann_json_INCLUDE_DIRS}
+    ${protobuf_INCLUDE_DIRS}
+    ${PahoMqttCpp_INCLUDE_DIRS}
+    ${eclipse-paho-mqtt-c_INCLUDE_DIRS}
     .
 )
-
-# add_dependencies(${TARGET_NAME}
-#     vehicle-app-sdk-generated-grpc
-# )
 
 target_link_libraries(${TARGET_NAME}
     gRPC::grpc++

@@ -115,7 +115,7 @@ class VehicleAppCppSdkConan(ConanFile):
         if arch == "armv8":
             arch = "aarch64"
         subprocess.call(
-            f"cd ../.. && ./install_dependencies.sh -x {arch} && ./build.sh {option} -x {arch} --no-examples --no-tests", shell=True)
+            f"cd ../.. && ./build.sh -x {self.settings.arch} {option} --no-examples --no-tests", shell=True)
 
     def package(self):
         print("########################## package ##########################")

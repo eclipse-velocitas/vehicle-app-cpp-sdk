@@ -27,18 +27,19 @@ function print_help() {
 Installs the Conan dependencies of the Vehicle App AND the Vehicle App SDK
 into the local Conan cache. Has to be re-executed whenever any conanfile.txt
 or conanfile.py is updated. By default, dependencies are installed in release
-mode.
+mode and the app is expected to be built in debug mode (i.e. "mixed" mode).
 
 Arguments:
 -d, --debug         Installs all dependencies in debug mode.
--r, --release       Installs all dependencies in release mode. (default)
+-r, --release       Installs all dependencies in release mode.
 -x, --cross <arch>  Cross compiles for the specified architecture.
 --build-all-deps    Forces all dependencies to be rebuild from source.
 -h, --help          Shows this help.
 "
 }
 
-BUILD_VARIANT="release"
+PREPARE_MIXED_BUILD="true"
+BUILD_TYPE="Release"
 BUILD_ARCH=$(arch)
 HOST_ARCH=${BUILD_ARCH}
 WHICH_DEPS_TO_BUILD="missing"
@@ -46,11 +47,13 @@ WHICH_DEPS_TO_BUILD="missing"
 while [[ $# -gt 0 ]]; do
   case $1 in
     -d|--debug)
-      BUILD_VARIANT="debug"
+      PREPARE_MIXED_BUILD="false"
+      BUILD_TYPE="Debug"
       shift
       ;;
     -r|--release)
-      BUILD_VARIANT="release"
+      PREPARE_MIXED_BUILD="false"
+      BUILD_TYPE="Release"
       shift
       ;;
     --build-all-deps)
@@ -58,7 +61,8 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -x|--cross)
-      HOST_ARCH=$( get_valid_cross_compile_architecute "$2" )
+      PREPARE_MIXED_BUILD="false"
+      HOST_ARCH=$( get_valid_cross_compile_architecture "$2" )
 
       if [ "$?" -eq 1 ]; then
         echo "Invalid cross-compile architecture '$2'!"
@@ -85,17 +89,28 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo "Conan version      "`conan --version`
-echo "Build variant      ${BUILD_VARIANT}"
+echo "Build type         ${BUILD_TYPE}"
+echo "  prepare mixed    ${PREPARE_MIXED_BUILD}"
 echo "Build arch         ${BUILD_ARCH}"
 echo "Host arch          ${HOST_ARCH}"
 echo "Building deps      ${WHICH_DEPS_TO_BUILD}"
 
-HOST_PROFILE=".conan/profiles/linux_${HOST_ARCH}_${BUILD_VARIANT}"
-BUILD_PROFILE=".conan/profiles/linux_${BUILD_ARCH}_${BUILD_VARIANT}"
+HOST_PROFILE=".conan/profiles/linux_${HOST_ARCH}"
+BUILD_PROFILE=".conan/profiles/linux_${BUILD_ARCH}"
 
-mkdir -p build
+if [ "${PREPARE_MIXED_BUILD}" == "true" ]; then
+    conan install \
+        -pr:h ${HOST_PROFILE} \
+        -pr:b ${BUILD_PROFILE} \
+        -s:a="build_type=Release" \
+        -s:h="&:build_type=Debug" \
+        --build "${WHICH_DEPS_TO_BUILD}" \
+        .
+fi
+
 conan install \
     -pr:h ${HOST_PROFILE} \
     -pr:b ${BUILD_PROFILE} \
+    -s:a="build_type=${BUILD_TYPE}" \
     --build "${WHICH_DEPS_TO_BUILD}" \
     .
