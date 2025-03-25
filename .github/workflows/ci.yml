@@ -54,7 +54,7 @@ jobs:
 
       - name: Create conan package
         run: |
-          conan create --build=missing -pr:b ./.conan/profiles/linux_x86_64_release -pr:h ./.conan/profiles/${{ matrix.host }}_release . ci/testing
+          conan create --build=missing -pr:b ./.conan/profiles/linux_x86_64 -pr:h ./.conan/profiles/${{ matrix.host }} -s:a="build_type=Release" . ci/testing
 
   build-and-publish:
     runs-on: ubuntu-22.04

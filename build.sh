@@ -18,6 +18,7 @@
 #
 
 set -e
+source ./.scripts/common.sh
 
 function print_help() {
   echo "Build targets of the project
@@ -39,7 +40,7 @@ Arguments:
 
 BUILD_TYPE=Debug
 BUILD_ARCH=$(arch)
-HOST_OS=Linux
+HOST_OS=linux
 HOST_ARCH=${BUILD_ARCH}
 BUILD_TARGET=all
 STATIC_BUILD=OFF
@@ -77,7 +78,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -x|--cross)
-      HOST_ARCH="$2"
+      HOST_ARCH=$( get_valid_cross_compile_architecture "$2" )
       shift
       shift
       ;;
@@ -123,13 +124,15 @@ if [ "${GEN_COVERAGE}" == "ON" ]; then
 fi
 
 BUILD_FOLDER=build
-XCOMPILE_TOOLCHAIN_FILE=""
 if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
-  echo "Setting up cross compilation toolchain..."
   BUILD_FOLDER=build-${HOST_OS}-${HOST_ARCH}
-  XCOMPILE_TOOLCHAIN_FILE="-DCMAKE_TOOLCHAIN_FILE=../cmake/${BUILD_ARCH}_to_${HOST_ARCH}.cmake"
 fi
 BUILD_FOLDER=${BUILD_FOLDER}/${BUILD_TYPE}
+echo "Using build foler ${BUILD_FOLDER}"
+
+SRC_FOLDER=$(pwd)
+mkdir -p ${BUILD_FOLDER} && pushd ${BUILD_FOLDER}
+source generators/conanbuild.sh
 
 # Configure CMake and build the project.
 cmake --no-warn-unused-cli \
@@ -138,11 +141,12 @@ cmake --no-warn-unused-cli \
   -DSTATIC_BUILD:BOOL=${STATIC_BUILD} \
   -DSDK_BUILD_EXAMPLES=${SDK_BUILD_EXAMPLES} \
   -DSDK_BUILD_TESTS=${SDK_BUILD_TESTS} \
-  -S . \
-  -B ${BUILD_FOLDER} \
-  -G Ninja \
   -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-  -DCMAKE_TOOLCHAIN_FILE=${BUILD_FOLDER}/generators/conan_toolchain.cmake \
-  .
-  # ${XCOMPILE_TOOLCHAIN_FILE} ..
-cmake --build ${BUILD_FOLDER} -v --config ${BUILD_TYPE} --target ${BUILD_TARGET}
+  -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake \
+  -G Ninja \
+  -S ${SRC_FOLDER} \
+  -B .
+cmake --build . --target ${BUILD_TARGET}
+
+source generators/deactivate_conanbuild.sh >> /dev/null
+popd >> /dev/null

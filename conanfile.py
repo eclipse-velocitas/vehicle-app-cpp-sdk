@@ -92,19 +92,32 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def build_requirements(self):
         print("########################## build_requirements ##########################")
-        # 'build' context (protoc.exe will be available)
+        # Declare both, grpc and protobuf, here to enable proper x-build (w/o using qemu)
         self.tool_requires("grpc/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
 
     def layout(self):
         print("########################## layout ##########################")
+        os = str(self.settings.os).lower()
+        arch = str(self.settings.arch).lower()
+        if arch == "armv8":
+            arch = "aarch64"
         cmake_layout(
             self, 
             src_folder="sdk",
-            build_folder="build" if not cross_building(self) else f"build_{self.settings.os}_{self.settings.arch}",
+            build_folder="build" if not cross_building(self) else f"build-{os}-{arch}",
         )
 
     def generate(self):
         print("########################## generate ##########################")
+        print(f"{self.folders.source=}")
+        print(f"{self.source_folder=}")
+        print(f"{self.folders.build=}")
+        print(f"{self.build_folder=}")
+        print(f"{self.folders.generators=}")
+        print(f"{self.folders.root=}")
+        print(f"{self.folders.subproject=}")
+        print(f"{self.folders.build_folder_vars=}")
 
     def build(self):
         print("########################## build ##########################")
@@ -135,3 +148,50 @@ class VehicleAppCppSdkConan(ConanFile):
         print("########################## imports ##########################")
         self.copy("license*", src=".", dst="./licenses",
                   folder=True, ignore_case=True)
+
+
+
+    def build_id(self):
+        print("########################## build_id ##########################")
+
+    def compatibility(self):
+        print("########################## compatibility ##########################")
+
+    def build_id(self):
+        print("########################## build_id ##########################")
+
+    def deploy(self):
+        print("########################## deploy ##########################")
+
+    def export(self):
+        print("########################## export ##########################")
+
+    def export_sources(self):
+        print("########################## export_sources ##########################")
+
+    def finalize(self):
+        print("########################## finalize ##########################")
+
+    def init(self):
+        print("########################## init ##########################")
+
+    def package_id(self):
+        print("########################## package_id ##########################")
+
+    def set_name(self):
+        print("########################## set_name ##########################")
+
+    def source(self):
+        print("########################## source ##########################")
+
+    def system_requirements(self):
+        print("########################## system_requirements ##########################")
+
+    def test(self):
+        print("########################## test ##########################")
+
+    def validate(self):
+        print("########################## validate ##########################")
+
+    def validate_build(self):
+        print("########################## validate_build ##########################")
