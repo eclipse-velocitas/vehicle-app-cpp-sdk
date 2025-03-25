@@ -35,7 +35,7 @@ jobs:
     name: Check Conan package
     strategy:
       matrix:
-        host: ["linux_x86_64"]
+        host: ["linux-x86_64"]
       fail-fast: false
 
 
@@ -54,7 +54,7 @@ jobs:
 
       - name: Create conan package
         run: |
-          conan create --build=missing -pr:b ./.conan/profiles/linux_x86_64 -pr:h ./.conan/profiles/${{ matrix.host }} -s:a="build_type=Release" . ci/testing
+          conan create --build=missing -pr:b ./.conan/profiles/linux-x86_64 -pr:h ./.conan/profiles/${{ matrix.host }} -s:a="build_type=Release" . ci/testing
 
   build-and-publish:
     runs-on: ubuntu-22.04

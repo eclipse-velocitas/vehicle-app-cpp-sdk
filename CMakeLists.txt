@@ -14,10 +14,8 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(SDK_STANDALONE      ON CACHE BOOL "Build the SDK in standalone mode.")
 set(SDK_BUILD_TESTS     ON CACHE BOOL "Build the SDK tests.")
 set(SDK_BUILD_EXAMPLES  ON CACHE BOOL "Build the SDK examples.")
-
 set(STATIC_BUILD        OFF CACHE BOOL "Build all targets with external dependencies linked in statically.")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -34,34 +32,24 @@ project(VehicleAppCppSdk CXX)
 # endforeach()
 # message(STATUS "------------------------------------------------------------------------------------------------------")
 
-find_package(fmt REQUIRED)
-find_package(gRPC REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(PahoMqttCpp REQUIRED)
-find_package(eclipse-paho-mqtt-c REQUIRED)
-find_package(protobuf REQUIRED)
-find_package(absl REQUIRED)
+find_package(fmt REQUIRED CONFIG)
+find_package(gRPC REQUIRED CONFIG)
+find_package(nlohmann_json REQUIRED CONFIG)
+find_package(PahoMqttCpp REQUIRED CONFIG)
+find_package(eclipse-paho-mqtt-c REQUIRED CONFIG)
+find_package(protobuf REQUIRED CONFIG)
+find_package(absl REQUIRED CONFIG)
 
-if(SDK_STANDALONE)
-    # set the project name
-#    project(VehicleAppCppSdk CXX)
+if(STATIC_BUILD)
+    set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
-    if(STATIC_BUILD)
-        set(BUILD_SHARED_LIBS OFF)
-        set(CMAKE_EXE_LINKER_FLAGS "-static")
-    endif()
-
-    set(BUILD_EXAMPLES CACHE BOOL true)
-    set(BUILD_TESTS CACHE BOOL true)
-
-    find_program(CCACHE_FOUND ccache)
-
-    if(CCACHE_FOUND)
-        message("Found ccache installation")
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    endif()
-
-endif(SDK_STANDALONE)
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    message("Found ccache installation")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif()
 
 if(SDK_BUILD_TESTS)
     enable_testing()

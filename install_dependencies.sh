@@ -38,8 +38,8 @@ Arguments:
 "
 }
 
-PREPARE_MIXED_BUILD="true"
 BUILD_TYPE="Release"
+PREPARE_MIXED_BUILD="true"
 BUILD_ARCH=$(arch)
 HOST_ARCH=${BUILD_ARCH}
 WHICH_DEPS_TO_BUILD="missing"
@@ -95,10 +95,11 @@ echo "Build arch         ${BUILD_ARCH}"
 echo "Host arch          ${HOST_ARCH}"
 echo "Building deps      ${WHICH_DEPS_TO_BUILD}"
 
-HOST_PROFILE=".conan/profiles/linux_${HOST_ARCH}"
-BUILD_PROFILE=".conan/profiles/linux_${BUILD_ARCH}"
+HOST_PROFILE=".conan/profiles/linux-${HOST_ARCH}"
+BUILD_PROFILE=".conan/profiles/linux-${BUILD_ARCH}"
 
 if [ "${PREPARE_MIXED_BUILD}" == "true" ]; then
+    echo "Installing dependencies for \"mixed\" build: Dependencies in Release mode, SDK/examples/tests in Debug mode ..."
     conan install \
         -pr:h ${HOST_PROFILE} \
         -pr:b ${BUILD_PROFILE} \
@@ -108,6 +109,7 @@ if [ "${PREPARE_MIXED_BUILD}" == "true" ]; then
         .
 fi
 
+echo "Installing dependencies for uniform build in ${BUILD_TYPE} mode ..."
 conan install \
     -pr:h ${HOST_PROFILE} \
     -pr:b ${BUILD_PROFILE} \

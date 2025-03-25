@@ -56,6 +56,7 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def set_version(self):
         print("########################## set_version ##########################")
+        print("Determining SDK version ...")
         try:
             git = Git(self, folder=".")
             tag = git.run("tag --points-at HEAD").strip()
@@ -75,7 +76,7 @@ class VehicleAppCppSdkConan(ConanFile):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
             else:
                 raise FileNotFoundError("Missing version.txt!")
-
+        print(f"SDK version: {self.version}")
 
     def config_options(self):
         print("########################## config_options ##########################")
@@ -128,7 +129,7 @@ class VehicleAppCppSdkConan(ConanFile):
         if arch == "armv8":
             arch = "aarch64"
         subprocess.call(
-            f"cd ../.. && ./build.sh -x {self.settings.arch} {option} --no-examples --no-tests", shell=True)
+            f"pwd && cd ../.. && ./build.sh -x {self.settings.arch} {option} --no-examples --no-tests", shell=True)
 
     def package(self):
         print("########################## package ##########################")

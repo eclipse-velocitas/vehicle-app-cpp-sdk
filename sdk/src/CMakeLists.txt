@@ -53,10 +53,6 @@ target_include_directories(${TARGET_NAME}
     ${gRPC_INCLUDE_DIRS}
     ../include
     PRIVATE
-    ${nlohmann_json_INCLUDE_DIRS}
-    ${protobuf_INCLUDE_DIRS}
-    ${PahoMqttCpp_INCLUDE_DIRS}
-    ${eclipse-paho-mqtt-c_INCLUDE_DIRS}
     .
 )
 

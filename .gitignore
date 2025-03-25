@@ -50,6 +50,7 @@
 
 # CMake
 build*
+CMakeUserPresets.json
 
 # Mac files
 .DS_Store
