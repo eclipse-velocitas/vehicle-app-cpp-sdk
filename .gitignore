@@ -54,11 +54,6 @@ build*
 # Mac files
 .DS_Store
 
-# Downloaded assets
-Assets
-.vscode/scripts/assets/
-get_helm.sh
-
 # conan licenses
 licenses
 conan_imports_manifest.txt
