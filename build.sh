@@ -123,11 +123,15 @@ if [ "${GEN_COVERAGE}" == "ON" ]; then
   CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"
 fi
 
-BUILD_FOLDER=build
-if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
-  BUILD_FOLDER=build-${HOST_OS}-${HOST_ARCH}
+# BUILD_FOLDER=build
+# if [[ "${BUILD_ARCH}" != "${HOST_ARCH}" ]]; then
+#   BUILD_FOLDER=build-${HOST_OS}-${HOST_ARCH}
+# fi
+# BUILD_FOLDER=${BUILD_FOLDER}/${BUILD_TYPE}
+BUILD_FOLDER=build-${HOST_OS}-${HOST_ARCH}/${BUILD_TYPE}
+if [[ "${BUILD_ARCH}" == "${HOST_ARCH}" ]]; then
+  ln -snf ${BUILD_FOLDER} build
 fi
-BUILD_FOLDER=${BUILD_FOLDER}/${BUILD_TYPE}
 echo "Using build foler ${BUILD_FOLDER}"
 
 SRC_FOLDER=$(pwd)

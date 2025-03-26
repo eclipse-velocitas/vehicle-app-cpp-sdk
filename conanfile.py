@@ -106,7 +106,8 @@ class VehicleAppCppSdkConan(ConanFile):
         cmake_layout(
             self, 
             src_folder="sdk",
-            build_folder="build" if not cross_building(self) else f"build-{os}-{arch}",
+            #build_folder="build" if not cross_building(self) else f"build-{os}-{arch}",
+            build_folder=f"build-{os}-{arch}",
         )
 
     def generate(self):
@@ -129,12 +130,11 @@ class VehicleAppCppSdkConan(ConanFile):
         if arch == "armv8":
             arch = "aarch64"
         subprocess.call(
-            f"pwd && cd ../.. && ./build.sh -x {self.settings.arch} {option} --no-examples --no-tests", shell=True)
+            f"cd ../.. && ./build.sh -x {self.settings.arch} {option} --no-examples --no-tests", shell=True)
 
     def package(self):
         print("########################## package ##########################")
         self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.h", src="../build/sdk/proto", dst="include", keep_path=True)
         self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
 
     def package_info(self):
