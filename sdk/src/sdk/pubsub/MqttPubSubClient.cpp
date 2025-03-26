@@ -101,6 +101,14 @@ public:
         return subscription;
     }
 
+    void unsubscribeTopic(const std::string& topic) {
+        logger().debug("Unsubscribing from {}", topic);
+        m_client.unsubscribe(topic)->wait();
+        auto range = m_subscriberMap.equal_range(topic);
+        m_subscriberMap.erase(range.first, range.second);
+    }
+    
+
 private:
     void message_arrived(mqtt::const_message_ptr msg) override {
         const std::string& topic   = msg->get_topic();

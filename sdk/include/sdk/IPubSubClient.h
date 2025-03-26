@@ -134,6 +134,13 @@ public:
      */
     virtual AsyncSubscriptionPtr_t<std::string> subscribeTopic(const std::string& topic) = 0;
 
+    /**
+     * @brief Unsubscribe from a topic.
+     *
+     * @param topic   The topic to unsubscribe from.
+     */
+    virtual void unsubscribeTopic(const std::string& topic) = 0;
+
     IPubSubClient(const IPubSubClient&)            = delete;
     IPubSubClient(IPubSubClient&&)                 = delete;
     IPubSubClient& operator=(const IPubSubClient&) = delete;
