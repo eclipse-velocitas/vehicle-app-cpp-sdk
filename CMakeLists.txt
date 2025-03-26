@@ -40,6 +40,9 @@ find_package(eclipse-paho-mqtt-c REQUIRED CONFIG)
 find_package(protobuf REQUIRED CONFIG)
 find_package(absl REQUIRED CONFIG)
 
+# Induce to put executables into the bin folder of the current build folder
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+
 if(STATIC_BUILD)
     set(BUILD_SHARED_LIBS OFF)
     set(CMAKE_EXE_LINKER_FLAGS "-static")

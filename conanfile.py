@@ -135,7 +135,7 @@ class VehicleAppCppSdkConan(ConanFile):
     def package(self):
         print("########################## package ##########################")
         self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.a", src="../build/lib", dst="lib", keep_path=False)
+        self.copy("*.a", src=f"{self.build_folder}/lib", dst="lib", keep_path=False)
 
     def package_info(self):
         print("########################## package_info ##########################")
