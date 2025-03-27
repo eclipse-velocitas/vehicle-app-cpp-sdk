@@ -74,7 +74,8 @@ class VehicleAppCppSdkConan(ConanFile):
                 print(f"{version=}")
             self.version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(self.version)
-        except:
+        except Exception as exc:
+            print(f"Exception: {exc}")
             print("Maybe not a git repository, reading version from static file...")
             if os.path.isfile("./version.txt"):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
