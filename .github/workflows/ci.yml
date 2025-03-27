@@ -84,7 +84,9 @@ jobs:
         run: build/bin/sdk_utests
 
       - name: Generate coverage report
-        run: cd build && gcovr -r ../..
+        # 'build' folder is a symlink. Assigning pwd to ROOT_DIR makes this independent
+        # of the number of dirs covered by the symlink
+        run: ROOT_DIR=$(pwd) && cd build && gcovr -r $ROOT_DIR
 
       - name: Code Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.3.0
