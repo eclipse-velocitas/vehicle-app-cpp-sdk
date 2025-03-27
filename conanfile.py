@@ -19,8 +19,6 @@ import subprocess
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.scm import Git
-
 
 
 class VehicleAppCppSdkConan(ConanFile):
@@ -54,34 +52,27 @@ class VehicleAppCppSdkConan(ConanFile):
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "cmake/*", "version.txt"
 
+    def __run_cmd(self, args):
+        return subprocess.run(args, capture_output=True).stdout.strip().decode("utf-8")
+
     def set_version(self):
         print("########################## set_version ##########################")
-        print("Determining SDK version ...")
         try:
-            git = Git(self, folder=".")
-            tag = git.run("tag --points-at HEAD").strip()
+            tag = self.__run_cmd(["git", "tag", "--points-at", "HEAD"])
+            version = ""
             if tag:
                 version_tag_pattern = re.compile(r"^v[0-9]+(\.[0-9]+){0,2}")
                 if version_tag_pattern.match(tag):
                     tag = tag[1:] # cut off initial v if a semver tag
+                version = tag
 
-            print("Try getting branch name ...")
-            # version = tag if tag else git.run("symbolic-ref -q --short HEAD").strip()
-            version = tag
+            # if no tag, use branch name or commit hash
             if not version:
-                version = (
-                    subprocess.run(
-                        ["git", "symbolic-ref", "-q", "--short", "HEAD"],
-                        capture_output=True,
-                    )
-                    .stdout.strip()
-                    .decode("utf-8")
-                )
-            print(f"{tag=}, {version=}")
+                version = self.__run_cmd(["git", "symbolic-ref", "-q", "--short", "HEAD"])
             if not version:
-                print("Try getting commit hash ...")
-                version = git.get_commit(repository=True)
-                print(f"{version=}")
+                version = self.__run_cmd(["git", "rev-parse", "HEAD"])
+            
+            # / is not allowed in conan version
             self.version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(self.version)
         except Exception as exc:
@@ -91,7 +82,7 @@ class VehicleAppCppSdkConan(ConanFile):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
             else:
                 raise FileNotFoundError("Missing version.txt!")
-        print(f"SDK version: {self.version}")
+        print(f"Determined SDK version: {self.version}")
 
     def config_options(self):
         print("########################## config_options ##########################")

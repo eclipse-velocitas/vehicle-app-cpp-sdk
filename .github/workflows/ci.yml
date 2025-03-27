@@ -54,7 +54,7 @@ jobs:
 
       - name: Create conan package
         run: |
-          conan create --build=missing -pr:b ./.conan/profiles/linux-x86_64 -pr:h ./.conan/profiles/${{ matrix.host }} -s:a="build_type=Release" . ci/testing
+          conan create --build=missing -pr:b ./.conan/profiles/linux-x86_64 -pr:h ./.conan/profiles/${{ matrix.host }} -s:a="build_type=Release" . --user ci --channel testing
 
   build-and-publish:
     runs-on: ubuntu-22.04
@@ -84,7 +84,7 @@ jobs:
         run: build/bin/sdk_utests
 
       - name: Generate coverage report
-        run: cd build && gcovr -r ..
+        run: cd build && gcovr -r ../..
 
       - name: Code Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.3.0

@@ -56,7 +56,7 @@
 			"label": "CPP - Calculate code coverage",
 			"detail": "Calculates code coverage of the c++ SDK",
 			"type": "shell",
-			"command": "cd build && gcovr -r ..",
+			"command": "cd build && gcovr -r ../..",
 			"group": "none",
 			"dependsOn": [
 				"CMake: Run Tests"
