@@ -17,8 +17,9 @@ import re
 import subprocess
 
 from conan import ConanFile
-from conan.tools.build import cross_building
+#from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy
 
 
 class VehicleAppCppSdkConan(ConanFile):
@@ -140,8 +141,8 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package(self):
         print("########################## package ##########################")
-        self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
-        self.copy("*.a", src=f"{self.build_folder}/lib", dst="lib", keep_path=False)
+        copy(self, "*.h", src="../sdk/include", dst="include", keep_path=True)
+        copy(self, "*.a", src=f"{self.build_folder}/lib", dst="lib", keep_path=False)
 
     def package_info(self):
         print("########################## package_info ##########################")
@@ -153,7 +154,7 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def imports(self):
         print("########################## imports ##########################")
-        self.copy("license*", src=".", dst="./licenses",
+        copy(self, "license*", src=".", dst="./licenses",
                   folder=True, ignore_case=True)
 
 
