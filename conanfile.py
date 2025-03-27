@@ -65,9 +65,13 @@ class VehicleAppCppSdkConan(ConanFile):
                 if version_tag_pattern.match(tag):
                     tag = tag[1:] # cut off initial v if a semver tag
 
+            print("Try getting branch name ...")
             version = tag if tag else git.run("symbolic-ref -q --short HEAD").strip()
+            print(f"{tag=}, {version=}")
             if not version:
+                print("Try getting commit hash ...")
                 version = git.get_commit(repository=True)
+                print(f"{version=}")
             self.version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(self.version)
         except:
