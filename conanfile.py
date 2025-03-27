@@ -66,7 +66,17 @@ class VehicleAppCppSdkConan(ConanFile):
                     tag = tag[1:] # cut off initial v if a semver tag
 
             print("Try getting branch name ...")
-            version = tag if tag else git.run("symbolic-ref -q --short HEAD").strip()
+            # version = tag if tag else git.run("symbolic-ref -q --short HEAD").strip()
+            version = tag
+            if not version:
+                version = (
+                    subprocess.run(
+                        ["git", "symbolic-ref", "-q", "--short", "HEAD"],
+                        capture_output=True,
+                    )
+                    .stdout.strip()
+                    .decode("utf-8")
+                )
             print(f"{tag=}, {version=}")
             if not version:
                 print("Try getting commit hash ...")
@@ -75,7 +85,7 @@ class VehicleAppCppSdkConan(ConanFile):
             self.version = version.replace("/", ".")
             open("./version.txt", mode="w", encoding="utf-8").write(self.version)
         except Exception as exc:
-            print(f"Exception: {exc}")
+            print(f"Exception catched: {exc}")
             print("Maybe not a git repository, reading version from static file...")
             if os.path.isfile("./version.txt"):
                 self.version = open("./version.txt", encoding="utf-8").read().strip()
