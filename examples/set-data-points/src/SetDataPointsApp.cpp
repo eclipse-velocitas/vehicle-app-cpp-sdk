@@ -31,8 +31,7 @@ namespace example {
 class SetDataPointsApp : public velocitas::VehicleApp {
 public:
     SetDataPointsApp()
-        : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
-                     velocitas::IPubSubClient::createInstance("SetDataPointsApp")) {}
+        : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker")) {}
 
     void onStart() override {
         // set a single data point
