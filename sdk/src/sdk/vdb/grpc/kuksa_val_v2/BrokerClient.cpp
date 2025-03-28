@@ -211,8 +211,8 @@ BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& 
 
 namespace {
 void clearUpdateStatus(DataPointMap_t& datapointMap) {
-    for (const auto& [key, value] : datapointMap) {
-        value->clearUpdateStatus();
+    for (auto& entry : datapointMap) {
+        entry.second->clearUpdateStatus();
     }
 }
 

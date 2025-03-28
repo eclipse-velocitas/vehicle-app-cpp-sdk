@@ -37,10 +37,6 @@ add_executable(${TARGET_NAME}
     vdb/grpc/sdv_databroker_v1/BrokerClient_tests.cpp
 )
 
-add_dependencies(${TARGET_NAME}
-    vehicle-app-sdk
-)
-
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
     gmock
@@ -48,10 +44,10 @@ target_link_libraries(${TARGET_NAME}
 
 include(GoogleTest)
 
-include_directories(
+target_include_directories(${TARGET_NAME}
+    PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
     ${CMAKE_CURRENT_SOURCE_DIR}/../model
-    ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
 )
 

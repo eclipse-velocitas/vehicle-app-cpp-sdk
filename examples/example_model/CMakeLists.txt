@@ -12,8 +12,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-whitelist-file-path: ./whitelisted-licenses.txt
-scan-dirs:
-  - path: .
-    cpp-conan-included-profile-files:
-      - "./.conan/profiles/linux-x86_64"
+set(TARGET_NAME "example_model")
+
+add_library(${TARGET_NAME} INTERFACE)
+
+target_include_directories(${TARGET_NAME} INTERFACE .)

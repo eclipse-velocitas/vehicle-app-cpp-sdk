@@ -56,7 +56,9 @@
 			"label": "CPP - Calculate code coverage",
 			"detail": "Calculates code coverage of the c++ SDK",
 			"type": "shell",
-			"command": "cd build && gcovr -r ..",
+			// 'build' folder is a symlink. Assigning pwd to ROOT_DIR makes this independent
+			// of the number of dirs covered by the symlink
+			"command": "ROOT_DIR=$(pwd) && cd build && gcovr -r $ROOT_DIR",
 			"group": "none",
 			"dependsOn": [
 				"CMake: Run Tests"

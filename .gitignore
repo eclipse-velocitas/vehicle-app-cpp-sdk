@@ -49,15 +49,11 @@
 *.pyc
 
 # CMake
-build
+build*
+CMakeUserPresets.json
 
 # Mac files
 .DS_Store
-
-# Downloaded assets
-Assets
-.vscode/scripts/assets/
-get_helm.sh
 
 # conan licenses
 licenses
