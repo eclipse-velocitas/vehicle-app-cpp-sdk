@@ -41,7 +41,7 @@ class VehicleAppCppSdkConan(ConanFile):
         #("zlib/1.3.1", "override")
     ]
     generators = "CMakeDeps", "CMakeToolchain"
-    author = "Robert Bosch GmbH"
+    author = "Contributors to the Eclipse Foundation, SDV Working Group"
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
@@ -146,16 +146,15 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package_info(self):
         print("########################## package_info ##########################")
+        self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.includedirs = ["include"]
         self.cpp_info.libdirs = ["lib"]
         self.cpp_info.bindirs = ["bin"]
-        self.cpp_info.libs = ["vehicle-app-sdk",
-                              "vehicle-app-sdk-generated-grpc"]
+        self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
 
     def imports(self):
         print("########################## imports ##########################")
-        copy(self, "license*", src=".", dst="./licenses",
-                  folder=True, ignore_case=True)
+        copy(self, "license*", src=".", dst="./licenses", folder=True, ignore_case=True)
 
 
 
