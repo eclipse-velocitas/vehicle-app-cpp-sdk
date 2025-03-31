@@ -58,7 +58,6 @@ add_dependencies(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME}
     CONAN_PKG::grpc
-    CONAN_PKG::cpr
     CONAN_PKG::fmt
     CONAN_PKG::paho-mqtt-cpp
     CONAN_PKG::nlohmann_json

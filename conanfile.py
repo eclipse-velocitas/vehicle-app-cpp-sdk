@@ -30,18 +30,17 @@ class VehicleAppCppSdkConan(ConanFile):
     # Workaround1: Pin recipe revision for transient dependency googleapis for enabling the container build
     # Workaround2: Pin recipe revision for transient dependency paho-mqtt-c cause latest is pulling libanl which cannot be found
     requires = [
-        ("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
-        ("cpr/1.10.5"),
+        #("c-ares/1.19.1@#420a0b77e370f4b96bee88ef91837ccc"),
         ("fmt/9.1.0"),
-        ("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
-        ("grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce"),
-        ("grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d"),
-        ("libcurl/8.1.2@#c0f40219a032539a06b5b1fdb7a5745e"),
+        #("googleapis/cci.20221108@#e4bebdfa02f3b6f93bae1d5001b8d439"),
+        ("grpc/1.50.1"),
+        #("grpc/1.50.1@#df352027120f88bccf24cbc40a2297ce"),
+        #("grpc-proto/cci.20220627@#3ad14e3ffdae516b4da2407d5f23c71d"),
         ("nlohmann_json/3.11.2"),
-        ("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
+        #("openssl/1.1.1u@#de76bbea24d8b46f8def8daa18b31fd9"),
         ("paho-mqtt-c/1.3.13"),
         ("paho-mqtt-cpp/1.4.0"),
-        ("zlib/1.3")
+        #("zlib/1.3.1", "override")
     ]
     generators = "cmake"
     author = "Robert Bosch GmbH"
@@ -54,7 +53,7 @@ class VehicleAppCppSdkConan(ConanFile):
     exports = "version.txt"
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "version.txt"
+    exports_sources = ".scripts/common.sh", "build.sh", "install_dependencies.sh", "CMakeLists.txt", "sdk/*", "examples/*", "conanfile.py", ".conan/profiles/*", "cmake/*", "version.txt"
 
     def set_version(self):
         try:
@@ -95,8 +94,11 @@ class VehicleAppCppSdkConan(ConanFile):
         build_type = self.settings.get_safe(
             "build_type", default="Release").lower()
         option = "-r" if build_type == "release" else "-d"
+        arch = str(self.settings.arch).lower()
+        if arch == "armv8":
+            arch = "aarch64"
         subprocess.call(
-            f"cd ../.. && ./install_dependencies.sh && ./build.sh {option} --no-examples --no-tests", shell=True)
+            f"cd ../.. && ./install_dependencies.sh -x {arch} && ./build.sh {option} -x {arch} --no-examples --no-tests", shell=True)
 
     def package(self):
         self.copy("*.h", src="../sdk/include", dst="include", keep_path=True)
