@@ -141,20 +141,37 @@ class VehicleAppCppSdkConan(ConanFile):
 
     def package(self):
         print("########################## package ##########################")
-        copy(self, "*.h", src="../sdk/include", dst="include", keep_path=True)
-        copy(self, "*.a", src=f"{self.build_folder}/lib", dst="lib", keep_path=False)
+        inc_dir = os.path.join(self.source_folder, "include")
+        print(f"Include folder: {inc_dir}")
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=True,
+        )
+        copy(
+            self,
+            "*.a",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
 
     def package_info(self):
         print("########################## package_info ##########################")
-        self.cpp_info.set_property("cmake_find_mode", "both")
-        self.cpp_info.includedirs = ["include"]
-        self.cpp_info.libdirs = ["lib"]
-        self.cpp_info.bindirs = ["bin"]
+        #print(f"{self.cpp_info.components=}")
+        #self.cpp_info.set_property("cmake_find_mode", "both")
+        # self.cpp_info.includedirs = ["include"]
+        # self.cpp_info.libdirs = ["lib"]
+        # self.cpp_info.bindirs = ["bin"]
+        self.cpp_info.set_property("cmake_file_name", "vehicle-app-sdk")
+        self.cpp_info.set_property("cmake_target_name", "vehicle-app-sdk::vehicle-app-sdk")
         self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
 
-    def imports(self):
-        print("########################## imports ##########################")
-        copy(self, "license*", src=".", dst="./licenses", folder=True, ignore_case=True)
+    # def imports(self):
+    #     print("########################## imports ##########################")
+    #     copy(self, "license*", src=".", dst="./licenses", folder=True, ignore_case=True)
 
 
 
