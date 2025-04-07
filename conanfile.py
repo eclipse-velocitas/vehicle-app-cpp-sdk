@@ -165,57 +165,11 @@ class VehicleAppCppSdkConan(ConanFile):
         # self.cpp_info.includedirs = ["include"]
         # self.cpp_info.libdirs = ["lib"]
         # self.cpp_info.bindirs = ["bin"]
-        self.cpp_info.set_property("cmake_file_name", "vehicle-app-sdk")
-        self.cpp_info.set_property("cmake_target_name", "vehicle-app-sdk::vehicle-app-sdk")
+        # self.cpp_info.set_property("cmake_file_name", "vehicle-app-sdk")
+        # self.cpp_info.set_property("cmake_target_name", "vehicle-app-sdk::vehicle-app-sdk")
+        # self.cpp_info.set_property("pkg_config_name", "vehicle-app-sdk")
         self.cpp_info.libs = ["vehicle-app-sdk", "vehicle-app-sdk-generated-grpc"]
 
     # def imports(self):
     #     print("########################## imports ##########################")
     #     copy(self, "license*", src=".", dst="./licenses", folder=True, ignore_case=True)
-
-
-
-    def build_id(self):
-        print("########################## build_id ##########################")
-
-    def compatibility(self):
-        print("########################## compatibility ##########################")
-
-    def build_id(self):
-        print("########################## build_id ##########################")
-
-    def deploy(self):
-        print("########################## deploy ##########################")
-
-    def export(self):
-        print("########################## export ##########################")
-
-    def export_sources(self):
-        print("########################## export_sources ##########################")
-
-    def finalize(self):
-        print("########################## finalize ##########################")
-
-    def init(self):
-        print("########################## init ##########################")
-
-    def package_id(self):
-        print("########################## package_id ##########################")
-
-    def set_name(self):
-        print("########################## set_name ##########################")
-
-    def source(self):
-        print("########################## source ##########################")
-
-    def system_requirements(self):
-        print("########################## system_requirements ##########################")
-
-    def test(self):
-        print("########################## test ##########################")
-
-    def validate(self):
-        print("########################## validate ##########################")
-
-    def validate_build(self):
-        print("########################## validate_build ##########################")

@@ -38,9 +38,9 @@ class VehicleAppSdkTest(ConanFile):
         cmake.build()
 
     def layout(self):
-        cmake_layout(self, src_folder=".")
+        cmake_layout(self) # , src_folder=".")
 
     def test(self):
-        cmd = os.path.join(self.cpp.build.bindir, "test_package")
         if can_run(self):
+            cmd = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(f"SDV_MIDDLEWARE_TYPE=native {cmd}", env="conanrun")
