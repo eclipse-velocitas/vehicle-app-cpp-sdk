@@ -53,3 +53,26 @@ TEST_F(PubSubTest, subscribeTopic_publishOnTopic_sameTopic) {
     waitForMessage();
     EXPECT_EQ(receivedData, message);
 }
+
+TEST_F(PubSubTest, unsubscribeTopic_noMessageReceived) {
+    const std::string topic   = "a/b/c";
+    const std::string message = "testMessage";
+
+    // Subscribe to topic
+    auto subAbc = client->subscribeTopic(topic);
+    subAbc->onItem([this](auto&& item) { receivedMessage(std::forward<decltype(item)>(item)); });
+
+    // Wait for 1 second
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+
+    // Unsubscribe from topic
+    client->unsubscribeTopic(topic);
+
+    // Publish message (should not be received)
+    client->publishOnTopic(topic, message);
+
+    // Wait for 3 second
+    std::this_thread::sleep_for(std::chrono::seconds{3});
+
+    EXPECT_FALSE(messageReceived);
+}

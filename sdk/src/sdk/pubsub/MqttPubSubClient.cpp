@@ -108,7 +108,6 @@ public:
         m_subscriberMap.erase(range.first, range.second);
     }
     
-
 private:
     void message_arrived(mqtt::const_message_ptr msg) override {
         const std::string& topic   = msg->get_topic();
