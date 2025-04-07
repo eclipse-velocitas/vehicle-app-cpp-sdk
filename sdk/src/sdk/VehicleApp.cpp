@@ -74,6 +74,10 @@ AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::stri
     return m_pubSubClient->subscribeTopic(topic);
 }
 
+void VehicleApp::unsubscribeTopic(const std::string& topic) {
+    return m_pubSubClient->unsubscribeTopic(topic);
+}
+
 AsyncResultPtr_t<DataPointReply>
 VehicleApp::getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints) {
     std::vector<std::string> dataPointPaths;

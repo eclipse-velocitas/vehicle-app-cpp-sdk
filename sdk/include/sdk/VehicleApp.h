@@ -88,6 +88,13 @@ protected:
     AsyncSubscriptionPtr_t<std::string> subscribeToTopic(const std::string& topic);
 
     /**
+     * @brief Unsubscribe from a topic.
+     *
+     * @param topic   The topic to unsubscribe from.
+     */
+    void unsubscribeTopic(const std::string& topic);
+
+    /**
      * @brief Publish a PubSub message to the given topic.
      *
      * @param topic   The topic to publish to.
