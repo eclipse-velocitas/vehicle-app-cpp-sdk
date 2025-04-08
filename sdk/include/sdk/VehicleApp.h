@@ -103,6 +103,20 @@ protected:
     void publishToTopic(const std::string& topic, const std::string& data);
 
     /**
+     * @brief Publishes a message to the specified MQTT topic with a timeout in milliseconds for the
+     * publish to complete. Returns a status indicating whether the publish was successful, timed
+     * out, or failed.
+     *
+     * @param topic the MQTT topic to publish the message to
+     * @param data the payload to send as the message
+     * @param timeout_ms maximum time to wait for the publish to complete, in milliseconds
+     * @return PublishStatus indicating the result of the publish operation: Success, Timeout,
+     * Failure
+     */
+    virtual PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
+                                         int timeout_ms);
+
+    /**
      * @brief Get values for all provided data points from the data broker.
      *
      * @param dataPoints    Vector of data points to obtain values for.

@@ -105,6 +105,11 @@ void VehicleApp::publishToTopic(const std::string& topic, const std::string& dat
     m_pubSubClient->publishOnTopic(topic, data);
 }
 
+PublishStatus VehicleApp::publishOnTopic(const std::string& topic, const std::string& data,
+                                         int timeout_ms) {
+    return m_pubSubClient->publishOnTopic(topic, data, timeout_ms);
+}
+
 std::shared_ptr<IVehicleDataBrokerClient> VehicleApp::getVehicleDataBrokerClient() {
     return m_vdbClient;
 }

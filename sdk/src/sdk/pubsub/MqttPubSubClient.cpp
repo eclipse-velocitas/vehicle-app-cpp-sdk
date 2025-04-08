@@ -22,6 +22,7 @@
 #include "sdk/middleware/Middleware.h"
 
 #include <mqtt/async_client.h>
+#include <future>
 #include <mqtt/connect_options.h>
 #include <unordered_map>
 
@@ -60,14 +61,13 @@ public:
                      const std::string& privateKeyPath)
         : m_client{brokerUri, clientId} {
         m_client.set_callback(*this);
-        auto sslopts = mqtt::ssl_options_builder()
-                           .trust_store(trustStorePath)
-                           .key_store(keyStorePath)
-                           .private_key(privateKeyPath)
-                           .error_handler([](const std::string& msg) {
-                               logger().error("SSL Error: {}", msg);
-                           })
-                           .finalize();
+        auto sslopts =
+            mqtt::ssl_options_builder()
+                .trust_store(trustStorePath)
+                .key_store(keyStorePath)
+                .private_key(privateKeyPath)
+                .error_handler([](const std::string& msg) { logger().error("SSL Error: {}", msg); })
+                .finalize();
         m_connectOptions = mqtt::connect_options_builder().ssl(std::move(sslopts)).finalize();
     }
 
@@ -93,6 +93,37 @@ public:
         m_client.publish(topic, data)->wait();
     }
 
+    PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
+                                 int timeout_ms) {
+        try {
+            logger().debug(R"(Publish on topic "{}": "{}")", topic, data);
+
+            auto future = std::async(std::launch::async, [this, &topic, &data]() {
+                auto tok = m_client.publish(topic, data);
+                if (!tok) {
+                    throw mqtt::exception(MQTTASYNC_FAILURE);
+                }
+                tok->wait(); // normal blocking call
+                return PublishStatus::Success;
+            });
+
+            if (future.wait_for(std::chrono::milliseconds(timeout_ms)) ==
+                std::future_status::ready) {
+                return future.get(); // Success
+            } else {
+                logger().warn("Publish timed out after {} ms", timeout_ms);
+                return PublishStatus::Timeout;
+            }
+
+        } catch (const mqtt::exception& ex) {
+            logger().error("MQTT publish failed: {}", ex.what());
+            return PublishStatus::Failure;
+        } catch (const std::exception& ex) {
+            logger().error("Unexpected exception during publish: {}", ex.what());
+            return PublishStatus::Failure;
+        }
+    }
+
     AsyncSubscriptionPtr_t<std::string> subscribeTopic(const std::string& topic) override {
         logger().debug("Subscribing to {}", topic);
         auto subscription = std::make_shared<AsyncSubscription<std::string>>();
@@ -107,7 +138,7 @@ public:
         auto range = m_subscriberMap.equal_range(topic);
         m_subscriberMap.erase(range.first, range.second);
     }
-    
+
 private:
     void message_arrived(mqtt::const_message_ptr msg) override {
         const std::string& topic   = msg->get_topic();

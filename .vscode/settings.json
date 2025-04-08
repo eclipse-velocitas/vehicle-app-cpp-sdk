@@ -67,6 +67,7 @@
         "shared_mutex": "cpp",
         "sstream": "cpp",
         "cinttypes": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "future": "cpp"
     }
 }

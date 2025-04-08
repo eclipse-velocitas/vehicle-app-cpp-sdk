@@ -60,6 +60,15 @@ struct VoidResult {};
 enum class CallState { ONGOING, CANCELING, COMPLETED, FAILED };
 
 /**
+ * @brief Status of an MQTT publish operation
+ */
+enum PublishStatus {
+    Success, // Message was published successfully
+    Timeout, // Publish operation timed out
+    Failure  // Publish operation failed (e.g., exception thrown)
+};
+
+/**
  * @brief Single result of an asynchronous operation which provides
  *        an item of type TResultType.
  *
