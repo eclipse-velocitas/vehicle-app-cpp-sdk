@@ -38,7 +38,7 @@ class VehicleAppSdkTest(ConanFile):
         cmake.build()
 
     def layout(self):
-        cmake_layout(self) # , src_folder=".")
+        cmake_layout(self)
 
     def test(self):
         if can_run(self):
