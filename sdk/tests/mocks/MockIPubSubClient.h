@@ -10,6 +10,7 @@ class MockIPubSubClient : public IPubSubClient {
 public:
     MOCK_METHOD(void, connect, (), (override));
     MOCK_METHOD(void, disconnect, (), (override));
+    MOCK_METHOD(void, reconnect, (int timeout_ms), (override));
     MOCK_METHOD(bool, isConnected, (), (const, override));
 
     MOCK_METHOD(void, publishOnTopic, (const std::string& topic, const std::string& data),

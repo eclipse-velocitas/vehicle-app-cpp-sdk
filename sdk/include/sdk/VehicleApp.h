@@ -117,6 +117,13 @@ protected:
                                          int timeout_ms);
 
     /**
+     * @brief Reconnect the client to the broker.
+     * @param timeout_ms maximum time to wait for the reconnection attempt to complete, in
+     * milliseconds.
+     */
+    virtual void reconnect(int timeout_ms);
+
+    /**
      * @brief Get values for all provided data points from the data broker.
      *
      * @param dataPoints    Vector of data points to obtain values for.

@@ -85,6 +85,23 @@ public:
 
         m_client.connect(m_connectOptions)->wait();
     }
+
+    void reconnect(int timeout_ms) override {
+        logger().info("Attempting to reconnect to MQTT broker");
+
+        try {
+            auto token = m_client.reconnect();
+            if (!token->wait_for(std::chrono::milliseconds(timeout_ms))) {
+                logger().error("MQTT reconnect timed out after {} ms", timeout_ms);
+            } else {
+                logger().info("Successfully reconnected to MQTT broker.");
+            }
+
+        } catch (const mqtt::exception& ex) {
+            logger().error("MQTT reconnect failed: {}", ex.what());
+        }
+    }
+
     void               disconnect() override { m_client.disconnect()->wait(); }
     [[nodiscard]] bool isConnected() const override { return m_client.is_connected(); }
 
@@ -103,7 +120,7 @@ public:
                 if (!tok) {
                     throw mqtt::exception(MQTTASYNC_FAILURE);
                 }
-                tok->wait(); // normal blocking call
+                tok->wait();
                 return PublishStatus::Success;
             });
 

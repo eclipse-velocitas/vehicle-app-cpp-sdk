@@ -105,6 +105,13 @@ public:
     virtual void connect() = 0;
 
     /**
+     * @brief Reconnect the client to the broker.
+     * @param timeout_ms maximum time to wait for the reconnection attempt to complete, in
+     * milliseconds.
+     */
+    virtual void reconnect(int timeout_ms) = 0;
+
+    /**
      * @brief Disconnect the client from the broker.
      *
      */

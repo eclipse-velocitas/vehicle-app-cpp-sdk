@@ -110,6 +110,8 @@ PublishStatus VehicleApp::publishOnTopic(const std::string& topic, const std::st
     return m_pubSubClient->publishOnTopic(topic, data, timeout_ms);
 }
 
+void VehicleApp::reconnect(int timeout_ms) { m_pubSubClient->reconnect(timeout_ms); }
+
 std::shared_ptr<IVehicleDataBrokerClient> VehicleApp::getVehicleDataBrokerClient() {
     return m_vdbClient;
 }
