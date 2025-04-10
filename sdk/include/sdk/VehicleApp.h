@@ -42,10 +42,11 @@ public:
      * @brief Construct a new Vehicle App object.
      *
      * @param vdbClient     The vehicle data broker client to use.
-     * @param pubSubClient  The pubsub client to use.
+     * @param pubSubClient  The pubsub client to use. Using a pubsub client is optional.
+     *                      If passing a nullptr, the app will not use/offer pubsub.
      */
     explicit VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
-                        std::shared_ptr<IPubSubClient>            pubSubClient);
+                        std::shared_ptr<IPubSubClient>            pubSubClient = {});
 
     virtual ~VehicleApp() = default;
 
@@ -166,7 +167,7 @@ protected:
     /**
      * @brief Get the Pub Sub Client object
      *
-     * @return std::shared_ptr<IPubSubClient>
+     * @return std::shared_ptr<IPubSubClient>; will be nullptr if no PubSubClient was instantiated
      */
     std::shared_ptr<IPubSubClient> getPubSubClient();
 
