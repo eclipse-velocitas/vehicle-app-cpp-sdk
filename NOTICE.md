@@ -54,11 +54,9 @@ they are given here (manually added) for time being:
 |abseil|20240116.2|Apache 2.0|
 |bzip2|1.0.8|bzip2-1.0.8|
 |c-ares|1.34.1|c-ares (MIT-style)|
-|cpr|1.11.0|MIT|
 |fmt|11.0.2|MIT|
 |grpc|1.67.1|Apache 2.0|
 |libcap|2.69|BSD-3-Clause, GPL-2.0-only|
-|libcurl|8.10.1|CURL|
 |libmount|2.39.2|LGPL-2.1-or-later|
 |libselinux|3.6|libselinux-1.0, LGPL-2.1-or-later|
 |libsystemd|255.10|LGPL-2.1-or-later|
