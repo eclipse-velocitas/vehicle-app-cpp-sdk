@@ -117,7 +117,9 @@ BrokerClient::setDatapoints(const std::vector<std::unique_ptr<DataPointValue>>& 
     m_asyncBrokerFacade->BatchActuate(
         std::move(batchRequest),
         [result](const kuksa::val::v2::BatchActuateResponse& reply) {
+            std::ignore = reply;
             // Everything went fine, return empty map
+            result->insertResult(SetErrorMap_t());
         },
         [result](auto status) {
             result->insertError(
