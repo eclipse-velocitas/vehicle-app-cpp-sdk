@@ -96,7 +96,6 @@ public:
             } else {
                 logger().info("Successfully reconnected to MQTT broker.");
             }
-
         } catch (const mqtt::exception& ex) {
             logger().error("MQTT reconnect failed: {}", ex.what());
         }
@@ -111,7 +110,7 @@ public:
     }
 
     PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
-                                 int timeout_ms) {
+                                 int timeout_ms) override {
         try {
             logger().debug(R"(Publish on topic "{}": "{}")", topic, data);
 
@@ -131,7 +130,6 @@ public:
                 logger().warn("Publish timed out after {} ms", timeout_ms);
                 return PublishStatus::Timeout;
             }
-
         } catch (const mqtt::exception& ex) {
             logger().error("MQTT publish failed: {}", ex.what());
             return PublishStatus::Failure;
@@ -149,7 +147,7 @@ public:
         return subscription;
     }
 
-    void unsubscribeTopic(const std::string& topic) {
+    void unsubscribeTopic(const std::string& topic) override {
         logger().debug("Unsubscribing from {}", topic);
         m_client.unsubscribe(topic)->wait();
         auto range = m_subscriberMap.equal_range(topic);

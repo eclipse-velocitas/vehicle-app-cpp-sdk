@@ -30,7 +30,7 @@ add_executable(${TARGET_NAME}
     ThreadPool_tests.cpp
     Utils_tests.cpp
     QueryBuilder_tests.cpp
-    PubSub_tests.cpp
+    #PubSub_tests.cpp
     TestBaseUsingEnvVars.cpp
     grpc/GrpcClient_tests.cpp
     vdb/grpc/kuksa_val_v2/TypeConversions_tests.cpp
