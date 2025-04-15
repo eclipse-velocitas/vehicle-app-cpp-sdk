@@ -18,11 +18,7 @@
 |identify|2.6.9|MIT|
 |idna|3.10|BSD|
 |jinja2|3.1.6|BSD|
-<<<<<<< HEAD
 |lxml|5.3.2|New BSD|
-=======
-|lxml|5.3.1|New BSD|
->>>>>>> ad99c59d1940332b4c003f40072511903b40cacd
 |MarkupSafe|3.0.2|BSD|
 |node-semver|0.6.1|MIT|
 |nodeenv|1.9.1|BSD|
