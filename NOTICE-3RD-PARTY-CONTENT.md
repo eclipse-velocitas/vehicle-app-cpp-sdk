@@ -17,8 +17,8 @@
 |gcovr|5.2|BSD|
 |identify|2.6.8|MIT|
 |idna|3.10|BSD|
-|jinja2|3.1.5|BSD|
-|lxml|5.3.1|New BSD|
+|jinja2|3.1.6|BSD|
+|lxml|5.3.2|New BSD|
 |MarkupSafe|3.0.2|BSD|
 |node-semver|0.6.1|MIT|
 |nodeenv|1.9.1|BSD|

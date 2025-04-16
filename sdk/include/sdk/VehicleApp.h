@@ -17,14 +17,14 @@
 #ifndef VEHICLE_APP_SDK_VEHICLEAPP_H
 #define VEHICLE_APP_SDK_VEHICLEAPP_H
 
+#include "sdk/AsyncResult.h"
+#include "sdk/DataPointReply.h"
+
 #include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
-
-#include "sdk/AsyncResult.h"
-#include "sdk/DataPointReply.h"
 
 namespace velocitas {
 
@@ -37,161 +37,151 @@ class IVehicleDataBrokerClient;
  *
  */
 class VehicleApp {
- public:
-  /**
-   * @brief Construct a new Vehicle App object.
-   *
-   * @param vdbClient     The vehicle data broker client to use.
-   * @param pubSubClient  The pubsub client to use. Using a pubsub client is
-   * optional. If passing a nullptr, the app will not use/offer pubsub.
-   */
-  explicit VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
-                      std::shared_ptr<IPubSubClient> pubSubClient = {});
+public:
+    /**
+     * @brief Construct a new Vehicle App object.
+     *
+     * @param vdbClient     The vehicle data broker client to use.
+     * @param pubSubClient  The pubsub client to use. Using a pubsub client is optional.
+     *                      If passing a nullptr, the app will not use/offer pubsub.
+     */
+    explicit VehicleApp(std::shared_ptr<IVehicleDataBrokerClient> vdbClient,
+                        std::shared_ptr<IPubSubClient>            pubSubClient = {});
 
-  virtual ~VehicleApp() = default;
+    virtual ~VehicleApp() = default;
 
-  /**
-   * @brief Runs the Vehicle App.
-   *
-   */
-  void run();
+    /**
+     * @brief Runs the Vehicle App.
+     *
+     */
+    void run();
 
-  /**
-   * @brief Stops the Vehicle App
-   *
-   */
-  void stop();
+    /**
+     * @brief Stops the Vehicle App
+     *
+     */
+    void stop();
 
-  /**
-   * @brief Event which is called once the Vehicle App is started.
-   *
-   */
-  virtual void onStart() {}
+    /**
+     * @brief Event which is called once the Vehicle App is started.
+     *
+     */
+    virtual void onStart() {}
 
-  /**
-   * @brief Event which is called once the Vehicle App is requested to stop.
-   *
-   */
-  virtual void onStop() {}
+    /**
+     * @brief Event which is called once the Vehicle App is requested to stop.
+     *
+     */
+    virtual void onStop() {}
 
-  VehicleApp(const VehicleApp&) = delete;
-  VehicleApp(VehicleApp&&) = delete;
-  VehicleApp& operator=(const VehicleApp&) = delete;
-  VehicleApp& operator=(VehicleApp&&) = delete;
+    VehicleApp(const VehicleApp&)            = delete;
+    VehicleApp(VehicleApp&&)                 = delete;
+    VehicleApp& operator=(const VehicleApp&) = delete;
+    VehicleApp& operator=(VehicleApp&&)      = delete;
 
- protected:
-  /**
-   * @brief Subscribes to the given PubSub topic.
-   *
-   * @param topic   The topic to subscribe to.
-   * @return AsyncSubscriptionPtr_t<std::string>  The subscription to the topic.
-   */
-  AsyncSubscriptionPtr_t<std::string> subscribeToTopic(
-      const std::string& topic);
+protected:
+    /**
+     * @brief Subscribes to the given PubSub topic.
+     *
+     * @param topic   The topic to subscribe to.
+     * @return AsyncSubscriptionPtr_t<std::string>  The subscription to the topic.
+     */
+    AsyncSubscriptionPtr_t<std::string> subscribeToTopic(const std::string& topic);
 
-  /**
-   * @brief Unsubscribe from a topic.
-   *
-   * @param topic   The topic to unsubscribe from.
-   */
-  void unsubscribeTopic(const std::string& topic);
+    /**
+     * @brief Unsubscribe from a topic.
+     *
+     * @param topic   The topic to unsubscribe from.
+     */
+    void unsubscribeTopic(const std::string& topic);
 
-  /**
-   * @brief Publish a PubSub message to the given topic.
-   *
-   * @param topic   The topic to publish to.
-   * @param data    The message data to publish in JSON format.
-   */
-  void publishToTopic(const std::string& topic, const std::string& data);
+    /**
+     * @brief Publish a PubSub message to the given topic.
+     *
+     * @param topic   The topic to publish to.
+     * @param data    The message data to publish in JSON format.
+     */
+    void publishToTopic(const std::string& topic, const std::string& data);
 
-  /**
-   * @brief Publishes a message to the specified MQTT topic with a timeout (in
-   * milliseconds) for the operation to complete. Returns a status indicating
-   * whether the publish was successful, timed out, or failed.
-   *
-   * @param topic the MQTT topic to publish the message to
-   * @param data the payload to send as the message
-   * @param timeout_ms maximum time (in milliseconds) to wait for the publish to
-   * complete. Values ≤ 0 are treated as an instant timeout. Timeout value is
-   * capped at a maximum of 30000 ms.
-   * @return PublishStatus indicating the result of the publish operation:
-   * Success, Timeout, or Failure
-   */
-  virtual PublishStatus publishOnTopic(const std::string& topic,
-                                       const std::string& data, int timeout_ms);
+    /**
+     * @brief Publishes a message to the specified MQTT topic with a timeout in milliseconds for the
+     * publish to complete. Returns a status indicating whether the publish was successful, timed
+     * out, or failed.
+     *
+     * @param topic the MQTT topic to publish the message to
+     * @param data the payload to send as the message
+     * @param timeout_ms maximum time to wait for the publish to complete, in milliseconds
+     * @return PublishStatus indicating the result of the publish operation: Success, Timeout,
+     * Failure
+     */
+    virtual PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
+                                         int timeout_ms);
 
-  /**
-   * @brief Attempts to reconnect to the MQTT broker within a specified timeout
-   * period.
-   *
-   * @param timeout_ms The maximum time to wait for reconnection, in
-   * milliseconds. Values ≤ 0 are treated as an error. Timeout value
-   * is capped at a maximum of 30000 ms.
-   */
-  virtual void reconnect(int timeout_ms);
+    /**
+     * @brief Reconnect the client to the broker.
+     * @param timeout_ms maximum time to wait for the reconnection attempt to complete, in
+     * milliseconds.
+     */
+    virtual void reconnect(int timeout_ms);
 
-  /**
-   * @brief Get values for all provided data points from the data broker.
-   *
-   * @param dataPoints    Vector of data points to obtain values for.
-   * @return The reply containing the data point values for all requested data
-   * points.
-   */
-  AsyncResultPtr_t<DataPointReply> getDataPoints(
-      const std::vector<std::reference_wrapper<DataPoint>>& dataPoints);
+    /**
+     * @brief Get values for all provided data points from the data broker.
+     *
+     * @param dataPoints    Vector of data points to obtain values for.
+     * @return The reply containing the data point values for all requested data points.
+     */
+    AsyncResultPtr_t<DataPointReply>
+    getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints);
 
-  /**
-   * @brief Get the value a certain data point from the data broker.
-   *
-   * @param dataPoint    The data point to obtain values for.
-   * @return AsyncResultPtr_t<typename TDataPoint::value_type>  The result
-   * containing the data point value of the requested data point.
-   */
-  template <typename TDataPoint>
-  [[nodiscard]] AsyncResultPtr_t<typename TDataPoint::value_type> getDataPoint(
-      const TDataPoint& dataPoint) const {
-    return getDataPoint_internal(dataPoint)
-        ->template map<typename TDataPoint::value_type>(
+    /**
+     * @brief Get the value a certain data point from the data broker.
+     *
+     * @param dataPoint    The data point to obtain values for.
+     * @return AsyncResultPtr_t<typename TDataPoint::value_type>  The result containing
+     *     the data point value of the requested data point.
+     */
+    template <typename TDataPoint>
+    [[nodiscard]] AsyncResultPtr_t<typename TDataPoint::value_type>
+    getDataPoint(const TDataPoint& dataPoint) const {
+        return getDataPoint_internal(dataPoint)->template map<typename TDataPoint::value_type>(
             [&dataPoint](const DataPointReply& dataPointValues) {
-              return dataPointValues.get<TDataPoint>(dataPoint)->value();
+                return dataPointValues.get<TDataPoint>(dataPoint)->value();
             });
-  }
+    }
 
-  /**
-   * @brief Subscribes to the query for data points.
-   *
-   * @param queryString   The query to subscribe to.
-   * @return The subscription to the data points.
-   */
-  AsyncSubscriptionPtr_t<DataPointReply> subscribeDataPoints(
-      const std::string& queryString);
+    /**
+     * @brief Subscribes to the query for data points.
+     *
+     * @param queryString   The query to subscribe to.
+     * @return The subscription to the data points.
+     */
+    AsyncSubscriptionPtr_t<DataPointReply> subscribeDataPoints(const std::string& queryString);
 
-  /**
-   * @brief Get the Vehicle Data Broker Client object.
-   *
-   * @return std::shared_ptr<IVehicleDataBrokerClient>
-   */
-  std::shared_ptr<IVehicleDataBrokerClient> getVehicleDataBrokerClient();
+    /**
+     * @brief Get the Vehicle Data Broker Client object.
+     *
+     * @return std::shared_ptr<IVehicleDataBrokerClient>
+     */
+    std::shared_ptr<IVehicleDataBrokerClient> getVehicleDataBrokerClient();
 
-  /**
-   * @brief Get the Pub Sub Client object
-   *
-   * @return std::shared_ptr<IPubSubClient>; will be nullptr if no PubSubClient
-   * was instantiated
-   */
-  std::shared_ptr<IPubSubClient> getPubSubClient();
+    /**
+     * @brief Get the Pub Sub Client object
+     *
+     * @return std::shared_ptr<IPubSubClient>; will be nullptr if no PubSubClient was instantiated
+     */
+    std::shared_ptr<IPubSubClient> getPubSubClient();
 
- private:
-  [[nodiscard]] AsyncResultPtr_t<DataPointReply> getDataPoint_internal(
-      const DataPoint& dataPoint) const;
+private:
+    [[nodiscard]] AsyncResultPtr_t<DataPointReply>
+    getDataPoint_internal(const DataPoint& dataPoint) const;
 
-  std::shared_ptr<IVehicleDataBrokerClient> m_vdbClient;
-  std::shared_ptr<IPubSubClient> m_pubSubClient;
-  bool m_isRunning{false};
-  std::mutex m_stopWaitMutex;
-  std::condition_variable m_stopWaitCV;
+    std::shared_ptr<IVehicleDataBrokerClient> m_vdbClient;
+    std::shared_ptr<IPubSubClient>            m_pubSubClient;
+    bool                                      m_isRunning{false};
+    std::mutex                                m_stopWaitMutex;
+    std::condition_variable                   m_stopWaitCV;
 };
 
-}  // namespace velocitas
+} // namespace velocitas
 
-#endif  // VEHICLE_APP_SDK_VEHICLEAPP_H
+#endif // VEHICLE_APP_SDK_VEHICLEAPP_H

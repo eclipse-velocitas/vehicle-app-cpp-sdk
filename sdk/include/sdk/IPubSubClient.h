@@ -17,10 +17,10 @@
 #ifndef VEHICLE_APP_SDK_IPUBSUBCLIENT_H
 #define VEHICLE_APP_SDK_IPUBSUBCLIENT_H
 
+#include "sdk/AsyncResult.h"
+
 #include <memory>
 #include <string>
-
-#include "sdk/AsyncResult.h"
 
 namespace velocitas {
 
@@ -29,153 +29,148 @@ namespace velocitas {
  *
  */
 class IPubSubClient {
- public:
-  /**
-   * @brief Create an instance of a pub/sub client according to the defined
-   * middleware configuration
-   *
-   * @param clientId used to identify the client at the pub/sub server
-   * @return std::shared_ptr<IPubSubClient> reference to the created pub/sub
-   * client
-   */
-  static std::shared_ptr<IPubSubClient> createInstance(
-      const std::string& clientId);
+public:
+    /**
+     * @brief Create an instance of a pub/sub client according to the defined middleware
+     * configuration
+     *
+     * @param clientId used to identify the client at the pub/sub server
+     * @return std::shared_ptr<IPubSubClient> reference to the created pub/sub client
+     */
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& clientId);
 
-  /**
-   * @brief Create a new instance of an MQTT client connecting to a broker at
-   * the specified address
-   *
-   * @param brokerUri address of the MQTT broker to connect to
-   * @param clientId used to identify the client at the MQTT broker
-   * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
-   */
-  static std::shared_ptr<IPubSubClient> createInstance(
-      const std::string& brokerUri, const std::string& clientId);
+    /**
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId);
 
-  /**
-   * @brief Create a new instance of an MQTT client connecting to a broker at
-   * the specified address using the provided credentials
-   *
-   * @param brokerUri address of the MQTT broker to connect to
-   * @param clientId used to identify the client at the MQTT broker
-   * @param username to get access to the MQTT broker
-   * @param password to get access to the MQTT broker
-   * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
-   */
-  static std::shared_ptr<IPubSubClient> createInstance(
-      const std::string& brokerUri, const std::string& clientId,
-      const std::string& username, const std::string& password);
+    /**
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address using the provided credentials
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @param username to get access to the MQTT broker
+     * @param password to get access to the MQTT broker
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId,
+                                                         const std::string& username,
+                                                         const std::string& password);
 
-  /**
-   * @brief Create a new instance of an MQTT client connecting to a broker at
-   * the specified address using the provided credentials
-   *
-   * @param brokerUri address of the MQTT broker to connect to
-   * @param clientId used to identify the client at the MQTT broker
-   * @param token used to get access to the MQTT broker
-   * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
-   */
-  static std::shared_ptr<IPubSubClient> createInstance(
-      const std::string& brokerUri, const std::string& clientId,
-      const std::string& token);
+    /**
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address using the provided credentials
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @param token used to get access to the MQTT broker
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId,
+                                                         const std::string& token);
 
-  /**
-   * @brief Create a new instance of an MQTT client connecting to a broker at
-   * the specified address using the provided credentials
-   *
-   * @param brokerUri address of the MQTT broker to connect to
-   * @param clientId used to identify the client at the MQTT broker
-   * @param trustStorePath The file containing the public digital certificates
-   * trusted by the client.
-   * @param keyStorePath The file containing the public certificate chain of the
-   * client.
-   * @param privateKeyPath The file containing the client's private key.
-   * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
-   */
-  static std::shared_ptr<IPubSubClient> createInstance(
-      const std::string& brokerUri, const std::string& clientId,
-      const std::string& trustStorePath, const std::string& keyStorePath,
-      const std::string& privateKeyPath);
+    /**
+     * @brief Create a new instance of an MQTT client connecting to a broker at the specified
+     * address using the provided credentials
+     *
+     * @param brokerUri address of the MQTT broker to connect to
+     * @param clientId used to identify the client at the MQTT broker
+     * @param trustStorePath The file containing the public digital certificates trusted by the
+     * client.
+     * @param keyStorePath The file containing the public certificate chain of the client.
+     * @param privateKeyPath The file containing the client's private key.
+     * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
+     */
+    static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
+                                                         const std::string& clientId,
+                                                         const std::string& trustStorePath,
+                                                         const std::string& keyStorePath,
+                                                         const std::string& privateKeyPath);
 
-  virtual ~IPubSubClient() = default;
+    virtual ~IPubSubClient() = default;
 
-  /**
-   * @brief Connect the client to the broker.
-   *
-   */
-  virtual void connect() = 0;
+    /**
+     * @brief Connect the client to the broker.
+     *
+     */
+    virtual void connect() = 0;
 
-  /**
-   * @brief Reconnect the client to the broker.
-   * @param timeout_ms maximum time to wait for the reconnection attempt to
-   * complete, in milliseconds.
-   */
-  virtual void reconnect(int timeout_ms) = 0;
+    /**
+     * @brief Reconnect the client to the broker.
+     * @param timeout_ms maximum time to wait for the reconnection attempt to complete, in
+     * milliseconds.
+     */
+    virtual void reconnect(int timeout_ms) = 0;
 
-  /**
-   * @brief Disconnect the client from the broker.
-   *
-   */
-  virtual void disconnect() = 0;
+    /**
+     * @brief Disconnect the client from the broker.
+     *
+     */
+    virtual void disconnect() = 0;
 
-  /**
-   * @brief Return the connection state.
-   *
-   * @return true
-   * @return false
-   */
-  [[nodiscard]] virtual bool isConnected() const = 0;
+    /**
+     * @brief Return the connection state.
+     *
+     * @return true
+     * @return false
+     */
+    [[nodiscard]] virtual bool isConnected() const = 0;
 
-  /**
-   * @brief Publish a message on a topic.
-   *
-   * @param topic   The topic to which to publish.
-   * @param data    The message data.
-   */
-  virtual void publishOnTopic(const std::string& topic,
-                              const std::string& data) = 0;
+    /**
+     * @brief Publish a message on a topic.
+     *
+     * @param topic   The topic to which to publish.
+     * @param data    The message data.
+     */
+    virtual void publishOnTopic(const std::string& topic, const std::string& data) = 0;
 
-  /**
-   * @brief Publishes a message to the specified MQTT topic with a timeout in
-   * milliseconds for the publish to complete. Returns a status indicating
-   * whether the publish was successful, timed out, or failed.
-   *
-   * @param topic the MQTT topic to publish the message to
-   * @param data the payload to send as the message
-   * @param timeout_ms maximum time to wait for the publish to complete, in
-   * milliseconds
-   * @return PublishStatus indicating the result of the publish operation:
-   * Success, Timeout, Failure
-   */
-  virtual PublishStatus publishOnTopic(const std::string& topic,
-                                       const std::string& data,
-                                       int timeout_ms) = 0;
+    /**
+     * @brief Publishes a message to the specified MQTT topic with a timeout in milliseconds for the
+     * publish to complete. Returns a status indicating whether the publish was successful, timed
+     * out, or failed.
+     *
+     * @param topic the MQTT topic to publish the message to
+     * @param data the payload to send as the message
+     * @param timeout_ms maximum time to wait for the publish to complete, in milliseconds
+     * @return PublishStatus indicating the result of the publish operation: Success, Timeout,
+     * Failure
+     */
+    virtual PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
+                                         int timeout_ms) = 0;
 
-  /**
-   * @brief Subscribe to a topic.
-   *
-   * @param topic   The topic to subscribe to.
-   * @return AsyncSubscriptionPtr_t<std::string>  The subscription to the topic.
-   */
-  virtual AsyncSubscriptionPtr_t<std::string> subscribeTopic(
-      const std::string& topic) = 0;
+    /**
+     * @brief Subscribe to a topic.
+     *
+     * @param topic   The topic to subscribe to.
+     * @return AsyncSubscriptionPtr_t<std::string>  The subscription to the topic.
+     */
+    virtual AsyncSubscriptionPtr_t<std::string> subscribeTopic(const std::string& topic) = 0;
 
-  /**
-   * @brief Unsubscribe from a topic.
-   *
-   * @param topic   The topic to unsubscribe from.
-   */
-  virtual void unsubscribeTopic(const std::string& topic) = 0;
+    /**
+     * @brief Unsubscribe from a topic.
+     *
+     * @param topic   The topic to unsubscribe from.
+     */
+    virtual void unsubscribeTopic(const std::string& topic) = 0;
 
-  IPubSubClient(const IPubSubClient&) = delete;
-  IPubSubClient(IPubSubClient&&) = delete;
-  IPubSubClient& operator=(const IPubSubClient&) = delete;
-  IPubSubClient& operator=(IPubSubClient&&) = delete;
+    IPubSubClient(const IPubSubClient&)            = delete;
+    IPubSubClient(IPubSubClient&&)                 = delete;
+    IPubSubClient& operator=(const IPubSubClient&) = delete;
+    IPubSubClient& operator=(IPubSubClient&&)      = delete;
 
- protected:
-  IPubSubClient() = default;
+protected:
+    IPubSubClient() = default;
 };
 
-}  // namespace velocitas
+} // namespace velocitas
 
-#endif  // VEHICLE_APP_SDK_IPUBSUBCLIENT_H
+#endif // VEHICLE_APP_SDK_IPUBSUBCLIENT_H
