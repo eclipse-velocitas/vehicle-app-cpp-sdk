@@ -60,7 +60,7 @@ struct VoidResult {};
 enum class CallState { ONGOING, CANCELING, COMPLETED, FAILED };
 
 /**
- * @brief Status of an MQTT publish operation
+ * @brief Status of a publish operation
  */
 enum PublishStatus {
     Success, // Message was published successfully

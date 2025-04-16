@@ -87,7 +87,19 @@ public:
     }
 
     void reconnect(int timeout_ms) override {
+        constexpr int MAX_TIMEOUT_MS = 30000;
         logger().info("Attempting to reconnect to MQTT broker");
+        if (timeout_ms <= 0) {
+            logger().error("Invalid timeout value: {} ms. Must be positive.",
+                           timeout_ms);
+            return;
+          }
+
+        if (timeout_ms > MAX_TIMEOUT_MS) {
+          logger().warn("Timeout capped to {} ms (requested: {} ms)",
+                        MAX_TIMEOUT_MS, timeout_ms);
+          timeout_ms = MAX_TIMEOUT_MS;
+        }
 
         try {
             auto token = m_client.reconnect();
@@ -111,6 +123,18 @@ public:
 
     PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
                                  int timeout_ms) override {
+        constexpr int MAX_TIMEOUT_MS = 30000;
+         // Validate timeout range
+        if (timeout_ms <= 0) {
+          logger().warn("Invalid timeout value ({} ms); must be > 0", timeout_ms);
+          return PublishStatus::Timeout;
+        }
+
+        if (timeout_ms > MAX_TIMEOUT_MS) {
+          logger().warn("Timeout capped to {} ms (requested: {} ms)",
+                        MAX_TIMEOUT_MS, timeout_ms);
+          timeout_ms = MAX_TIMEOUT_MS;
+        }
         try {
             logger().debug(R"(Publish on topic "{}": "{}")", topic, data);
 
