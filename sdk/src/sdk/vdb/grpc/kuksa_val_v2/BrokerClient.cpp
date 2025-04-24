@@ -295,10 +295,8 @@ public:
             if (metadata) {
                 const auto& path            = metadata->m_signalPath;
                 (*m_datapointUpdates)[path] = convertFromGrpcDataPoint(path, dataPoint);
-                logger().debug("onSubscriptionUpdate: signal id={}, signal path={} received.", id,
-                               path);
             } else {
-                logger().error("onSubscriptionUpdate: Unknown signal id={} received.", id);
+                logger().error("onSubscriptionUpdate: Unexpected signal id={} received.", id);
             }
         }
         m_subscription->insertNewItem(DataPointReply(DataPointMap_t(*m_datapointUpdates)));
