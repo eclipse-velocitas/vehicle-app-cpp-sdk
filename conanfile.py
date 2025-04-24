@@ -26,13 +26,6 @@ class VehicleAppCppSdkConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk"
     description = "The Vehicle App SDK for c++ allows to create Vehicle Apps from the Velocitas development model in the c++ programming language."
-    requires = [
-        ("fmt/11.1.1"),
-        ("grpc/1.50.1"),
-        ("nlohmann_json/3.11.3"),
-        ("paho-mqtt-c/1.3.13"),
-        ("paho-mqtt-cpp/1.4.0"),
-    ]
     generators = "CMakeDeps", "CMakeToolchain"
     author = "Contributors to the Eclipse Foundation, SDV Working Group"
 
@@ -84,6 +77,13 @@ class VehicleAppCppSdkConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def requirements(self):
+        self.requires("fmt/11.1.1", transitive_headers=True)
+        self.requires("grpc/1.50.1", transitive_headers=True)
+        self.requires("nlohmann_json/3.11.3")
+        self.requires("paho-mqtt-c/1.3.13")
+        self.requires("paho-mqtt-cpp/1.4.0")
 
     def build_requirements(self):
         # Declare both, grpc and protobuf, here to enable proper x-build (w/o using qemu)
