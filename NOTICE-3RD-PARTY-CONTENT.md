@@ -7,7 +7,7 @@
 |cfgv|3.4.0|MIT|
 |charset-normalizer|3.4.1|MIT|
 |colorama|0.4.6|BSD|
-|conan|2.15.0|MIT|
+|conan|2.15.1|MIT|
 |cpplint|1.6.1|New BSD|
 |distlib|0.3.9|Python Software Foundation License|
 |distro|1.8.0|Apache 2.0|
