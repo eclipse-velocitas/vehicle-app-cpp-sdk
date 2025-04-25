@@ -31,7 +31,7 @@ on:
 jobs:
   conan-package:
     runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:5cb71f75c9dbf10151d18f16867717cc1c79554d
     name: Check Conan package
     strategy:
       matrix:
@@ -58,7 +58,7 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-22.04
     name: "Build, Test and Lint"
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:5cb71f75c9dbf10151d18f16867717cc1c79554d
 
     steps:
       - name: Checkout repository
