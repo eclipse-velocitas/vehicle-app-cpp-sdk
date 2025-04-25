@@ -3,6 +3,10 @@
 ![SDK CI Workflow](https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk/actions/workflows/ci.yml/badge.svg)
 [![License: Apache](https://img.shields.io/badge/License-Apache-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
+> [!IMPORTANT]
+> We sucessfully migrated our C++ repositories to use version 2 of the Conan package manager.
+> Unfortunately, those changes are not backwards compatible. So, please be ware that newer versions of the C++ SDK (>= v0.7.0) cannot be used together with older Velocitas packages, base images, and C++ template contents.
+
 The Vehicle App SDK for C++ allows to create `Vehicle Apps` from the [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/) in the C++ programming language.
 
 ## Folder structure
@@ -74,7 +78,6 @@ You can configure the middleware to be used (currently only `native` is supporte
 | Middleware | Environment Variable            | Default             | Meaning
 |------------|---------------------------------|---------------------|------------------------------------
 |            | `SDV_MIDDLEWARE_TYPE`           | `native`            | Defines the middleware to be used by the app (currently only `native` is supported)
-|
 | native     | `SDV_MQTT_ADDRESS`              | `localhost:1883`    | Address of the MQTT broker
 |            | `SDV_VEHICLEDATABROKER_ADDRESS` | `localhost:55555`   | Address of the Kuksa (Vehicle) Data Broker
 
