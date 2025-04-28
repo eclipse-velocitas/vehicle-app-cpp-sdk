@@ -29,10 +29,10 @@ on:
     branches:
       - main
 jobs:
-  conan-package:
+  cpp-package:
     runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:5cb71f75c9dbf10151d18f16867717cc1c79554d
-    name: Check Conan package
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.4
+    name: Check C++ package
     strategy:
       matrix:
         host: ["linux-x86_64"]
@@ -51,14 +51,14 @@ jobs:
           sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
           pip3 install -r requirements.txt
 
-      - name: Create conan package
+      - name: Test creating the C++ package
         run: |
           .scripts/test_package.sh ${{ matrix.host }}
 
   build-and-publish:
     runs-on: ubuntu-22.04
     name: "Build, Test and Lint"
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:5cb71f75c9dbf10151d18f16867717cc1c79554d
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.4
 
     steps:
       - name: Checkout repository

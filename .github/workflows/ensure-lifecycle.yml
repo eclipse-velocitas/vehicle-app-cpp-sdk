@@ -29,7 +29,7 @@ on:
 jobs:
   check-sync:
     runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:5cb71f75c9dbf10151d18f16867717cc1c79554d
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.4
     name: Are files in sync?
 
     steps:

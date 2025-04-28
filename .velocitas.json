@@ -18,5 +18,5 @@
         "githubRepoId": "eclipse-velocitas/vehicle-app-cpp-sdk",
         "appManifestPath": "examples/seat-adjuster/AppManifest.json"
     },
-    "cliVersion": "v0.13.1"
+    "cliVersion": "v0.13.2"
 }
