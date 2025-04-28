@@ -3,7 +3,7 @@
 ## Python
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
-|certifi|2025.1.31|Mozilla Public License 2.0|
+|certifi|2025.4.26|Mozilla Public License 2.0|
 |cfgv|3.4.0|MIT|
 |charset-normalizer|3.4.1|MIT|
 |colorama|0.4.6|BSD|
