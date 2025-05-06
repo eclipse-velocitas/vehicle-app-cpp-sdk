@@ -1,0 +1,34 @@
+#ifndef VEHICLE_CABIN_SEAT_ROW_1_POS_3_SEATING_SEATING_H
+#define VEHICLE_CABIN_SEAT_ROW_1_POS_3_SEATING_SEATING_H
+
+#include "sdk/DataPoint.h"
+#include "sdk/Model.h"
+
+#include <string>
+
+namespace vehicle::cabin::seat::row_1::pos_3::seating {
+using ParentClass = velocitas::Model;
+
+/** Seating model. */
+class Seating : public ParentClass {
+public:
+
+    Seating(const std::string& name, ParentClass* parent) :
+        ParentClass(name, parent),
+		Length("Length", this)
+    {}
+
+    /**
+    * Length: actuator
+    * Length adjustment of seating. 0 = Adjustable part of seating in rearmost position (Shortest length of seating).
+    *
+    * Value range: [0, ]
+    * Unit: mm
+    **/
+    velocitas::DataPointUint32 Length;
+
+};
+
+} // namespace vehicle::cabin::seat::row_1::pos_3::seating
+
+#endif // VEHICLE_CABIN_SEAT_ROW_1_POS_3_SEATING_SEATING_H

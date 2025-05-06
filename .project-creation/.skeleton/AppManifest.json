@@ -1,0 +1,19 @@
+{
+    "manifestVersion": "v3",
+    "name": "skeleton",
+    "interfaces": [
+        {
+            "type": "vehicle-signal-interface",
+            "config": {
+                "src": "https://github.com/COVESA/vehicle_signal_specification/releases/download/v3.0/vss_rel_3.0.json",
+                "datapoints": {
+                    "required": []
+                }
+            }
+        },
+        {
+            "type": "pubsub",
+            "config": {}
+        }
+    ]
+}
