@@ -4,8 +4,8 @@
 [![License: Apache](https://img.shields.io/badge/License-Apache-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 > [!IMPORTANT]
-> We sucessfully migrated our C++ repositories to use version 2 of the Conan package manager.
-> Unfortunately, those changes are not backwards compatible. So, please be ware that newer versions of the C++ SDK (>= v0.7.0) cannot be used together with older Velocitas packages, base images, and C++ template contents.
+> We sucessfully migrated our C++ repositories to use version 2 of the [Conan package manager](https://conan.io/).
+> Unfortunately, those changes are not backwards compatible. So, please be aware that newer versions of the C++ SDK (>= v0.7.0) cannot be used together with older Velocitas packages, base images, and C++ template contents.
 
 The Vehicle App SDK for C++ allows to create `Vehicle Apps` from the [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/) in the C++ programming language.
 

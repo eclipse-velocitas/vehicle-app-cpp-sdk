@@ -124,10 +124,14 @@ if [ "${GEN_COVERAGE}" == "ON" ]; then
 fi
 
 BUILD_FOLDER=build-${HOST_OS}-${HOST_ARCH}/${BUILD_TYPE}
+echo "Using build foler ${BUILD_FOLDER}"
+# Set a symlink called 'build' to the last used build-type (release/debug) for
+# a local build (i.e. host arch == build arch). This is required for  easy
+# access via vscod's task and launch config and for other build and test tools
 if [[ "${BUILD_ARCH}" == "${HOST_ARCH}" ]]; then
+  echo "Setting/updating symlink 'build' to ${BUILD_FOLDER}"
   ln -snf ${BUILD_FOLDER} build
 fi
-echo "Using build foler ${BUILD_FOLDER}"
 
 SRC_FOLDER=$(pwd)
 mkdir -p ${BUILD_FOLDER} && pushd ${BUILD_FOLDER}

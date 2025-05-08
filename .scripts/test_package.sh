@@ -19,4 +19,4 @@ if [ "${HOST_PROFILE}" == "" ]; then
     echo "Missing host profile argument - using default: ${HOST_PROFILE}"
 fi
 
-conan create --build=missing -pr:b ./.conan/profiles/linux-x86_64 -pr:h ./.conan/profiles/${HOST_PROFILE} -s:a="build_type=Release" . --user ci --channel testing
+conan create --build=missing -pr:b ./.conan/profiles/linux-$(arch) -pr:h ./.conan/profiles/${HOST_PROFILE} -s:a="build_type=Release" . --user ci --channel testing
