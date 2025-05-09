@@ -29,7 +29,7 @@
 |requests|2.32.3|Apache 2.0|
 |six|1.17.0|MIT|
 |urllib3|2.0.7|MIT|
-|virtualenv|20.31.1|MIT|
+|virtualenv|20.31.2|MIT|
 ## Workflows
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
