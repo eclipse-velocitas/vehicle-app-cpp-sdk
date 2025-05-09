@@ -89,12 +89,45 @@ protected:
     AsyncSubscriptionPtr_t<std::string> subscribeToTopic(const std::string& topic);
 
     /**
+     * @brief Unsubscribe from a topic.
+     *
+     * @param topic   The topic to unsubscribe from.
+     */
+    void unsubscribeTopic(const std::string& topic);
+
+    /**
      * @brief Publish a PubSub message to the given topic.
      *
      * @param topic   The topic to publish to.
      * @param data    The message data to publish in JSON format.
      */
     void publishToTopic(const std::string& topic, const std::string& data);
+
+    /**
+     * @brief Publishes a message to the specified MQTT topic with a timeout (in
+     * milliseconds) for the operation to complete. Returns a status indicating
+     * whether the publish was successful, timed out, or failed.
+     *
+     * @param topic the MQTT topic to publish the message to
+     * @param data the payload to send as the message
+     * @param timeout_ms maximum time (in milliseconds) to wait for the publish to
+     * complete. Values ≤ 0 are treated as an instant timeout. Timeout value is
+     * capped at a maximum of 30000 ms.
+     * @return PublishStatus indicating the result of the publish operation:
+     * Success, Timeout, or Failure
+     */
+    virtual PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
+                                         int timeout_ms);
+
+    /**
+     * @brief Attempts to reconnect to the MQTT broker within a specified timeout
+     * period.
+     *
+     * @param timeout_ms The maximum time to wait for reconnection, in
+     * milliseconds. Values ≤ 0 are treated as an error. Timeout value
+     * is capped at a maximum of 30000 ms.
+     */
+    virtual void reconnect(int timeout_ms);
 
     /**
      * @brief Get values for all provided data points from the data broker.

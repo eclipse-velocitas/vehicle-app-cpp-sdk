@@ -105,6 +105,13 @@ public:
     virtual void connect() = 0;
 
     /**
+     * @brief Reconnect the client to the broker.
+     * @param timeout_ms maximum time to wait for the reconnection attempt to complete, in
+     * milliseconds.
+     */
+    virtual void reconnect(int timeout_ms) = 0;
+
+    /**
      * @brief Disconnect the client from the broker.
      *
      */
@@ -127,12 +134,33 @@ public:
     virtual void publishOnTopic(const std::string& topic, const std::string& data) = 0;
 
     /**
+     * @brief Publishes a message to the specified MQTT topic with a timeout in milliseconds for the
+     * publish to complete. Returns a status indicating whether the publish was successful, timed
+     * out, or failed.
+     *
+     * @param topic the MQTT topic to publish the message to
+     * @param data the payload to send as the message
+     * @param timeout_ms maximum time to wait for the publish to complete, in milliseconds
+     * @return PublishStatus indicating the result of the publish operation: Success, Timeout,
+     * Failure
+     */
+    virtual PublishStatus publishOnTopic(const std::string& topic, const std::string& data,
+                                         int timeout_ms) = 0;
+
+    /**
      * @brief Subscribe to a topic.
      *
      * @param topic   The topic to subscribe to.
      * @return AsyncSubscriptionPtr_t<std::string>  The subscription to the topic.
      */
     virtual AsyncSubscriptionPtr_t<std::string> subscribeTopic(const std::string& topic) = 0;
+
+    /**
+     * @brief Unsubscribe from a topic.
+     *
+     * @param topic   The topic to unsubscribe from.
+     */
+    virtual void unsubscribeTopic(const std::string& topic) = 0;
 
     IPubSubClient(const IPubSubClient&)            = delete;
     IPubSubClient(IPubSubClient&&)                 = delete;

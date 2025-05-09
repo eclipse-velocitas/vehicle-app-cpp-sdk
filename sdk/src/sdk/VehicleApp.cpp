@@ -82,6 +82,10 @@ AsyncSubscriptionPtr_t<std::string> VehicleApp::subscribeToTopic(const std::stri
     return {};
 }
 
+void VehicleApp::unsubscribeTopic(const std::string& topic) {
+    return m_pubSubClient->unsubscribeTopic(topic);
+}
+
 AsyncResultPtr_t<DataPointReply>
 VehicleApp::getDataPoints(const std::vector<std::reference_wrapper<DataPoint>>& dataPoints) {
     std::vector<std::string> dataPointPaths;
@@ -112,6 +116,13 @@ void VehicleApp::publishToTopic(const std::string& topic, const std::string& dat
         logger().error("publishToTopic(...) ignored: App has no PubSubClient instantiated");
     }
 }
+
+PublishStatus VehicleApp::publishOnTopic(const std::string& topic, const std::string& data,
+                                         int timeout_ms) {
+    return m_pubSubClient->publishOnTopic(topic, data, timeout_ms);
+}
+
+void VehicleApp::reconnect(int timeout_ms) { m_pubSubClient->reconnect(timeout_ms); }
 
 std::shared_ptr<IVehicleDataBrokerClient> VehicleApp::getVehicleDataBrokerClient() {
     return m_vdbClient;
