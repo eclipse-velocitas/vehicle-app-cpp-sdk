@@ -3,6 +3,6 @@
         "devenv-runtimes": "v4.1.0",
         "devenv-devcontainer-setup": "@bjoern_conan2",
         "devenv-github-templates": "v1.0.5",
-        "devenv-github-workflows": "@conan2"
+        "devenv-github-workflows": "v7.0.0"
     }
 }
