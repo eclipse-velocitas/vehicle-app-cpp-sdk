@@ -1,5 +1,5 @@
 # This file is maintained by velocitas CLI, do not modify manually. Change settings in .velocitas.json
-# Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -29,15 +29,14 @@ on:
     branches:
       - main
 jobs:
-  conan-package:
+  cpp-package:
     runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
-    name: Check Conan package
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.4
+    name: Check C++ package
     strategy:
       matrix:
-        host: ["linux_x86_64"]
+        host: ["linux-x86_64"]
       fail-fast: false
-
 
     steps:
       - name: Checkout repository
@@ -52,14 +51,14 @@ jobs:
           sudo apt-get update && sudo apt-get install -y ninja-build clang-format-14 clang-tidy-14 cppcheck
           pip3 install -r requirements.txt
 
-      - name: Create conan package
+      - name: Test creating the C++ package
         run: |
-          conan create --build=missing -pr:b ./.conan/profiles/linux_x86_64_release -pr:h ./.conan/profiles/${{ matrix.host }}_release . ci/testing
+          .scripts/test_package.sh ${{ matrix.host }}
 
   build-and-publish:
     runs-on: ubuntu-22.04
     name: "Build, Test and Lint"
-    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
+    container: ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.4
 
     steps:
       - name: Checkout repository
@@ -84,7 +83,9 @@ jobs:
         run: build/bin/sdk_utests
 
       - name: Generate coverage report
-        run: cd build && gcovr -r ..
+        # If 'build' folder is a symlink, assigning pwd to ROOT_DIR makes this independent
+        # of the number of dirs covered by the symlink
+        run: ROOT_DIR=$(pwd) && cd build && gcovr -r $ROOT_DIR
 
       - name: Code Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.3.0

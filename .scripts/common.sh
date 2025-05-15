@@ -13,8 +13,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-function get_valid_cross_compile_architecute() {
-    if [[ "$1" == "aarch64" || "$1" == "arm64" ]]; then
+function get_valid_cross_compile_architecture() {
+    if [[ "$1" == "aarch64" || "$1" == "arm64" || "$1" == "armv8" ]]; then
       HOST_ARCH="aarch64"
     elif [[ "$1" == "x86_64" || "$1" == "amd64" ]]; then
       HOST_ARCH="x86_64"

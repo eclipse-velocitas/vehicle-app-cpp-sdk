@@ -16,4 +16,4 @@ whitelist-file-path: ./whitelisted-licenses.txt
 scan-dirs:
   - path: .
     cpp-conan-included-profile-files:
-      - "./.conan/profiles/linux_x86_64_release"
+      - "./.conan/profiles/linux-x86_64"

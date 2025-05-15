@@ -12,7 +12,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-include_directories(example_model)
+add_subdirectory(example_model)
 
 # Currently only adding examples that can be tested without additional velocitas code generation
 

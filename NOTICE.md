@@ -51,26 +51,14 @@ they are given here (manually added) for time being:
 
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
-|abseil|20240116.2|Apache 2.0|
-|bzip2|1.0.8|bzip2-1.0.8|
-|c-ares|1.34.1|c-ares (MIT-style)|
-|cpr|1.11.0|MIT|
-|fmt|11.0.2|MIT|
-|grpc|1.67.1|Apache 2.0|
-|libcap|2.69|BSD-3-Clause, GPL-2.0-only|
-|libcurl|8.10.1|CURL|
-|libmount|2.39.2|LGPL-2.1-or-later|
-|libselinux|3.6|libselinux-1.0, LGPL-2.1-or-later|
-|libsystemd|255.10|LGPL-2.1-or-later|
-|libxcrypt|4.4.36|LGPL-2.1-or-later|
-|lz4|1.9.4|BSD-3-Clause, BSD-2-Clause|
+|abseil|20230802.1|Apache 2.0|
+|c-ares|1.34.3|c-ares (MIT-style)|
+|fmt|11.1.1|MIT|
+|grpc|1.50.1|Apache 2.0|
 |nlohmann_json|3.11.3|MIT|
-|openssl|3.3.2|OpenSSL License AND SSLeay License|
+|openssl|3.4.1|Apache 2.0|
 |paho-mqtt-c|1.3.13|EPL 2.0 AND EDL 1.0|
-|paho-mqtt-cpp|1.4.0|EPL 1.0 AND EDL 1.0|
-|pcre2|10.42|BSD-3-Clause|
-|protobuf|5.27.0|Google License|
+|paho-mqtt-cpp|1.4.0|EPL 2.0 AND EDL 1.0|
+|protobuf|3.21.12|Google License|
 |re2|20230301|BSD-3-Clause|
-|xz_utils|5.4.5|LGPL-2.1-or-later, GPL-3.0-or-later, GPL-2.0-or-later, Unlicense|
-|zlib|1.3.1|zlib/libpng license|
-|zstd|1.5.5|BSD-3-Clause|
+|zlib|1.3.1|zlib license|

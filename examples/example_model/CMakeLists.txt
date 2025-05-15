@@ -1,5 +1,3 @@
-#!/bin/bash
-# This file is maintained by velocitas CLI, do not modify manually. Change settings in .velocitas.json
 # Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
@@ -14,13 +12,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-echo "#######################################################"
-echo "### Setup Git                                       ###"
-echo "#######################################################"
-# Add git name and email from env variables
-if [[ -n "${GIT_CONFIG_NAME}" && -n "${GIT_CONFIG_EMAIL}" ]]; then
-    git config --global user.name $GIT_CONFIG_NAME
-    git config --global user.email $GIT_CONFIG_EMAIL
-fi
+set(TARGET_NAME "example_model")
 
-git config --global --add safe.directory "*"
+add_library(${TARGET_NAME} INTERFACE)
+
+target_include_directories(${TARGET_NAME} INTERFACE .)

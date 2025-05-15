@@ -56,8 +56,8 @@ public:
      *
      * @param brokerUri address of the MQTT broker to connect to
      * @param clientId used to identify the client at the MQTT broker
-     * @param username to get access to the MQTT broker
-     * @param password to get access to the MQTT broker
+     * @param username username to get access to the MQTT broker
+     * @param password password to get access to the MQTT broker
      * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
      */
     static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,
