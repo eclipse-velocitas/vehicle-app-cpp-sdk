@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -35,30 +35,31 @@ add_library(${TARGET_NAME}
     sdk/pubsub/MqttPubSubClient.cpp
     sdk/vdb/DataPointBatch.cpp
     sdk/vdb/IVehicleDataBrokerClient.cpp
+    sdk/vdb/grpc/common/ChannelConfiguration.cpp
     sdk/vdb/grpc/common/TypeConversions.cpp
     sdk/vdb/grpc/kuksa_val_v2/BrokerAsyncGrpcFacade.cpp
     sdk/vdb/grpc/kuksa_val_v2/BrokerClient.cpp
+    sdk/vdb/grpc/kuksa_val_v2/Metadata.cpp
     sdk/vdb/grpc/kuksa_val_v2/TypeConversions.cpp
     sdk/vdb/grpc/sdv_databroker_v1/BrokerAsyncGrpcFacade.cpp
     sdk/vdb/grpc/sdv_databroker_v1/BrokerClient.cpp
     sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.cpp
 )
 
-include_directories(
-    ${CMAKE_BINARY_DIR}/gens
+target_include_directories(${TARGET_NAME}
+    PUBLIC
+    ${fmt_INCLUDE_DIRS}
+    ${absl_INCLUDE_DIRS}
+    ${gRPC_INCLUDE_DIRS}
     ../include
+    PRIVATE
     .
 )
 
-add_dependencies(${TARGET_NAME}
-    vehicle-app-sdk-generated-grpc
-)
-
 target_link_libraries(${TARGET_NAME}
-    CONAN_PKG::grpc
-    CONAN_PKG::cpr
-    CONAN_PKG::fmt
-    CONAN_PKG::paho-mqtt-cpp
-    CONAN_PKG::nlohmann_json
+    gRPC::grpc++
+    fmt::fmt
+    PahoMqttCpp::paho-mqttpp3-static
+    nlohmann_json::nlohmann_json
     vehicle-app-sdk-generated-grpc
 )

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace velocitas::kuksa_val_v2 {
 
@@ -35,7 +36,7 @@ std::shared_ptr<DataPointValue> convertFromGrpcValue(const std::string&         
 std::shared_ptr<DataPointValue>
 convertFromGrpcDataPoint(const std::string& path, const kuksa::val::v2::Datapoint& grpcDataPoint);
 
-void parseQueryIntoRequest(kuksa::val::v2::SubscribeRequest& request, const std::string& query);
+std::vector<std::string> parseQuery(const std::string& query);
 
 } // namespace velocitas::kuksa_val_v2
 

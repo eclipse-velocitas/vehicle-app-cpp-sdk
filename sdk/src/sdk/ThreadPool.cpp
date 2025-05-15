@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -17,10 +17,13 @@
 #include "sdk/ThreadPool.h"
 #include "sdk/Logger.h"
 
+#include <cassert>
+
 namespace velocitas {
 
 ThreadPool::ThreadPool(size_t numWorkerThreads)
-    : m_workerThreads{numWorkerThreads} {
+    : m_jobs(&lowerJobPriority)
+    , m_workerThreads{numWorkerThreads} {
     for (size_t i = 0; i < numWorkerThreads; ++i) {
         m_workerThreads[i] = std::thread([this]() { threadLoop(); });
     }
@@ -33,8 +36,8 @@ ThreadPool::~ThreadPool() {
     {
         std::lock_guard lock{m_queueMutex};
         m_isRunning = false;
-        // empty the job queue (std::queue does not offer a clear function)
-        std::queue<JobPtr_t>().swap(m_jobs);
+        // empty the job queue (std::priority_queue does not offer a clear function)
+        QueueType().swap(m_jobs);
     }
     m_cv.notify_all();
 
@@ -51,38 +54,59 @@ std::shared_ptr<ThreadPool> ThreadPool::getInstance() {
 size_t ThreadPool::getNumWorkerThreads() const { return m_workerThreads.size(); }
 
 void ThreadPool::enqueue(JobPtr_t job) {
-    std::lock_guard<std::mutex> lock(m_queueMutex);
-    m_jobs.emplace(std::move(job));
-    m_cv.notify_one();
+    if (job) {
+        std::lock_guard<std::mutex> lock(m_queueMutex);
+        m_jobs.push(std::move(job));
+        m_cv.notify_one();
+    } else {
+        logger().error("[ThreadPool::enqueue] Ignoring nullptr Job!");
+        assert(job);
+    }
 }
+
+JobPtr_t ThreadPool::getNextExecutableJob() {
+    JobPtr_t                    job;
+    std::lock_guard<std::mutex> lock(m_queueMutex);
+    if (!m_jobs.empty() && m_jobs.top()->isDue()) {
+        job = m_jobs.top();
+        m_jobs.pop();
+    }
+    return job;
+}
+
+void ThreadPool::waitForPotentiallyExecutableJob() const {
+    std::unique_lock<std::mutex> lock(m_queueMutex);
+    if (m_jobs.empty()) {
+        m_cv.wait(lock, [this] { return !m_jobs.empty() || !m_isRunning; });
+    } else {
+        auto timepointToExecuteNextJob = m_jobs.top()->getTimepointToExecute();
+        m_cv.wait_until(lock, timepointToExecuteNextJob);
+    }
+}
+
+namespace {
+void executeJob(JobPtr_t job) {
+    try {
+        job->execute();
+    } catch (const std::exception& e) {
+        logger().error("[ThreadPool] Uncaught exception during job execution: " +
+                       std::string(e.what()));
+    } catch (...) {
+        logger().error(std::string("[ThreadPool] Uncaught unknown exception during job execution"));
+    }
+}
+} // namespace
 
 void ThreadPool::threadLoop() {
     while (m_isRunning) {
-        JobPtr_t job;
-        {
-            std::lock_guard<std::mutex> lock(m_queueMutex);
-            if (!m_jobs.empty()) {
-                job = m_jobs.front();
-                m_jobs.pop();
-            }
-        }
-
+        JobPtr_t job = getNextExecutableJob();
         if (job) {
-            try {
-                job->execute();
-                if (job->shallRecur()) {
-                    enqueue(job);
-                }
-            } catch (const std::exception& e) {
-                logger().error("[ThreadPool] Uncaught exception in job execution: " +
-                               std::string(e.what()));
-            } catch (...) {
-                logger().error(
-                    std::string("[ThreadPool] Uncaught unknown exception in job execution"));
+            executeJob(job);
+            if (job->shallRecur()) {
+                enqueue(job);
             }
         } else {
-            std::unique_lock<std::mutex> lock(m_queueMutex);
-            m_cv.wait(lock, [this] { return !m_jobs.empty() || !m_isRunning; });
+            waitForPotentiallyExecutableJob();
         }
     }
 }

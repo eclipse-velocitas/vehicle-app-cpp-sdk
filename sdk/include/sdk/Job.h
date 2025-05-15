@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,11 +18,15 @@
 #define VEHICLE_APP_SDK_JOB_H
 
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <mutex>
 
 namespace velocitas {
+
+using Clock     = std::chrono::steady_clock;
+using Timepoint = std::chrono::time_point<Clock>;
 
 /**
  * @brief Interface for jobs which can be executed by a worker in the thread pool.
@@ -31,6 +35,10 @@ class IJob {
 public:
     IJob()          = default;
     virtual ~IJob() = default;
+
+    [[nodiscard]] virtual bool isDue() const { return true; }
+
+    [[nodiscard]] virtual Timepoint getTimepointToExecute() const { return {}; }
 
     /**
      * @brief Execute the job.
@@ -58,9 +66,19 @@ using JobPtr_t = std::shared_ptr<IJob>;
  */
 class Job : public IJob {
 public:
-    static JobPtr_t create(std::function<void()> fun) { return std::make_shared<Job>(fun); }
+    static JobPtr_t create(std::function<void()>     fun,
+                           std::chrono::milliseconds delay = std::chrono::milliseconds::zero()) {
+        return std::make_shared<Job>(fun, delay);
+    }
 
-    explicit Job(std::function<void()> fun);
+    explicit Job(std::function<void()>     fun,
+                 std::chrono::milliseconds delay = std::chrono::milliseconds::zero());
+
+    bool isDue() const override {
+        return (m_timepointToExecute == Timepoint()) || (m_timepointToExecute <= Clock::now());
+    }
+
+    Timepoint getTimepointToExecute() const override { return m_timepointToExecute; }
 
     void execute() override;
 
@@ -68,8 +86,11 @@ public:
 
 private:
     std::function<void()> m_fun;
+    Timepoint             m_timepointToExecute;
     mutable std::mutex    m_terminationMutex;
 };
+
+bool lowerJobPriority(const JobPtr_t& left, const JobPtr_t& right);
 
 /**
  * @brief A recurring job which can be cancelled manually.

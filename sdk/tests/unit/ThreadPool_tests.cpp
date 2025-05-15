@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -165,16 +165,6 @@ TEST_F(Test_ThreadPool, enqueue_allWorkersOccupied_jobNotExecuted) {
 
 TEST_F(Test_ThreadPool, stopExecutingOneJob_queuedJob_jobExecuted) {
     ASSERT_TRUE(occupyAllWorkers());
-    ASSERT_FALSE(createAndExecuteJob(0ms));
-
-    ASSERT_TRUE(finishJob(m_fakeJobs.front()));
-    EXPECT_TRUE(m_fakeJobs.back()->waitForExecution());
-}
-
-TEST_F(Test_ThreadPool,
-       stopExecutingJob_queuedEmptyJobAndRealJob_emptyJobIgnoredAndRealJobExectuted) {
-    ASSERT_TRUE(occupyAllWorkers());
-    m_pool->enqueue(nullptr);
     ASSERT_FALSE(createAndExecuteJob(0ms));
 
     ASSERT_TRUE(finishJob(m_fakeJobs.front()));

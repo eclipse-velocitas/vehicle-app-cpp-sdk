@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -17,20 +17,25 @@
 #ifndef VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H
 #define VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H
 
+#include "BrokerAsyncGrpcFacade.h"
+#include "Metadata.h"
 #include "sdk/vdb/IVehicleDataBrokerClient.h"
 
 #include <memory>
+#include <string>
 
-namespace velocitas::kuksa_val_v2 {
+namespace velocitas {
 
-class BrokerAsyncGrpcFacade;
+class GrpcClient;
+
+namespace kuksa_val_v2 {
 
 /**
  * Provides the Graph API to access vehicle signals via the kuksa.val.v2 API
  */
 class BrokerClient : public IVehicleDataBrokerClient {
 public:
-    explicit BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName);
+    BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName);
     explicit BrokerClient(const std::string& vdbserviceName);
 
     ~BrokerClient() override;
@@ -49,9 +54,18 @@ public:
     AsyncSubscriptionPtr_t<DataPointReply> subscribe(const std::string& query) override;
 
 private:
+    void onGetValuesResponse(const kuksa::val::v2::GetValuesResponse& response,
+                             const MetadataList_t& metadataList, size_t numRequestedSignals,
+                             const AsyncResultPtr_t<DataPointReply>& result);
+    void onGetValuesError(const grpc::Status& status, const MetadataList_t& metadataList,
+                          const AsyncResultPtr_t<DataPointReply>& result);
+
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
+    std::shared_ptr<MetadataAgent>         m_metadataAgent;
+    std::unique_ptr<GrpcClient>            m_activeCalls;
 };
 
-} // namespace velocitas::kuksa_val_v2
+} // namespace kuksa_val_v2
+} // namespace velocitas
 
 #endif // VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERCLIENT_H

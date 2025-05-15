@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
@@ -12,10 +13,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(example_model)
+HOST_PROFILE=$1
+if [ "${HOST_PROFILE}" == "" ]; then
+    HOST_PROFILE="linux-$(arch)"
+    echo "Missing host profile argument - using default: ${HOST_PROFILE}"
+fi
 
-# Currently only adding examples that can be tested without additional velocitas code generation
-
-add_subdirectory(performance-subscribe)
-add_subdirectory(seat-adjuster)
-add_subdirectory(set-data-points)
+conan create --build=missing -pr:b ./.conan/profiles/linux-$(arch) -pr:h ./.conan/profiles/${HOST_PROFILE} -s:a="build_type=Release" . --user ci --channel testing

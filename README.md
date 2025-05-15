@@ -3,6 +3,16 @@
 ![SDK CI Workflow](https://github.com/eclipse-velocitas/vehicle-app-cpp-sdk/actions/workflows/ci.yml/badge.svg)
 [![License: Apache](https://img.shields.io/badge/License-Apache-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
+> [!IMPORTANT]
+> We sucessfully migrated our C++ repositories to use version 2 of the [Conan package manager](https://conan.io/).
+> Unfortunately, those changes are not backwards compatible. So, please be aware that newer versions of the C++ SDK (>= v0.7) require usage
+> of Velocitas packages [devcontainer-setup](https://github.com/eclipse-velocitas/devenv-devcontainer-setup) >= v3 plus
+> [github-workflows](https://github.com/eclipse-velocitas/devenv-github-workflows) >= v7, and
+> [base images](https://github.com/eclipse-velocitas/devcontainer-base-images) >= v0.4. Also, those SDK versions are compatible with
+> recent versions of the [C++ App Template](https://github.com/eclipse-velocitas/vehicle-app-cpp-template), only.
+>
+> This is not relevant for the Python related app template and SDK repositories.
+
 The Vehicle App SDK for C++ allows to create `Vehicle Apps` from the [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/) in the C++ programming language.
 
 ## Folder structure
@@ -74,7 +84,6 @@ You can configure the middleware to be used (currently only `native` is supporte
 | Middleware | Environment Variable            | Default             | Meaning
 |------------|---------------------------------|---------------------|------------------------------------
 |            | `SDV_MIDDLEWARE_TYPE`           | `native`            | Defines the middleware to be used by the app (currently only `native` is supported)
-|
 | native     | `SDV_MQTT_ADDRESS`              | `localhost:1883`    | Address of the MQTT broker
 |            | `SDV_VEHICLEDATABROKER_ADDRESS` | `localhost:55555`   | Address of the Kuksa (Vehicle) Data Broker
 
@@ -88,6 +97,35 @@ SampleApp::SampleApp()
                  velocitas::IPubSubClient::createInstance("localhost:1883", "SampleApp",
                                                           "username", "password")) {}
 ```
+
+### Optimizing the gRPC communication channel settings
+
+For possible optimizations of the communication with the KUKSA Databroker you can define setting for 
+the used gRPC channel via so-called ChannelArguments as defined here: https://grpc.github.io/grpc/core/channel__arg__names_8h.html.
+
+You have to define those settings in a JSON based file and pass its filepath via environment varaiable
+`SDV_VDB_CHANNEL_CONFIG_PATH` to the Velocitas SDK based application. The JSON has this structure:
+
+```
+{
+    "channelArguments": {
+        "<name of channel arg>": <value - either string or integer>
+    }
+}
+```
+
+The possible names of channel arguments are as they are defined in the above linked page, for example:
+
+```
+{
+    "channelArguments": {
+        "grpc.http2.lookahead_bytes": 65536,
+        "grpc.default_authority": "Some authority defining string"
+    }
+}
+```
+
+The buffer size for subscribe requests to the databroker can be set via environment variable `SDV_SUBSCRIBE_BUFFER_SIZE`. If not set it defaults to 0, whose meaning is described in the [interface definition (proto) of the databroker](sdk/proto/kuksa/val/v2/val.proto).
 
 ## Documentation
 * [Velocitas Development Model](https://eclipse.dev/velocitas/docs/concepts/development_model/)

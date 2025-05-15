@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -204,53 +204,49 @@ TEST(Test_TypeConversion, convertFromGrpcValue__allMembersSetCorrectly) {
     testValueConversion<std::vector<std::string>>({"", "hello", "world", "!"});
 }
 
-TEST(Test_TypeConversion, parseQueryIntoRequest_emptyQuery_runtimeError) {
-    kuksa::val::v2::SubscribeRequest request;
-    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, ""), std::runtime_error);
+TEST(Test_TypeConversion, parseQuery_emptyQuery_runtimeError) {
+    EXPECT_THROW(kuksa_val_v2::parseQuery(""), std::runtime_error);
 }
 
-TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithoutSelect_runtimeError) {
-    kuksa::val::v2::SubscribeRequest request;
-    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, "Vehicle.Speed"), std::runtime_error);
+TEST(Test_TypeConversion, parseQuery_queryWithoutSelect_runtimeError) {
+    EXPECT_THROW(kuksa_val_v2::parseQuery("Vehicle.Speed"), std::runtime_error);
 }
 
-TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithoutSignals_runtimeError) {
-    kuksa::val::v2::SubscribeRequest request;
-    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, "SELECT "), std::runtime_error);
+TEST(Test_TypeConversion, parseQuery_queryWithoutSignals_runtimeError) {
+    EXPECT_THROW(kuksa_val_v2::parseQuery("SELECT "), std::runtime_error);
 }
 
-TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithSingleSignal_signalPathIsCorrect) {
+TEST(Test_TypeConversion, parseQuery_queryWithSingleSignal_signalPathIsCorrect) {
     const Vehicle     vehicle;
     const std::string query = QueryBuilder::select(vehicle.Speed).build();
 
-    kuksa::val::v2::SubscribeRequest request;
-    EXPECT_NO_THROW(kuksa_val_v2::parseQueryIntoRequest(request, query));
+    std::vector<std::string> signalPaths;
+    EXPECT_NO_THROW(signalPaths = kuksa_val_v2::parseQuery(query));
 
-    ASSERT_EQ(1, request.signal_paths().size());
-    EXPECT_EQ(vehicle.Speed.getPath(), request.signal_paths()[0]);
+    ASSERT_EQ(1, signalPaths.size());
+    EXPECT_EQ(vehicle.Speed.getPath(), signalPaths[0]);
 }
 
-TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithMultipleSignals_signalPathsAreCorrect) {
+TEST(Test_TypeConversion, parseQuery_queryWithMultipleSignals_signalPathsAreCorrect) {
     Vehicle           vehicle;
     const std::string query =
         QueryBuilder::select({vehicle.Speed, vehicle.Cabin.Seat.Row1.DriverSide.Position,
                               vehicle.Cabin.Seat.Row1.PassengerSide.Position})
             .build();
 
-    kuksa::val::v2::SubscribeRequest request;
-    EXPECT_NO_THROW(kuksa_val_v2::parseQueryIntoRequest(request, query));
+    std::vector<std::string> signalPaths;
+    EXPECT_NO_THROW(signalPaths = kuksa_val_v2::parseQuery(query));
 
-    ASSERT_EQ(3, request.signal_paths().size());
-    EXPECT_EQ(vehicle.Speed.getPath(), request.signal_paths()[0]);
-    EXPECT_EQ(vehicle.Cabin.Seat.Row1.DriverSide.Position.getPath(), request.signal_paths()[1]);
-    EXPECT_EQ(vehicle.Cabin.Seat.Row1.PassengerSide.Position.getPath(), request.signal_paths()[2]);
+    ASSERT_EQ(3, signalPaths.size());
+    EXPECT_EQ(vehicle.Speed.getPath(), signalPaths[0]);
+    EXPECT_EQ(vehicle.Cabin.Seat.Row1.DriverSide.Position.getPath(), signalPaths[1]);
+    EXPECT_EQ(vehicle.Cabin.Seat.Row1.PassengerSide.Position.getPath(), signalPaths[2]);
 }
 
-TEST(Test_TypeConversion, parseQueryIntoRequest_queryWithWhereClause_runtimeError) {
+TEST(Test_TypeConversion, parseQuery_queryWithWhereClause_runtimeError) {
     const Vehicle     vehicle;
     const std::string query =
         QueryBuilder::select(vehicle.Speed).where(vehicle.Speed).gt(30).build();
 
-    kuksa::val::v2::SubscribeRequest request;
-    EXPECT_THROW(kuksa_val_v2::parseQueryIntoRequest(request, query), std::runtime_error);
+    EXPECT_THROW(kuksa_val_v2::parseQuery(query), std::runtime_error);
 }

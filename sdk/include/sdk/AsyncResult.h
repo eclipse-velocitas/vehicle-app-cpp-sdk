@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -57,6 +57,8 @@ private:
  */
 struct VoidResult {};
 
+enum class CallState { ONGOING, CANCELING, COMPLETED, FAILED };
+
 /**
  * @brief Single result of an asynchronous operation which provides
  *        an item of type TResultType.
@@ -80,6 +82,7 @@ public:
      * @param result  Result to insert.
      */
     void insertResult(TResultType&& result) {
+        m_callState = CallState::COMPLETED;
         if (m_callback != nullptr) {
             m_callback(result);
         } else {
@@ -94,6 +97,7 @@ public:
      * @param error Status containing error information.
      */
     void insertError(Status&& error) {
+        m_callState = CallState::FAILED;
         if (m_errorCallback != nullptr) {
             m_errorCallback(error);
         } else {
@@ -140,6 +144,9 @@ public:
                 "Invalid usage: Either call await() or register an onResult callback!");
         }
         m_callback = callback;
+        if (m_callState == CallState::COMPLETED) {
+            m_callback(m_result);
+        }
         return this;
     }
 
@@ -152,6 +159,9 @@ public:
      */
     AsyncResult* onError(ErrorCallback_t callback) {
         m_errorCallback = callback;
+        if (m_callState == CallState::FAILED) {
+            m_errorCallback(m_status);
+        }
         return this;
     }
 
@@ -192,6 +202,7 @@ public:
     }
 
 private:
+    CallState        m_callState{CallState::ONGOING};
     TResultType      m_result;
     ResultCallback_t m_callback;
     ErrorCallback_t  m_errorCallback;

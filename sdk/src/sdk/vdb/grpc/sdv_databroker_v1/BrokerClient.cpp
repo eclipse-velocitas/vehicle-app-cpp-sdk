@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,10 +18,10 @@
 
 #include "sdk/DataPointValue.h"
 #include "sdk/Exceptions.h"
-#include "sdk/Job.h"
 #include "sdk/Logger.h"
 
 #include "sdk/middleware/Middleware.h"
+#include "sdk/vdb/grpc/common/ChannelConfiguration.h"
 #include "sdk/vdb/grpc/sdv_databroker_v1/BrokerAsyncGrpcFacade.h"
 #include "sdk/vdb/grpc/sdv_databroker_v1/GrpcDataPointValueProvider.h"
 
@@ -37,8 +37,8 @@ namespace velocitas::sdv_databroker_v1 {
 
 BrokerClient::BrokerClient(const std::string& vdbAddress, const std::string& vdbServiceName) {
     logger().info("Connecting to data broker service '{}' via '{}'", vdbServiceName, vdbAddress);
-    m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(
-        grpc::CreateChannel(vdbAddress, grpc::InsecureChannelCredentials()));
+    m_asyncBrokerFacade = std::make_shared<BrokerAsyncGrpcFacade>(grpc::CreateCustomChannel(
+        vdbAddress, grpc::InsecureChannelCredentials(), getChannelArguments()));
     Middleware::Metadata metadata = Middleware::getInstance().getMetadata(vdbServiceName);
     m_asyncBrokerFacade->setContextModifier([metadata](auto& context) {
         for (auto metadatum : metadata) {

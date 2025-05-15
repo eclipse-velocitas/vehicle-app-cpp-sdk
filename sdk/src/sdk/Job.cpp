@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,8 +18,16 @@
 
 namespace velocitas {
 
-Job::Job(std::function<void()> fun)
-    : m_fun(std::move(fun)) {}
+bool lowerJobPriority(const JobPtr_t& left, const JobPtr_t& right) {
+    return left->getTimepointToExecute() > right->getTimepointToExecute();
+}
+
+Job::Job(std::function<void()> fun, std::chrono::milliseconds delay)
+    : m_fun(std::move(fun)) {
+    if (delay > std::chrono::milliseconds::zero()) {
+        m_timepointToExecute = Clock::now() + delay;
+    }
+}
 
 void Job::waitForTermination() const { std::lock_guard lock(m_terminationMutex); }
 

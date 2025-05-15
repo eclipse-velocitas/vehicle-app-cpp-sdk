@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -44,8 +44,7 @@ template <typename TTimeBase> TTimeBase getTimestamp() {
 } // anonymous namespace
 
 PerformanceTestApp::PerformanceTestApp(std::vector<std::string> signalList)
-    : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"),
-                 velocitas::IPubSubClient::createInstance("PerformanceTestApp"))
+    : VehicleApp(velocitas::IVehicleDataBrokerClient::createInstance("vehicledatabroker"))
     , m_signalList{std::move(signalList)} {}
 
 void PerformanceTestApp::onStart() {

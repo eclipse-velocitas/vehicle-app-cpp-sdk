@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -43,7 +43,7 @@ void BrokerAsyncGrpcFacade::GetDatapoints(
     const auto grpcResultHandler = [callData, replyHandler, errorHandler](grpc::Status status) {
         try {
             if (status.ok()) {
-                replyHandler(callData->m_reply);
+                replyHandler(callData->m_response);
             } else {
                 errorHandler(status);
             };
@@ -55,8 +55,8 @@ void BrokerAsyncGrpcFacade::GetDatapoints(
 
     addActiveCall(callData);
 
-    m_stub->async()->GetDatapoints(&callData->m_context, &callData->m_request, &callData->m_reply,
-                                   grpcResultHandler);
+    m_stub->async()->GetDatapoints(&callData->m_context, &callData->m_request,
+                                   &callData->m_response, grpcResultHandler);
 }
 
 void BrokerAsyncGrpcFacade::SetDatapoints(
@@ -76,7 +76,7 @@ void BrokerAsyncGrpcFacade::SetDatapoints(
     auto grpcResultHandler = [callData, replyHandler, errorHandler](grpc::Status status) {
         try {
             if (status.ok()) {
-                replyHandler(callData->m_reply);
+                replyHandler(callData->m_response);
             } else {
                 errorHandler(status);
             };
@@ -88,8 +88,8 @@ void BrokerAsyncGrpcFacade::SetDatapoints(
 
     addActiveCall(callData);
 
-    m_stub->async()->SetDatapoints(&callData->m_context, &callData->m_request, &callData->m_reply,
-                                   grpcResultHandler);
+    m_stub->async()->SetDatapoints(&callData->m_context, &callData->m_request,
+                                   &callData->m_response, grpcResultHandler);
 }
 
 void BrokerAsyncGrpcFacade::Subscribe(

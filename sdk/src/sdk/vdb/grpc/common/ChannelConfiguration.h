@@ -14,16 +14,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "TypeConversions.h"
+#ifndef VEHICLE_APP_SDK_VDB_GRPC_COMMON_CHANNELCONFIGURATION_H
+#define VEHICLE_APP_SDK_VDB_GRPC_COMMON_CHANNELCONFIGURATION_H
 
-#include "sdk/DataPointValue.h"
-
-#include <google/protobuf/timestamp.pb.h>
+namespace grpc {
+class ChannelArguments;
+}
 
 namespace velocitas {
 
-Timestamp convertFromGrpcTimestamp(const google::protobuf::Timestamp& grpcTimestamp) noexcept {
-    return {grpcTimestamp.seconds(), grpcTimestamp.nanos()};
-}
+grpc::ChannelArguments getChannelArguments();
 
 } // namespace velocitas
+
+#endif // VEHICLE_APP_SDK_VDB_GRPC_COMMON_CHANNELCONFIGURATION_H

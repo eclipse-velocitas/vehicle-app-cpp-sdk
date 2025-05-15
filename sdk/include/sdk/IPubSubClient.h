@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -56,8 +56,8 @@ public:
      *
      * @param brokerUri address of the MQTT broker to connect to
      * @param clientId used to identify the client at the MQTT broker
-     * @param username to get access to the MQTT broker
-     * @param password to get access to the MQTT broker
+     * @param username username to get access to the MQTT broker
+     * @param password password to get access to the MQTT broker
      * @return std::shared_ptr<IPubSubClient> reference to the created MQTT client
      */
     static std::shared_ptr<IPubSubClient> createInstance(const std::string& brokerUri,

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2024-2025 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(test_package)
 
-find_package(vehicle-app-sdk QUIET)
+find_package(vehicle-app-sdk CONFIG REQUIRED)
 
 if(NOT vehicle-app-sdk_FOUND)
     message(FATAL_ERROR "This project can only be built with a 'conan create' command in the parent directory!")

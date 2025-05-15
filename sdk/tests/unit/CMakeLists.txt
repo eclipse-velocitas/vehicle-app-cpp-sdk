@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2023-2025 Contributors to the Eclipse Foundation
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -37,10 +37,6 @@ add_executable(${TARGET_NAME}
     vdb/grpc/sdv_databroker_v1/BrokerClient_tests.cpp
 )
 
-add_dependencies(${TARGET_NAME}
-    vehicle-app-sdk
-)
-
 target_link_libraries(${TARGET_NAME}
     vehicle-app-sdk
     gmock
@@ -48,10 +44,10 @@ target_link_libraries(${TARGET_NAME}
 
 include(GoogleTest)
 
-include_directories(
+target_include_directories(${TARGET_NAME}
+    PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
     ${CMAKE_CURRENT_SOURCE_DIR}/../model
-    ${CMAKE_BINARY_DIR}/gens
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
 )
 

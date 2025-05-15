@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,7 +18,7 @@
 #define VEHICLE_APP_SDK_VDB_GRPC_KUKSA_VAL_V2_BROKERASYNCGRPCFACADE_H
 
 #include "sdk/grpc/AsyncGrpcFacade.h"
-#include "sdk/grpc/GrpcClient.h"
+#include "sdk/grpc/GrpcCall.h"
 
 #include "kuksa/val/v2/val.grpc.pb.h"
 
@@ -32,7 +32,7 @@ class Status;
 
 namespace velocitas::kuksa_val_v2 {
 
-class BrokerAsyncGrpcFacade : public AsyncGrpcFacade, GrpcClient {
+class BrokerAsyncGrpcFacade : public AsyncGrpcFacade {
 public:
     explicit BrokerAsyncGrpcFacade(const std::shared_ptr<grpc::Channel>& channel);
 
@@ -40,14 +40,19 @@ public:
                    std::function<void(const kuksa::val::v2::GetValuesResponse& reply)> replyHandler,
                    std::function<void(const grpc::Status& status)> errorHandler);
 
-    void
-    Subscribe(kuksa::val::v2::SubscribeRequest                                     request,
-              std::function<void(const kuksa::val::v2::SubscribeResponse& update)> updateHandler,
-              std::function<void(const grpc::Status& status)>                      errorHandler);
+    std::shared_ptr<GrpcCall> SubscribeById(
+        kuksa::val::v2::SubscribeByIdRequest                                     request,
+        std::function<void(const kuksa::val::v2::SubscribeByIdResponse& update)> updateHandler,
+        std::function<void(const grpc::Status& status)>                          errorHandler);
 
     void BatchActuate(
         kuksa::val::v2::BatchActuateRequest                                    request,
         std::function<void(const kuksa::val::v2::BatchActuateResponse& reply)> replyHandler,
+        std::function<void(const grpc::Status& status)>                        errorHandler);
+
+    void ListMetadata(
+        kuksa::val::v2::ListMetadataRequest                                    request,
+        std::function<void(const kuksa::val::v2::ListMetadataResponse& reply)> replyHandler,
         std::function<void(const grpc::Status& status)>                        errorHandler);
 
 private:

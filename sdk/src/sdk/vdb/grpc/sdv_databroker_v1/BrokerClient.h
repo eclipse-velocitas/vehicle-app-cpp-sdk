@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2025 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -23,11 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace velocitas {
-
-class RecurringJob;
-
-namespace sdv_databroker_v1 {
+namespace velocitas::sdv_databroker_v1 {
 
 class BrokerAsyncGrpcFacade;
 
@@ -59,7 +55,6 @@ private:
     std::shared_ptr<BrokerAsyncGrpcFacade> m_asyncBrokerFacade;
 };
 
-} // namespace sdv_databroker_v1
-} // namespace velocitas
+} // namespace velocitas::sdv_databroker_v1
 
 #endif // VEHICLE_APP_SDK_BROKERCLIENT_H
