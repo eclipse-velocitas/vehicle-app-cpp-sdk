@@ -13,7 +13,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.3
+FROM ghcr.io/eclipse-velocitas/devcontainer-base-images/cpp:v0.4
 
 ARG REINSTALL_CMAKE_VERSION_FROM_SOURCE
 ENV REINSTALL_CMAKE_VERSION_FROM_SOURCE="${REINSTALL_CMAKE_VERSION_FROM_SOURCE:-none}"
