@@ -3,7 +3,7 @@
 ## Python
 | Dependency | Version | License |
 |:-----------|:-------:|--------:|
-|certifi|2025.4.26|Mozilla Public License 2.0|
+|certifi|2025.6.15|Mozilla Public License 2.0|
 |cfgv|3.4.0|MIT|
 |charset-normalizer|3.4.2|MIT|
 |colorama|0.4.6|BSD|
@@ -14,19 +14,19 @@
 |fasteners|0.19|Apache 2.0|
 |filelock|3.18.0|The Unlicense (Unlicense)|
 |gcovr|5.2|BSD|
-|identify|2.6.10|MIT|
+|identify|2.6.12|MIT|
 |idna|3.10|BSD|
 |jinja2|3.1.6|BSD|
-|lxml|5.4.0|New BSD|
+|lxml|6.0.0|New BSD|
 |MarkupSafe|3.0.2|BSD|
 |nodeenv|1.9.1|BSD|
 |patch-ng|1.18.1|MIT|
 |platformdirs|4.3.8|MIT|
 |pre-commit|3.5.0|MIT|
-|pygments|2.19.1|Simplified BSD|
+|pygments|2.19.2|Simplified BSD|
 |python-dateutil|2.9.0.post0|Apache 2.0<br/>BSD|
 |PyYAML|6.0.2|MIT|
-|requests|2.32.3|Apache 2.0|
+|requests|2.32.4|Apache 2.0|
 |six|1.17.0|MIT|
 |urllib3|2.0.7|MIT|
 |virtualenv|20.31.2|MIT|
