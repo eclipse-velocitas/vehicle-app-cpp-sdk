@@ -1,0 +1,293 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dapr-sidecar-start",
+			"detail": "Start Dapr sidecar (with dapr run) to be present for debugging the VehicleApp (used by launch config).",
+			"type": "shell",
+			"command": "velocitas exec runtime-local run-dapr-sidecar vehicleapp --dapr-grpc-port 50001 --dapr-http-port 3500",
+			"group": "none",
+			"isBackground": true,
+			"presentation": {
+				"close": true,
+				"reveal": "never"
+			},
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^You're up and running! Dapr logs will appear here.",
+					"endsPattern": "."
+				}
+			},
+			"hide": true
+		},
+		{
+			"label": "dapr-sidecar-stop",
+			"detail": "Stop Dapr sidecar after finish debugging the VehicleApp (used by launch config).",
+			"type": "shell",
+			"command": [
+				"dapr stop --app-id vehicleapp"
+			],
+			"presentation": {
+				"close": true,
+				"reveal": "never"
+			},
+			"hide": true
+		},
+		{
+			"label": "Local Runtime - Up",
+			"detail": "Starts up the local runtime",
+			"type": "shell",
+			"command": "velocitas exec runtime-local up",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Local Runtime - Run VehicleApp",
+			"detail": "Starts the VehicleApp under development (including Dapr sidecar if middleware type is Dapr)",
+			"type": "shell",
+			"command": [
+				"velocitas exec runtime-local run-vehicle-app --dapr-app-id vehicleapp ${workspaceFolder}/build/bin/app"
+			],
+			"presentation": {
+				"close": true,
+				"reveal": "never"
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Local Runtime - VehicleDataBroker CLI",
+			"detail": "Starts the VehicleDataBroker CLI",
+			"type": "shell",
+			"command": "velocitas exec runtime-local run-vehicledatabroker-cli",
+			"group": "none",
+			"isBackground": false,
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Pre Commit Action",
+			"detail": "Perform checking/formating of the code",
+			"type": "shell",
+			"command": "pre-commit run --show-diff-on-failure --color=always --all-files",
+			"group": "none",
+			"isBackground": false,
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "K3D Runtime - Up",
+			"detail": "Starts up the K3D runtime.",
+			"type": "shell",
+			"command": "velocitas exec runtime-k3d up",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "K3D Runtime - Down",
+			"detail": "Stops the K3D runtime",
+			"type": "shell",
+			"command": "velocitas exec runtime-k3d down",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "K3D Runtime - Build VehicleApp",
+			"detail": "Builds the VehicleApp and pushes it to the local K3D registry.",
+			"type": "shell",
+			"command": "velocitas exec deployment-k3d build-vehicleapp",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "K3D Runtime - Deploy VehicleApp",
+			"detail": "Builds and deploys the VehicleApp via Helm to the K3D cluster.",
+			"type": "shell",
+			"command": "velocitas exec deployment-k3d deploy-vehicleapp",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D Runtime - Up",
+				// not neccessary but is executed in parallel to Runtime - Up
+				"K3D Runtime - Build VehicleApp"
+			],
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "K3D Runtime - Deploy VehicleApp (without rebuild)",
+			"detail": "Deploys the VehicleApp via Helm to the K3D cluster (without rebuilding it)",
+			"type": "shell",
+			"command": "velocitas exec deployment-k3d deploy-vehicleapp",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"K3D Runtime - Up"
+			],
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Kanto Runtime - Up",
+			"detail": "Starts up the Kanto runtime.",
+			"type": "shell",
+			"command": "velocitas exec runtime-kanto up",
+			"group": "none",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "always",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Hint:",
+					"endsPattern": "^✅ Kanto is ready to use!.*"
+				}
+			}
+		},
+		{
+			"label": "Kanto Runtime - Down",
+			"detail": "Stops the Kanto runtime",
+			"type": "shell",
+			"command": "velocitas exec runtime-kanto down",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Kanto Runtime - Build VehicleApp",
+			"detail": "Builds the VehicleApp.",
+			"type": "shell",
+			"command": "velocitas exec deployment-kanto build-vehicleapp",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Kanto Runtime - Deploy VehicleApp",
+			"detail": "Builds and deploys the VehicleApp via Kanto-cm",
+			"type": "shell",
+			"command": "velocitas exec deployment-kanto deploy-vehicleapp",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"Kanto Runtime - Up",
+				"Kanto Runtime - Build VehicleApp"
+			],
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "Kanto Runtime - Deploy VehicleApp (without rebuild)",
+			"detail": "Deploys the VehicleApp via Kanto-cm (without rebuilding it)",
+			"type": "shell",
+			"command": "velocitas exec deployment-kanto deploy-vehicleapp",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"dependsOn": [
+				"Kanto Runtime - Up"
+			],
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "(Re-)generate vehicle model",
+			"detail": "(Re-)generates the vehicle model from source files specified in the AppManifest.",
+			"type": "shell",
+			"command": "velocitas exec vehicle-model-lifecycle generate-model",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": [ ]
+		},
+		{
+			"label": "(Re-)generate gRPC SDKs",
+			"detail": "(Re-)generates all auto-generated gRPC SDKs used by the app",
+			"type": "shell",
+			"command": "velocitas exec grpc-interface-support generate-sdk",
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+				"close": false
+			},
+			"problemMatcher": [ ]
+		}
+	],
+	"inputs": [
+		{
+			"description": "Options for example apps from SDK package.",
+			"id": "exampleApp",
+			"type": "pickString",
+			"options": [
+				"seat-adjuster"
+			],
+		}
+	]
+}

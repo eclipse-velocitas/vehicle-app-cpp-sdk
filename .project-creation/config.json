@@ -1,0 +1,33 @@
+{
+    "files": [
+        ".clang-format",
+        ".clang-tidy",
+        ".dockerignore",
+        ".gitattributes",
+        ".gitignore",
+        ".licensechecker.yml",
+        ".pre-commit-config.yaml",
+        "CPPLINT.cfg",
+        "LICENSE",
+        "NOTICE-3RD-PARTY-CONTENT.md",
+        "NOTICE.md",
+        "requirements.txt",
+        "whitelisted-licenses.txt",
+        ".project-creation/templates/.conan/profiles/linux_aarch64_debug",
+        ".project-creation/templates/.conan/profiles/linux_aarch64_release",
+        ".project-creation/templates/.conan/profiles/linux_x86_64_debug",
+        ".project-creation/templates/.conan/profiles/linux_x86_64_release",
+        ".project-creation/templates/.devcontainer/tests/automated_tests/requirements_test.py",
+        ".project-creation/templates/.devcontainer/tests/automated_tests/requirements.txt",
+        ".project-creation/templates/.devcontainer/tests/automated_tests/runtime_test.py",
+        ".project-creation/templates/.vscode/launch.json",
+        ".project-creation/templates/.vscode/tasks.json",
+        ".project-creation/templates/.vscode/c_cpp_properties.json",
+        ".project-creation/templates/.gitmodules",
+        ".project-creation/templates/build.sh",
+        ".project-creation/templates/CMakeLists.txt",
+        ".project-creation/templates/conanfile.txt",
+        ".project-creation/templates/gcovr.cfg",
+        ".project-creation/templates/install_dependencies.sh"
+    ]
+}
